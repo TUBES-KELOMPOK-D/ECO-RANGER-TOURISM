@@ -21,9 +21,3 @@ php artisan key:generate
 ```bash
 php artisan serve
 ```
-s
-
-d
-
-a   
-A
