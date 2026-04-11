@@ -44,14 +44,6 @@ class MapController extends Controller
                 'lng' => 130.25, 
                 'status' => 'green',
                 'description' => 'Surga Bawah Laut. Spot diving terbaik dunia.'
-            ],
-            [
-                'id' => 5, 
-                'name' => 'Pantai Kuta, Bali', 
-                'lat' => -8.71, 
-                'lng' => 115.16, 
-                'status' => 'red',
-                'description' => 'Area Pantau: Terdapat laporan tumpukan sampah plastik.'
             ]
         ];
         
