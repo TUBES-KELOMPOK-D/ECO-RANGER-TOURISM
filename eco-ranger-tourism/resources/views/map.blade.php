@@ -68,6 +68,7 @@ const indonesiaBounds = [
             opacity: 0.6
         });
 
+        // E. Layer Kualitas Udara (WAQI)
         const aqiLayer = L.tileLayer('https://tiles.waqi.info/tiles/usepa-aqi/{z}/{x}/{y}.png?token=bf5b26580b95f69c3c26391ca4a96dd03ffe78c0', {
             attribution: 'Air Quality Tiles © <a href="https://waqi.info">waqi.info</a>',
             opacity: 0.8 
