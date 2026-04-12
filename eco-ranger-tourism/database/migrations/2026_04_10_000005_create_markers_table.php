@@ -10,12 +10,14 @@ return new class extends Migration
     {
         Schema::create('markers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('map_layer_id')->constrained('map_layers')->onDelete('cascade');
+            $table->foreignId('map_layer_id')->nullable()->constrained('map_layers')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->string('shape_type')->default('Marker'); 
+            $table->string('status')->nullable(); 
             $table->string('title')->nullable();
-            $table->double('latitude')->nullable();
-            $table->double('longitude')->nullable();
             $table->text('description')->nullable();
+            $table->json('coordinates'); 
+            $table->double('radius')->nullable(); 
             $table->string('image_path')->nullable();
             $table->timestamps();
         });

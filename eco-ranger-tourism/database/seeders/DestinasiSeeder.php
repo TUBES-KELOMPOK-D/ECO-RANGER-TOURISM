@@ -13,7 +13,7 @@ class DestinasiSeeder extends Seeder
     public function run(): void
     {
         $destinasi = [
-            ['name' => 'Telkom University Bandung', 'description' => 'Kampus Hijau. Pusat Pendidikan Teknologi dan Lingkungan.', 'location' => 'Bandung', 'latitude' => -6.97298335888248, 'longitude' => 107.63044873089636, 'status' => 'green', ]
+            // ['name' => 'Telkom University Bandung', 'description' => 'Kampus Hijau. Pusat Pendidikan Teknologi dan Lingkungan.', 'location' => 'Bandung', 'latitude' => -6.97298335888248, 'longitude' => 107.63044873089636, 'status' => 'green', ]
         ];
 
         foreach ($destinasi as $data) {

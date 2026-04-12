@@ -25,6 +25,6 @@ Route::middleware('auth')->group(function () {
 
     // --Admin--
     Route::prefix('admin')->group(function () {
-        
+        Route::post('markers', [MapController::class, 'store'])->name('markers.store');
     });
 });
