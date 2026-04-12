@@ -115,10 +115,10 @@ const indonesiaBounds = [
                 iconAnchor: [16, 32],
             });
 
-            const marker = L.marker([loc.lat, loc.lng], { icon: customIcon }).addTo(map);
+            const marker = L.marker([loc.latitude, loc.longitude], { icon: customIcon }).addTo(map);
 
             // 3. Mengambil data cuaca secara langsung berdasarkan titik koordinat (Open-Meteo)
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lng}&current_weather=true`)
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current_weather=true`)
                 .then(response => response.json())
                 .then(data => {
                     const temp = data.current_weather.temperature;

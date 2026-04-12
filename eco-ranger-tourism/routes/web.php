@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ProfileController;
 
 // --Home--
 Route::get('/', [MapController::class, 'index']);
@@ -20,6 +21,7 @@ Route::middleware('guest')->group(function () {
 // --User--
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 
     // --Admin--
     Route::prefix('admin')->group(function () {

@@ -6,8 +6,10 @@
     <title>Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans">
-    <div class="max-w-md w-full bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+<body class="bg-slate-50">
+    <x-navbar />
+    <div class="flex-grow flex items-center justify-center p-4">
+    <div class="max-w-sm w-full bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center">
         <h2 class="text-2xl font-black text-slate-800 mb-6 text-center">Masuk ke Akun</h2>
         
         @if ($errors->any())
