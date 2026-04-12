@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -43,7 +45,41 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed', // auto-hash bcrypt
         ];
+    }
+
+    // =========================================================
+    // Relationships
+    // =========================================================
+
+    /**
+     * User memiliki banyak poin (eco points).
+     */
+    public function poin(): HasMany
+    {
+        return $this->hasMany(Poin::class, 'user_id');
+    }
+
+    /**
+     * User memiliki banyak voucher yang diredeem.
+     */
+    public function userVouchers(): HasMany
+    {
+        return $this->hasMany(UserVoucher::class, 'user_id');
+    }
+
+    // =========================================================
+    // Helper methods untuk RBAC
+    // =========================================================
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
     }
 }
