@@ -1,6 +1,6 @@
 # Eco Tourism
 
-## Cara Menjalankan (12/04/2026)
+## Cara Menjalankan (13/04/2026)
 1. Buka terminal di folder project
 ```bash
 cd eco-ranger-tourism
@@ -30,7 +30,7 @@ php artisan migrate:fresh
 
 6. Seed Database
 ```bash
-php artisan db:seed --class=AdminSeeder
+php artisan db:seed
 ```
 7. Jalankan
 ```bash
