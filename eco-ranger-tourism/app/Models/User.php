@@ -20,10 +20,13 @@ class User extends Authenticatable
      */
     protected $table = "users";
     protected $fillable = [
-        "name",
-        "email",
-        "password",
-        "role"
+        'name',
+        'email',
+        'password',
+        'role',
+        'eco_points',
+        'eco_level',
+        'photo',
     ];
 
     /**
@@ -46,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'eco_points' => 'integer',
         ];
     }
 }
