@@ -8,7 +8,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Pengaturan Profil</h1>
-                <p class="mt-2 text-sm text-slate-500">Kelola profile, foto, dan mode admin Anda.</p>
+                <p class="mt-2 text-sm text-slate-500">Kelola profil dan foto Anda.</p>
             </div>
             <a href="{{ route('profile.index') }}" class="rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">Kembali ke Profil</a>
         </div>
@@ -40,19 +40,6 @@
                         </div>
                     </div>
 
-                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-                        <div class="flex items-center justify-between gap-4">
-                            <div>
-                                <p class="text-sm font-semibold text-slate-900">Mode Admin</p>
-                                <p class="mt-1 text-sm text-slate-500">Aktifkan untuk menambah marker lokasi baru dan simpan marker secara permanen di database.</p>
-                            </div>
-                            <label class="flex items-center gap-3">
-                                <input type="checkbox" id="adminToggle" name="mode_admin" class="sr-only" {{ old('mode_admin', session('admin_mode') ? 'checked' : '') ? 'checked' : '' }} />
-                                <span class="ios-switch"></span>
-                            </label>
-                        </div>
-                    </div>
-
                     <div class="space-y-4">
                         <label class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Foto Profil</label>
                         <div class="flex items-center gap-4">
@@ -70,28 +57,21 @@
 
                     <button type="submit" class="w-full rounded-3xl bg-[#2d6a4f] px-6 py-4 text-base font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-[#244f3f]">Simpan Perubahan</button>
                 </form>
+                @if($user->photo)
+                    <form action="{{ route('profile.photo.delete') }}" method="POST" class="mt-4">
+                        @csrf
+                        <button type="submit" class="w-full rounded-3xl border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 transition hover:bg-slate-50">Hapus Foto Profil</button>
+                    </form>
+                @endif
             </div>
 
             <div class="space-y-6">
                 @if($user->role === 'admin')
-                    <div id="adminMessage" class="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-slate-900">
+                    <div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-slate-900">
                         <p class="font-semibold text-emerald-800">Akun admin terdeteksi.</p>
-                        <p class="mt-2 text-sm text-slate-600">Aktifkan mode admin di atas untuk menambahkan marker baru ke database.</p>
+                        <p class="mt-2 text-sm text-slate-600">Anda memiliki akses admin. Marker hanya dapat ditambahkan lewat halaman admin.</p>
                     </div>
                 @endif
-
-                <div id="markerPanel" class="rounded-3xl border border-slate-200 bg-slate-50 p-6 {{ $user->role !== 'admin' || !session('admin_mode') ? 'hidden' : '' }}">
-                    <h2 class="text-xl font-semibold text-slate-900">Tambah Marker Lokasi</h2>
-                    <form action="{{ route('markers.store') }}" method="POST" class="mt-6 space-y-4">
-                        @csrf
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <input type="text" name="latitude" placeholder="Latitude" class="rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-toscagreen focus:ring-2 focus:ring-toscagreen/10" required>
-                            <input type="text" name="longitude" placeholder="Longitude" class="rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-toscagreen focus:ring-2 focus:ring-toscagreen/10" required>
-                        </div>
-                        <textarea name="description" rows="3" placeholder="Deskripsi lokasi" class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-toscagreen focus:ring-2 focus:ring-toscagreen/10" required></textarea>
-                        <button type="submit" class="w-full rounded-3xl bg-[#2d6a4f] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-[#244f3f]">Tambah Marker</button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
@@ -108,7 +88,7 @@
         </div>
         <div class="mt-6 space-y-4 text-sm leading-6 text-slate-600">
             <p><strong>Eco-Ranger</strong> adalah level untuk pengguna yang aktif melaporkan isu lingkungan dan mendukung konservasi. Kamu dapat menambah laporan dan ikut pelestarian.</p>
-            <p>Dengan catatan aksi dan laporan, poin eco akan meningkat. Gunakan mode admin hanya ketika menambah marker lokasi.</p>
+            <p>Dengan catatan aksi dan laporan, poin eco akan meningkat. Hak akses admin sudah dipisah di backend, sehingga marker hanya dapat ditambahkan oleh admin.</p>
         </div>
         <div class="mt-6 text-right">
             <button id="closeGuideFooter" class="rounded-3xl bg-toscagreen px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#244f3f]">Tutup</button>

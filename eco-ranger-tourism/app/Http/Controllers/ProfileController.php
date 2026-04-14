@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -28,33 +28,37 @@ class ProfileController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'max:2048'],
-            'mode_admin' => ['nullable', 'boolean'],
         ]);
 
         $user = auth()->user();
         $user->name = $request->name;
 
         if ($request->hasFile('photo')) {
+            $this->deleteOldPhoto($user);
             $path = $request->file('photo')->store('profiles', 'public');
             $user->photo = $path;
         }
 
         $user->save();
-        session(['admin_mode' => $request->boolean('mode_admin')]);
 
         return redirect()->route('profile.settings')->with('success', 'Profil berhasil disimpan.');
     }
 
-    public function uploadPhoto(Request $request)
+    public function deletePhoto(Request $request)
     {
-        $request->validate(['photo' => ['required', 'image', 'max:2048']]);
-
-        $path = $request->file('photo')->store('profiles', 'public');
         $user = auth()->user();
-        $user->photo = $path;
+        $this->deleteOldPhoto($user);
+        $user->photo = null;
         $user->save();
 
-        return back()->with('success', 'Foto profil berhasil diunggah.');
+        return back()->with('success', 'Foto profil berhasil dihapus.');
+    }
+
+    private function deleteOldPhoto($user): void
+    {
+        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+            Storage::disk('public')->delete($user->photo);
+        }
     }
 
     protected function nextLevelInfo(int $points): array
