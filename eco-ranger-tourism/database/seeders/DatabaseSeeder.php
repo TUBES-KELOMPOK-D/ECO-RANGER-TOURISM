@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Database\Seeders\AdminSeeder;
 use Database\Seeders\DestinasiSeeder;
+use Database\Seeders\GreenAcademySeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,7 +18,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(AdminSeeder::class);
         // $this->call(DestinasiSeeder::class);
-
-
+        $this->call(GreenAcademySeeder::class);
     }
 }

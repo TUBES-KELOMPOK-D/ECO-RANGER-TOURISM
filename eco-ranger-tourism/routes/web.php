@@ -5,9 +5,16 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\GreenAcademyController;
 
 // --Home--
 Route::get('/', [MapController::class, 'index']);
+
+// --Green Academy (publik bisa lihat materi, kuis butuh auth)--
+Route::get('/akademi', [GreenAcademyController::class, 'index'])->name('akademi.index');
+Route::get('/akademi/materi/{slug}', [GreenAcademyController::class, 'showMaterial'])->name('akademi.show');
+Route::get('/akademi/kuis/{material_id}', [GreenAcademyController::class, 'showQuiz'])->name('akademi.quiz');
+Route::post('/akademi/kuis/{material_id}', [GreenAcademyController::class, 'submitQuiz'])->name('akademi.submit');
 
 // --Public--
 Route::middleware('guest')->group(function () { 
