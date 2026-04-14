@@ -15,6 +15,7 @@
                     <a href="/" class="px-4 py-2 rounded-xl text-sm font-bold transition-all bg-emerald-50 text-emerald-700 decoration-transparent">Beranda</a>
                     <a href="/aksi" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-800 hover:bg-slate-50 decoration-transparent">Aksi</a>
                     <a href="/peringkat" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-800 hover:bg-slate-50 decoration-transparent">Peringkat</a>
+                    <a href="/reports" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-800 hover:bg-slate-50 decoration-transparent">Laporan</a>
                     <a href="/akademi" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-800 hover:bg-slate-50 decoration-transparent">Akademi</a>
                     
                     <div class="h-6 w-px bg-slate-200 mx-2"></div>
@@ -26,9 +27,23 @@
                 @endif
 
                 @auth
-                    <a href="/profile" class="ml-4 w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 transition-all bg-emerald-100 text-emerald-700 border-emerald-500 hover:scale-110 decoration-transparent">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                    </a>
+                    <div class="relative group ml-4">
+                        <button class="w-10 h-10 rounded-full overflow-hidden border-2 transition-all bg-emerald-100 text-emerald-700 border-emerald-500 hover:scale-110 focus:outline-none">
+                            @if(auth()->user()->photo)
+                                <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Foto Profil" class="h-full w-full object-cover" />
+                            @else
+                                <span class="inline-flex h-full w-full items-center justify-center font-bold">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
+                            @endif
+                        </button>
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <a href="/profile" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50 rounded-t-2xl">Profil Saya</a>
+                            <a href="/profile/settings" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Pengaturan</a>
+                            <form action="{{ route('logout') }}" method="POST" class="border-t border-slate-100">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-3 text-sm font-semibold text-red-700 hover:bg-red-50 rounded-b-2xl transition">Logout</button>
+                            </form>
+                        </div>
+                    </div>
                 @else
                     <div class="flex items-center gap-2 ml-4">
                         <a href="/login" class="px-5 py-2.5 rounded-full font-bold text-sm transition-all text-slate-600 hover:bg-slate-100 decoration-transparent">
@@ -80,11 +95,26 @@
             <div class="pt-4 border-t border-slate-50">
                 @auth
                     <a href="/profile" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold bg-slate-50 text-slate-700 hover:bg-slate-100 transition-all">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs bg-emerald-100 text-emerald-700">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                        <div class="w-8 h-8 rounded-lg overflow-hidden bg-emerald-100">
+                            @if(auth()->user()->photo)
+                                <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Foto Profil" class="h-full w-full object-cover" />
+                            @else
+                                <div class="flex h-full w-full items-center justify-center text-xs font-bold text-emerald-700">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+                            @endif
                         </div>
                         Profil Saya
                     </a>
+                    <a href="/profile/settings" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24M19.78 19.78l-4.24-4.24m-2.12-2.12l-4.24-4.24"/></svg>
+                        Pengaturan
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST" class="w-full">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-red-700 hover:bg-red-50 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            Logout
+                        </button>
+                    </form>
                 @else
                     <div class="flex flex-col gap-2">
                         <a href="/register" class="text-center w-full p-4 rounded-2xl font-bold bg-slate-900 text-white hover:bg-slate-800 transition-all decoration-transparent">
