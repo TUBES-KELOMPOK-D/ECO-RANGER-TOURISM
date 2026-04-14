@@ -5,9 +5,17 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 
 // --Home--
 Route::get('/', [MapController::class, 'index']);
+
+// --Feature--
+Route::get('/pelaporan', function () {
+    return view('eco-reporter');
+})->name('eco-reporter');
+
+Route::post('/pelaporan', [ReportController::class, 'store'])->name('pelaporan.store');
 
 // --Public--
 Route::middleware('guest')->group(function () { 
