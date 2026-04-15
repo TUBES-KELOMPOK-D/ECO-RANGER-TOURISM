@@ -5,6 +5,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RankingController;
+use App\Http\Controllers\EcoRankingController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\AdminMiddleware;
@@ -12,8 +13,9 @@ use App\Http\Middleware\AdminMiddleware;
 // --Home--
 Route::get('/', [MapController::class, 'index']);
 
-// --Rankings (Public)--
-Route::get('/peringkat', [RankingController::class, 'index'])->name('peringkat.index');
+// --Eco Rankings (Complete Feature)--
+Route::get('/eco-rankings', [EcoRankingController::class, 'index'])->name('eco.rankings');
+Route::get('/peringkat', [EcoRankingController::class, 'index'])->name('peringkat.index');
 Route::get('/peringkat/dashboard', [RankingController::class, 'dashboard'])->name('peringkat.dashboard');
 Route::get('/api/peringkat/leaderboard', [RankingController::class, 'getLeaderboardJson'])->name('peringkat.leaderboard.json');
 Route::get('/api/peringkat/point-rules', [RankingController::class, 'getPointRulesJson'])->name('peringkat.rules.json');

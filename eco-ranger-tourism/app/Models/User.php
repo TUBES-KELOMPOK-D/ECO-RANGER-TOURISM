@@ -78,6 +78,57 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user's forum posts
+     */
+    public function forumPosts()
+    {
+        return $this->hasMany(ForumDiskusi::class);
+    }
+
+    /**
+     * Get user's shared content
+     */
+    public function sharedContents()
+    {
+        return $this->hasMany(SharedContent::class);
+    }
+
+    /**
+     * Get user's event participations
+     */
+    public function eventParticipations()
+    {
+        return $this->belongsToMany(Event::class, 'participant_events');
+    }
+
+    /**
+     * Calculate total points from all activities (REAL-TIME from database)
+     */
+    public function getTotalPointsAttribute()
+    {
+        $points = 0;
+
+        // +10 points for each report
+        $points += $this->reports()->count() * 10;
+
+        // +50 points for each event participation
+        $points += $this->eventParticipations()->count() * 50;
+
+        // +5 points for each verified report (by the user who reported it)
+        $points += $this->reports()
+            ->where('status', 'diverifikasi')
+            ->count() * 5;
+
+        // +15 points for each forum post
+        $points += $this->forumPosts()->count() * 15;
+
+        // +20 points for each shared content
+        $points += $this->sharedContents()->count() * 20;
+
+        return $points;
+    }
+
+    /**
      * Calculate eco level based on points
      */
     public function calculateEcoLevel()
