@@ -52,4 +52,12 @@ class User extends Authenticatable
             'eco_points' => 'integer',
         ];
     }
+
+    /**
+     * Event yang diikuti oleh user ini.
+     */
+    public function participatedEvents()
+    {
+        return $this->belongsToMany(Event::class, 'participant_events', 'user_id', 'event_id');
+    }
 }
