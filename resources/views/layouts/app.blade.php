@@ -64,7 +64,7 @@
     @unless(request()->routeIs('profile.settings'))
         <x-navbar />
     @endunless
-    <main class="min-h-screen {{ request()->routeIs('profile.settings') ? 'pt-0' : 'pt-28' }}">
+    <main class="min-h-screen {{ request()->routeIs('profile.settings') || request()->routeIs('academy.*') ? 'pt-0' : 'pt-28' }}">
         @yield('content')
     </main>
     @stack('scripts')

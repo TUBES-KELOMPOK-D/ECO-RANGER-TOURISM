@@ -13,7 +13,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(GreenTourSeeder::class);
+        $this->call([
+            GreenTourSeeder::class,
+            GreenAcademySeeder::class,
+        ]);
         // $this->call(DestinasiSeeder::class);
     }
 }
