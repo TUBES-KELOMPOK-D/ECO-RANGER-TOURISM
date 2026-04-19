@@ -109,6 +109,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user's academy progress records.
+     */
+    public function academyProgress()
+    {
+        return $this->hasMany(UserProgress::class);
+    }
+
+    /**
      * Calculate total points from all activities (REAL-TIME from database)
      */
     public function getTotalPointsAttribute()
@@ -142,15 +150,15 @@ class User extends Authenticatable
     {
         $points = $this->eco_points ?? 0;
 
-        if ($points >= 2400) {
-            return 'ECO-RANGER';
-        } elseif ($points >= 2000) {
-            return 'ECO-WARRIOR';
-        } elseif ($points >= 1000) {
-            return 'ECO-LEADER';
-        } else {
-            return 'ECO-MEMBER';
+        if ($points >= 1500) {
+            return 'Eco-Hero';
         }
+
+        if ($points >= 500) {
+            return 'Eco-Ranger';
+        }
+
+        return 'Eco-Newbie';
     }
 
     /**

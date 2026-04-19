@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\EcoRankingController;
+use App\Http\Controllers\GreenAcademyController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\AdminMiddleware;
@@ -28,6 +29,17 @@ Route::middleware('guest')->group(function () {
     
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+});
+
+Route::prefix('academy')->group(function () {
+    Route::get('/', [GreenAcademyController::class, 'index'])->name('academy.index');
+    Route::get('/materi/{id}', [GreenAcademyController::class, 'show'])->name('academy.show');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/kuis/{id}', [GreenAcademyController::class, 'quiz'])->name('academy.quiz');
+        Route::post('/kuis/{id}', [GreenAcademyController::class, 'submitQuiz'])->name('academy.submit');
+        Route::get('/hasil/{id}', [GreenAcademyController::class, 'result'])->name('academy.result');
+    });
 });
 
 // --User--
