@@ -301,6 +301,7 @@ const indonesiaBounds = [
                     console.error('Error dari server:', err);
                     throw new Error('Server error');
                 }
+                window.location.reload();
                 return res.json();
             })
             .catch(err => {
