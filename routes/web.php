@@ -30,6 +30,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 });
 
+// --Feature--
+Route::get('/pelaporan', function () {
+    return view('eco-reporter');
+})->name('eco-reporter');
+
+Route::post('/pelaporan', [ReportController::class, 'store'])->name('pelaporan.store');
+
 // --User--
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
