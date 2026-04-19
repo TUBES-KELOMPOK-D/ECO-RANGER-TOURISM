@@ -38,8 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/settings', [ProfileController::class, 'update'])->name('profile.settings.update');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-
-<<<<<<< PBI-13
+ 
     // ── Aksi / Event ──────────────────────────────────────────────
     Route::get('/aksi', [EventController::class, 'index'])->name('aksi.index');
 
@@ -61,11 +60,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/aksi/{event}/chat/{message}/delete', [EventController::class, 'deleteMessage'])->name('aksi.chat.delete');
     });
     // ─────────────────────────────────────────────────────────────
-=======
+
     // --Achievements--
     Route::get('/pencapaian/{user}', [RankingController::class, 'achievements'])->name('pencapaian.index');
     Route::get('/api/user/pencapaian/{user}', [RankingController::class, 'getUserAchievementsJson'])->name('user.pencapaian.json');
->>>>>>> main
 
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
         Route::post('/markers', [MapController::class, 'store'])->name('markers.store');
