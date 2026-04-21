@@ -15,7 +15,6 @@
                     <a href="/" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('/') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Beranda</a>
                     <a href="/aksi" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('aksi') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Aksi</a>
                     <a href="/peringkat" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('peringkat') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Peringkat</a>
-                    <a href="/reports" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('reports') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Laporan</a>
                     <a href="{{ route('academy.index') }}" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->routeIs('academy.*') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Akademi</a>
                     <div class="h-6 w-px bg-slate-200 mx-2"></div>
                     
