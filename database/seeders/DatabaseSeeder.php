@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             GreenTourSeeder::class,
             GreenAcademySeeder::class,
+            MarkerDetailSeeder::class,
         ]);
         // $this->call(DestinasiSeeder::class);
     }

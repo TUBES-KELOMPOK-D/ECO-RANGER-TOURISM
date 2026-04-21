@@ -11,5 +11,7 @@ class Marker extends Model
     protected $casts = [
         'coordinates' => 'array',
         'radius' => 'float',
+        'eco_rules' => 'array',
+        'eco_health_score' => 'float',
     ];
 }

@@ -8,12 +8,16 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\EcoRankingController;
 use App\Http\Controllers\GreenAcademyController;
+use App\Http\Controllers\MarkerDetailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\AdminMiddleware;
 
 // --Home--
 Route::get('/', [MapController::class, 'index']);
+
+// --Detail Lokasi (public)--
+Route::get('/markers/{marker}', [MarkerDetailController::class, 'show'])->name('markers.show');
 
 // --Eco Rankings (Complete Feature)--
 Route::get('/eco-rankings', [EcoRankingController::class, 'index'])->name('eco.rankings');
@@ -79,6 +83,9 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
         Route::post('/markers', [MapController::class, 'store'])->name('markers.store');
+        Route::get('/markers/{marker}/edit', [MapController::class, 'edit'])->name('markers.edit');
+        Route::post('/markers/{marker}/update', [MapController::class, 'update'])->name('markers.update');
+        Route::post('/markers/{marker}/delete', [MapController::class, 'destroy'])->name('markers.destroy');
     });
 
     Route::post('/profile/photo/delete', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
