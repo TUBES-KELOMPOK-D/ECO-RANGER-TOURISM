@@ -6,11 +6,11 @@
                 <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12"/></svg>
                 </div>
-                <span class="text-xl font-black tracking-tighter text-slate-800">Eco<span class="text-emerald-600"> Ranger Tourism</span></span>
+                <!-- Judul dinamis, jika layar semakin kecil maka judul akan hilang -->
+                <span class="text-xl font-black tracking-tighter text-slate-800 md:block hidden">Eco<span class="text-emerald-600"> Ranger Tourism</span></span>
             </a>
 
             <div class="hidden md:flex items-center gap-1 lg:gap-4">
-                {{-- Sembunyikan menu ini jika berada di halaman login atau register --}}
                 @if(!request()->is('login') && !request()->is('register'))
                     <a href="/" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('/') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Beranda</a>
                     <a href="/aksi" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('aksi') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Aksi</a>

@@ -22,6 +22,24 @@
     <div id="searchBar">
         <ul id="searchResults" class="hidden"></ul>
         <div class="search-wrapper">
+            <div id="filterWrapper">
+                <button id="filterToggleBtn" title="Filter Status">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    <span id="filterDot" class="hidden"></span>
+                </button>
+                <div id="filterDropdown" class="hidden">
+                    <p>Filter Status</p>
+                    <ul>
+                        <li data-value="all" class="active">Semua</li>
+                        <li data-value="green">🟢 Sangat Terjaga</li>
+                        <li data-value="yellow">🟡 Terjaga</li>
+                        <li data-value="red">🔴 Perlu Perhatian</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="search-divider"></div>
             <input type="text" id="mapSearchInput" placeholder="Cari area">
             <button id="searchBtn">Cari</button>
         </div>
@@ -151,10 +169,10 @@
 
             if (shapeType === 'Marker') {
                 const customIcon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: `<div class="custom-marker" style="background-color:${color};"></div>`,
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 32],
+                    className: '',
+                    html: `<div class="custom-marker-wrapper"><div class="custom-marker" style="background-color:${color};"></div></div>`,
+                    iconSize: [34, 40],
+                    iconAnchor: [17, 38],
                 });
                 layer = L.marker([coordinates[0], coordinates[1]], { icon: customIcon }).addTo(map);
                 buildPopupWithWeather(coordinates[0], coordinates[1], layer, item, color);
@@ -231,9 +249,9 @@
                     <input type="text" id="inputTitle" placeholder="Judul" class="w-full mb-2 p-1 border rounded" />
                     <textarea id="inputDesc" placeholder="Deskripsi" class="w-full mb-2 p-1 border rounded"></textarea>
                     <select id="inputStatus" class="w-full mb-2 p-1 border rounded">
-                        <option value="green">Aman (Hijau)</option>
-                        <option value="yellow">Waspada (Kuning)</option>
-                        <option value="red">Bahaya (Merah)</option>
+                        <option value="green">Sangat Terjaga (Hijau)</option>
+                        <option value="yellow">Terjaga (Kuning)</option>
+                        <option value="red">Perlu Perhatian (Merah)</option>
                     </select>
                     <button onclick="saveShape('${shapeType}', this)"
                             data-coords='${safeCoords}'
@@ -356,6 +374,57 @@
         document.addEventListener('click', e => {
             if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                 searchResults.classList.add('hidden');
+            }
+        });
+
+        // 7. Filter Berdasarkan Status
+        const filterToggleBtn  = document.getElementById('filterToggleBtn');
+        const filterDropdown   = document.getElementById('filterDropdown');
+        const filterDot        = document.getElementById('filterDot');
+        const filterItems      = filterDropdown.querySelectorAll('li');
+        let   activeFilter     = 'all';
+
+        filterToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterDropdown.classList.toggle('hidden');
+            // Close search results if open
+            searchResults.classList.add('hidden');
+        });
+
+        filterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                filterItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                activeFilter = item.getAttribute('data-value');
+
+                // Show/hide dot indicator
+                if (activeFilter !== 'all') {
+                    filterDot.classList.remove('hidden');
+                } else {
+                    filterDot.classList.add('hidden');
+                }
+
+                // Apply filter on searchableFeatures
+                searchableFeatures.forEach(feature => {
+                    if (activeFilter === 'all' || feature.status === activeFilter) {
+                        if (!map.hasLayer(feature.layer)) {
+                            feature.layer.addTo(map);
+                        }
+                    } else {
+                        if (map.hasLayer(feature.layer)) {
+                            map.removeLayer(feature.layer);
+                        }
+                    }
+                });
+
+                filterDropdown.classList.add('hidden');
+            });
+        });
+
+        // Close filter dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!filterToggleBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
+                filterDropdown.classList.add('hidden');
             }
         });
     </script>

@@ -13,13 +13,35 @@ body {
     z-index: 0;
 }
 
-.custom-marker {
-    width: 32px;
-    height: 32px;
-    border-radius: 12px;
-    border: 4px solid white;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+.custom-marker-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
+
+.custom-marker {
+    width: 28px;
+    height: 28px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28), 0 1px 4px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+/* White dot inside pin */
+.custom-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 9px;
+    height: 9px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+}
+
 
 /* ====== SEARCH BAR BOTTOM ====== */
 
@@ -34,13 +56,119 @@ body {
 
 #searchBar .search-wrapper {
     display: flex;
+    align-items: center;
     border-radius: 14px;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.10);
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1.5px solid rgba(255, 255, 255, 0.7);
+}
+
+/* ====== FILTER BUTTON ====== */
+
+#filterWrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+#filterToggleBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 46px;
+    height: 46px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    transition: color 0.2s, background 0.2s;
+    border-radius: 14px 0 0 14px;
+}
+
+#filterToggleBtn svg {
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+#filterToggleBtn:hover {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.07);
+}
+
+/* Active filter dot indicator */
+#filterDot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    border: 1.5px solid white;
+}
+
+/* Filter dropdown */
+#filterDropdown {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    min-width: 160px;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 12px;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.08);
+    border: 1.5px solid rgba(255,255,255,0.7);
+    overflow: hidden;
+    z-index: 2000;
+}
+
+#filterDropdown p {
+    margin: 0;
+    padding: 10px 14px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+}
+
+#filterDropdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 6px 0;
+}
+
+#filterDropdown ul li {
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+#filterDropdown ul li:hover {
+    background: #f0fdf4;
+    color: #059669;
+}
+
+#filterDropdown ul li.active {
+    background: #ecfdf5;
+    color: #059669;
+    font-weight: 700;
+}
+
+/* Divider between filter btn and search input */
+.search-divider {
+    width: 1px;
+    height: 24px;
+    background: #e2e8f0;
+    flex-shrink: 0;
 }
 
 #mapSearchInput {
@@ -70,6 +198,8 @@ body {
     transition: background 0.2s;
     white-space: nowrap;
     flex-shrink: 0;
+    border-radius: 0 14px 14px 0;
+    height: 46px;
 }
 
 #searchBtn:hover {
