@@ -46,6 +46,26 @@
             zoomControl: true
         });
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnTo = urlParams.get('return_to');
+        const selectLocation = urlParams.get('select_location') === '1';
+
+        if (selectLocation && returnTo) {
+            const infoControl = L.control({ position: 'topright' });
+            infoControl.onAdd = function () {
+                const container = L.DomUtil.create('div', 'rounded-full bg-slate-900/90 text-white px-4 py-2 text-sm font-semibold shadow-xl');
+                container.innerHTML = 'Tap peta untuk pilih lokasi';
+                return container;
+            };
+            infoControl.addTo(map);
+
+            map.on('click', function (e) {
+                const lat = e.latlng.lat.toFixed(5);
+                const lng = e.latlng.lng.toFixed(5);
+                window.location.href = `${returnTo}?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lng)}`;
+            });
+        }
+
         // 2. Layer Peta
         const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'

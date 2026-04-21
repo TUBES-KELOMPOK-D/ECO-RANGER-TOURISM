@@ -11,6 +11,7 @@ use App\Http\Controllers\GreenAcademyController;
 use App\Http\Controllers\MarkerDetailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\EcoReporterController;
 use App\Http\Middleware\AdminMiddleware;
 
 // --Home--
@@ -25,6 +26,11 @@ Route::get('/peringkat', [EcoRankingController::class, 'index'])->name('peringka
 Route::get('/peringkat/dashboard', [RankingController::class, 'dashboard'])->name('peringkat.dashboard');
 Route::get('/api/peringkat/leaderboard', [RankingController::class, 'getLeaderboardJson'])->name('peringkat.leaderboard.json');
 Route::get('/api/peringkat/point-rules', [RankingController::class, 'getPointRulesJson'])->name('peringkat.rules.json');
+
+// --Eco Reporter--
+Route::get('/pelaporan', [EcoReporterController::class, 'create'])->name('reports.create');
+Route::post('/pelaporan', [EcoReporterController::class, 'store'])->name('reports.store');
+Route::get('/pelaporan/berhasil', [EcoReporterController::class, 'success'])->name('reports.success');
 
 // --Public--
 Route::middleware('guest')->group(function () { 
