@@ -14,25 +14,12 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EcoReporterController;
 use App\Http\Middleware\AdminMiddleware;
 
+// ========================================================PUBLIK BISA AKSES=============================================================================
+
 // --Home--
 Route::get('/', [MapController::class, 'index']);
 
-// --Detail Lokasi (public)--
-Route::get('/markers/{marker}', [MarkerDetailController::class, 'show'])->name('markers.show');
-
-// --Eco Rankings (Complete Feature)--
-Route::get('/eco-rankings', [EcoRankingController::class, 'index'])->name('eco.rankings');
-Route::get('/peringkat', [EcoRankingController::class, 'index'])->name('peringkat.index');
-Route::get('/peringkat/dashboard', [RankingController::class, 'dashboard'])->name('peringkat.dashboard');
-Route::get('/api/peringkat/leaderboard', [RankingController::class, 'getLeaderboardJson'])->name('peringkat.leaderboard.json');
-Route::get('/api/peringkat/point-rules', [RankingController::class, 'getPointRulesJson'])->name('peringkat.rules.json');
-
-// --Eco Reporter--
-Route::get('/pelaporan', [EcoReporterController::class, 'create'])->name('reports.create');
-Route::post('/pelaporan', [EcoReporterController::class, 'store'])->name('reports.store');
-Route::get('/pelaporan/berhasil', [EcoReporterController::class, 'success'])->name('reports.success');
-
-// --Public--
+// --Auth--
 Route::middleware('guest')->group(function () { 
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
@@ -41,58 +28,81 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 });
 
+// --Detail Lokasi--
+Route::get('/markers/{marker}', [MarkerDetailController::class, 'show'])->name('markers.show');
+
+// --Rankings--
+Route::get('/eco-rankings', [EcoRankingController::class, 'index'])->name('eco.rankings');
+Route::get('/peringkat', [EcoRankingController::class, 'index'])->name('peringkat.index');
+Route::get('/peringkat/dashboard', [RankingController::class, 'dashboard'])->name('peringkat.dashboard');
+Route::get('/api/peringkat/leaderboard', [RankingController::class, 'getLeaderboardJson'])->name('peringkat.leaderboard.json');
+Route::get('/api/peringkat/point-rules', [RankingController::class, 'getPointRulesJson'])->name('peringkat.rules.json');
+
+// --Reporter--
+Route::prefix('pelaporan')->group(function () {
+    Route::get('/', [EcoReporterController::class, 'create'])->name('reports.create');
+    Route::post('/', [EcoReporterController::class, 'store'])->name('reports.store');
+    Route::get('/berhasil', [EcoReporterController::class, 'success'])->name('reports.success');
+});
+
+// --Akademi--
 Route::prefix('academy')->group(function () {
     Route::get('/', [GreenAcademyController::class, 'index'])->name('academy.index');
     Route::get('/materi/{id}', [GreenAcademyController::class, 'show'])->name('academy.show');
+});
 
-    Route::middleware('auth')->group(function () {
+// ========================================================HARUS LOGIN=============================================================================
+
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // -- Profile --
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
+        Route::get('/settings', [ProfileController::class, 'settings'])->name('profile.settings');
+        Route::post('/settings', [ProfileController::class, 'update'])->name('profile.settings.update');
+        Route::post('/photo/delete', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
+    });
+
+    // --Reporter--
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    // -- Akademi --
+    Route::prefix('academy')->group(function () {
         Route::get('/kuis/{id}', [GreenAcademyController::class, 'quiz'])->name('academy.quiz');
         Route::post('/kuis/{id}', [GreenAcademyController::class, 'submitQuiz'])->name('academy.submit');
         Route::get('/hasil/{id}', [GreenAcademyController::class, 'result'])->name('academy.result');
     });
-});
-
-// --User--
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-    Route::get('/profile/settings', [ProfileController::class, 'settings'])->name('profile.settings');
-    Route::post('/profile/settings', [ProfileController::class, 'update'])->name('profile.settings.update');
-
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
  
-    // ── Aksi / Event ──────────────────────────────────────────────
-    Route::get('/aksi', [EventController::class, 'index'])->name('aksi.index');
-
-    // Regular user: join & leave event
-    Route::post('/aksi/{event}/join',  [EventController::class, 'join'])->name('aksi.join');
-    Route::post('/aksi/{event}/leave', [EventController::class, 'leave'])->name('aksi.leave');
-
-    // Chat grup event (hanya setelah join)
-    Route::get('/aksi/{event}/chat',       [EventController::class, 'chat'])->name('aksi.chat');
-    Route::post('/aksi/{event}/chat/send', [EventController::class, 'sendMessage'])->name('aksi.chat.send');
-
-    // Admin: CRUD event & kelola anggota
-    Route::middleware(AdminMiddleware::class)->group(function () {
-        Route::post('/aksi',                           [EventController::class, 'store'])->name('aksi.store');
-        Route::post('/aksi/{event}/update',            [EventController::class, 'update'])->name('aksi.update');
-        Route::post('/aksi/{event}/delete',            [EventController::class, 'destroy'])->name('aksi.destroy');
-        Route::post('/aksi/{event}/members/{user_id}/remove', [EventController::class, 'removeMember'])->name('aksi.removeMember');
-        // Admin: delete chat message
-        Route::post('/aksi/{event}/chat/{message}/delete', [EventController::class, 'deleteMessage'])->name('aksi.chat.delete');
+    // -- Aksi / Event --
+    Route::prefix('aksi')->group(function () {
+        Route::get('/', [EventController::class, 'index'])->name('aksi.index');
+        Route::post('/{event}/join',  [EventController::class, 'join'])->name('aksi.join');
+        Route::post('/{event}/leave', [EventController::class, 'leave'])->name('aksi.leave');
+        Route::get('/{event}/chat', [EventController::class, 'chat'])->name('aksi.chat');
+        Route::post('/{event}/chat/send', [EventController::class, 'sendMessage'])->name('aksi.chat.send');
     });
-    // ─────────────────────────────────────────────────────────────
 
     // --Achievements--
     Route::get('/pencapaian/{user}', [RankingController::class, 'achievements'])->name('pencapaian.index');
     Route::get('/api/user/pencapaian/{user}', [RankingController::class, 'getUserAchievementsJson'])->name('user.pencapaian.json');
 
+
+    // -- ADMIN TARUH SINI --
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
+        // -- Markers --
         Route::post('/markers', [MapController::class, 'store'])->name('markers.store');
         Route::get('/markers/{marker}/edit', [MapController::class, 'edit'])->name('markers.edit');
         Route::post('/markers/{marker}/update', [MapController::class, 'update'])->name('markers.update');
         Route::post('/markers/{marker}/delete', [MapController::class, 'destroy'])->name('markers.destroy');
+
+        // -- Aksi / Event (CRUD & kelola anggota) --
+        Route::post('/aksi', [EventController::class, 'store'])->name('aksi.store');
+        Route::post('/aksi/{event}/update', [EventController::class, 'update'])->name('aksi.update');
+        Route::post('/aksi/{event}/delete', [EventController::class, 'destroy'])->name('aksi.destroy');
+        Route::post('/aksi/{event}/members/{user_id}/remove', [EventController::class, 'removeMember'])->name('aksi.removeMember');
+        Route::post('/aksi/{event}/chat/{message}/delete', [EventController::class, 'deleteMessage'])->name('aksi.chat.delete');
     });
 
-    Route::post('/profile/photo/delete', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
+    
 });

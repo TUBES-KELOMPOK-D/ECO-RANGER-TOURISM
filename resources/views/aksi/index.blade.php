@@ -590,14 +590,14 @@ function openEditModal(id, name, description, date, location, organizer) {
     document.getElementById('edit-date').value        = date;
     document.getElementById('edit-location').value    = location;
     document.getElementById('edit-organizer').value   = organizer;
-    document.getElementById('form-edit-event').action = '/aksi/' + id + '/update';
+    document.getElementById('form-edit-event').action = '/admin/aksi/' + id + '/update';
     openModal('modal-edit-event');
 }
 
 // ── Admin: Konfirmasi Hapus Event ──────────────────────────────
 function confirmDelete(id, name) {
     document.getElementById('delete-event-name').textContent  = name;
-    document.getElementById('form-delete-event').action = '/aksi/' + id + '/delete';
+    document.getElementById('form-delete-event').action = '/admin/aksi/' + id + '/delete';
     openModal('modal-delete-event');
 }
 
@@ -627,7 +627,7 @@ function openMembersModal(eventId, eventName) {
                             <p class="text-sm font-bold text-slate-800">${member.name}</p>
                         </div>
                     </div>
-                    <form method="POST" action="/aksi/${eventId}/members/${member.id}/remove" onsubmit="return confirm('Hapus ${member.name} dari event ini?')">
+                    <form method="POST" action="/admin/aksi/${eventId}/members/${member.id}/remove" onsubmit="return confirm('Hapus ${member.name} dari event ini?')">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <button type="submit"
                             class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">
