@@ -2,122 +2,91 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\PointCalculationService;
 use App\Models\User;
 use App\Models\Report;
+use App\Models\Event;
 use App\Models\ForumDiskusi;
 use App\Models\SharedContent;
-use App\Models\Event;
 use Illuminate\Support\Facades\Auth;
 
 class EcoRankingController extends Controller
 {
+    protected $pointService;
+
+    public function __construct(PointCalculationService $pointService)
+    {
+        $this->pointService = $pointService;
+    }
+
     public function index()
     {
-        // Ambil hanya user biasa (bukan admin) dan hitung poin mereka
-        $users = User::where('role', 'user')->get()->map(function ($user) {
-            $totalPoints = $this->calculateUserPoints($user);
-            $user->total_points = $totalPoints;
-            $user->level = $this->calculateLevel($totalPoints);
-            return $user;
-        });
-
-        // Urutkan berdasarkan poin tertinggi
-        $sortedUsers = $users->sortByDesc('total_points')->values();
-
+        // Ambil semua user dengan poin dari service (SATU-SATUNYA sumber)
+        $usersWithPoints = $this->pointService->getAllUsersWithPoints();
+        
         // Top 3 untuk podium
-        $topThree = $sortedUsers->take(3);
-
+        $topThree = $usersWithPoints->take(3);
+        
         // Leaderboard (semua user)
-        $leaderboard = $sortedUsers;
-
+        $leaderboard = $usersWithPoints;
+        
         // Posisi user saat ini
         $currentUser = Auth::user();
         $currentUserRank = null;
-        $currentUserPoints = 0;
-
+        $currentUserData = null;
+        
         if ($currentUser) {
-            $currentUserPoints = $this->calculateUserPoints($currentUser);
-            
-            foreach ($sortedUsers as $index => $user) {
-                if ($user->id === $currentUser->id) {
+            foreach ($usersWithPoints as $index => $userData) {
+                if ($userData->id === $currentUser->id) {
                     $currentUserRank = $index + 1;
+                    $currentUserData = $userData;
                     break;
                 }
             }
         }
-
-        // Badges hanya untuk user yang login
-        $badges = $this->calculateBadges($currentUser);
-
+        
+        // Data untuk user yang login (badges, dll)
+        $badges = [];
+        $currentUserPoints = 0;
+        if ($currentUser) {
+            $badges = $this->getUserBadges($currentUser);
+            if ($currentUserData) {
+                $currentUserPoints = $currentUserData->total_points;
+            }
+        }
+        
         return view('eco-rankings', compact(
             'topThree', 
             'leaderboard', 
             'currentUserRank', 
-            'currentUserPoints', 
+            'currentUserPoints',
             'badges'
         ));
     }
-
+    
     /**
-     * Calculate total points untuk user berdasarkan aktivitas
+     * API endpoint untuk ambil data leaderboard (jika perlu AJAX)
      */
-    private function calculateUserPoints($user)
+    public function getLeaderboardData()
     {
-        $points = 0;
-
-        // Laporan: +10 per laporan (user_id match)
-        $reports = Report::where('user_id', $user->id)->count();
-        $points += $reports * 10;
-
-        // Event Participants: +50 per event
-        $eventParticipants = Event::whereHas('participants', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })->count();
-        $points += $eventParticipants * 50;
-
-        // Verifikasi Laporan: +5 per laporan yang status='diverifikasi' (dibuat oleh user)
-        $verifiedReports = Report::where('user_id', $user->id)
-            ->where('status', 'diverifikasi')
-            ->count();
-        $points += $verifiedReports * 5;
-
-        // Forum Posts: +15 per post
-        $forumPosts = ForumDiskusi::where('user_id', $user->id)->count();
-        $points += $forumPosts * 15;
-
-        // Shared Contents: +20 per share
-        $sharedContents = SharedContent::where('user_id', $user->id)->count();
-        $points += $sharedContents * 20;
-
-        return $points;
+        $usersWithPoints = $this->pointService->getAllUsersWithPoints();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $usersWithPoints
+        ]);
     }
-
+    
     /**
-     * Tentukan level berdasarkan total poin
+     * Hitung badge progress user
      */
-    private function calculateLevel($points)
+    private function getUserBadges($user)
     {
-        if ($points <= 100) {
-            return 'Eco-Newbie';
-        } elseif ($points <= 500) {
-            return 'Eco-Warrior';
-        } else {
-            return 'Eco-Ranger';
-        }
-    }
-
-    /**
-     * Calculate badges untuk user yang login
-     */
-    private function calculateBadges($user)
-    {
-        if (!$user) return [];
-
         $badges = [];
-
-        // 1. Plastic Hunter: Lapor 10 sampah
+        
+        // Plastic Hunter: 10 laporan sampah
         $plasticReports = Report::where('user_id', $user->id)->count();
-        $badges[] = [
+        $badges['plastic_hunter'] = [
             'name' => 'Plastic Hunter',
             'icon' => '🪣',
             'target' => 'Lapor 10 tumpukan sampah',
@@ -125,12 +94,12 @@ class EcoRankingController extends Controller
             'max' => 10,
             'progress' => min(100, ($plasticReports / 10) * 100)
         ];
-
-        // 2. Tree Hugger: Ikut 5 event
+        
+        // Tree Hugger: 5 event
         $treeEvents = Event::whereHas('participants', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         })->count();
-        $badges[] = [
+        $badges['tree_hugger'] = [
             'name' => 'Tree Hugger',
             'icon' => '🌳',
             'target' => 'Ikut 5 aksi komunitas',
@@ -138,12 +107,12 @@ class EcoRankingController extends Controller
             'max' => 5,
             'progress' => min(100, ($treeEvents / 5) * 100)
         ];
-
-        // 3. Turtle Saver: Verifikasi 3 laporan (laporan user dengan status diverifikasi)
+        
+        // Turtle Saver: laporan yang diverifikasi
         $verifiedReports = Report::where('user_id', $user->id)
             ->where('status', 'diverifikasi')
             ->count();
-        $badges[] = [
+        $badges['turtle_saver'] = [
             'name' => 'Turtle Saver',
             'icon' => '🐢',
             'target' => 'Verifikasi 3 laporan',
@@ -151,10 +120,10 @@ class EcoRankingController extends Controller
             'max' => 3,
             'progress' => min(100, ($verifiedReports / 3) * 100)
         ];
-
-        // 4. Eco-Speaker: 20 postingan forum
+        
+        // Eco-Speaker: 20 postingan forum
         $forumPosts = ForumDiskusi::where('user_id', $user->id)->count();
-        $badges[] = [
+        $badges['eco_speaker'] = [
             'name' => 'Eco-Speaker',
             'icon' => '💬',
             'target' => '20 postingan forum',
@@ -162,10 +131,10 @@ class EcoRankingController extends Controller
             'max' => 20,
             'progress' => min(100, ($forumPosts / 20) * 100)
         ];
-
-        // 5. Green Influencer: 10 konten dibagikan
+        
+        // Green Influencer: 10 konten dibagikan
         $sharedContents = SharedContent::where('user_id', $user->id)->count();
-        $badges[] = [
+        $badges['green_influencer'] = [
             'name' => 'Green Influencer',
             'icon' => '📸',
             'target' => '10 konten dibagikan',
@@ -173,7 +142,7 @@ class EcoRankingController extends Controller
             'max' => 10,
             'progress' => min(100, ($sharedContents / 10) * 100)
         ];
-
+        
         return $badges;
     }
 }
