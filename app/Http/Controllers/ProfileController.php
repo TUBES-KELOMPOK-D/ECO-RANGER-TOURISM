@@ -15,7 +15,14 @@ class ProfileController extends Controller
             ? round((($user->eco_points - $nextLevel['current']) / ($nextLevel['required'] - $nextLevel['current'])) * 100)
             : 100;
 
-        return view('Profile.index', compact('user', 'nextLevel', 'progress'));
+        $latestReport = $user->ecoReports()
+            ->orderByDesc('report_date')
+            ->orderByDesc('created_at')
+            ->first();
+
+        $reportCount = $user->ecoReports()->count();
+
+        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'latestReport', 'reportCount'));
     }
 
     public function settings()

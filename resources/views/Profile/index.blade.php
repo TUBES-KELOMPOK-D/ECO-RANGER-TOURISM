@@ -46,6 +46,48 @@
         </div>
 
         <div class="rounded-3xl bg-white p-8 shadow-soft border border-slate-200">
+            @php
+                $statusLabels = [
+                    'menunggu' => 'Baru',
+                    'diverifikasi' => 'Diproses',
+                    'diterima' => 'Selesai',
+                    'ditolak' => 'Ditolak',
+                ];
+            @endphp
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Laporan Terbaru</h2>
+                    <p class="mt-2 text-sm text-slate-500">Lihat laporan terakhir yang kamu kirim dan status terkininya.</p>
+                </div>
+                <a href="{{ route('reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Lihat Semua Laporan</a>
+            </div>
+
+            @if(isset($latestReport) && $latestReport)
+                <div class="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{{ $latestReport->category }}</p>
+                            <p class="mt-3 text-2xl font-bold text-slate-900">{{ $latestReport->title }}</p>
+                            <p class="mt-3 text-sm text-slate-600">{{ $latestReport->description ?: 'Tidak ada deskripsi tambahan.' }}</p>
+                        </div>
+                        <span class="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] {{ $latestReport->status === 'menunggu' ? 'bg-yellow-100 text-yellow-700' : ($latestReport->status === 'diverifikasi' ? 'bg-sky-100 text-sky-700' : ($latestReport->status === 'diterima' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) }}">
+                            {{ $statusLabels[$latestReport->status] ?? ucfirst($latestReport->status) }}
+                        </span>
+                    </div>
+                    <div class="mt-5 grid gap-3 sm:grid-cols-3 text-sm text-slate-600">
+                        <div class="rounded-3xl bg-white/90 p-4">Tanggal: {{ $latestReport->report_date->format('Y-m-d') }}</div>
+                        <div class="rounded-3xl bg-white/90 p-4">Lokasi: {{ number_format($latestReport->latitude, 3) }}, {{ number_format($latestReport->longitude, 3) }}</div>
+                        <div class="rounded-3xl bg-white/90 p-4">Jumlah Laporan: {{ $reportCount }}</div>
+                    </div>
+                </div>
+            @else
+                <div class="mt-8 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+                    Belum ada laporan isu. Mulai kirim laporan untuk memantau statusnya di profil ini.
+                </div>
+            @endif
+        </div>
+
+        <div class="rounded-3xl bg-white p-8 shadow-soft border border-slate-200">
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <h2 class="text-2xl font-extrabold text-slate-900">Aksi yang Diikuti</h2>

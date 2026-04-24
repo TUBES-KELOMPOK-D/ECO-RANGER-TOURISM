@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Report;
+use App\Models\EcoReportSubmission;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -10,9 +10,11 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status');
+        $user = $request->user();
 
-        $reports = Report::with('user')
+        $reports = EcoReportSubmission::with('user')
             ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($user->role !== 'admin', fn ($query) => $query->where('user_id', $user->id))
             ->orderByDesc('report_date')
             ->get();
 
