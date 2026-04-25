@@ -103,6 +103,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/aksi/{event}/delete', [EventController::class, 'destroy'])->name('aksi.destroy');
         Route::post('/aksi/{event}/members/{user_id}/remove', [EventController::class, 'removeMember'])->name('aksi.removeMember');
         Route::post('/aksi/{event}/chat/{message}/delete', [EventController::class, 'deleteMessage'])->name('aksi.chat.delete');
+
+        // -- Reports (Admin CRUD) --
+        Route::get('/reports/{report}/edit', [ReportController::class, 'edit'])->name('admin.reports.edit');
+        Route::post('/reports/{report}/update', [ReportController::class, 'update'])->name('admin.reports.update');
+        Route::delete('/reports/{report}/delete', [ReportController::class, 'destroy'])->name('admin.reports.delete');
     });
 
     
