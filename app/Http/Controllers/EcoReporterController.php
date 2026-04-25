@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EcoReportSubmission;
 use Illuminate\Http\Request;
+use App\Services\RankingService;
 
 class EcoReporterController extends Controller
 {
@@ -49,7 +50,7 @@ class EcoReporterController extends Controller
         $report->save();
 
         if (auth()->check()) {
-            auth()->user()->addEcoPoints(10);
+            RankingService::addPoints(auth()->user(), 'report_issue', null, 'Laporan: ' . $report->title);
         }
 
         return redirect()->route('reports.success');

@@ -17,31 +17,7 @@ class PointCalculationService
      */
     public function calculateTotalPoints(User $user): int
     {
-        $points = 0;
-
-        // 1. Laporan Isu Lingkungan: +10 per laporan
-        $points += count($user->reports) * 10;
-
-        // 2. Ikut Aksi Komunitas: +50 per event
-        $points += count($user->eventParticipations) * 50;
-
-        // 3. Verifikasi Laporan: +5 per verifikasi
-        // Catatan: Menggunakan 'status' = 'diverifikasi' karena tabel tidak memiliki 'verified_by'
-        $points += $user->reports()->where('status', 'diverifikasi')->count() * 5;
-
-        // 4. Diskusi Forum: +15 per post
-        $points += count($user->forumPosts) * 15;
-
-        // 5. Quiz/Green Academy: poin sesuai score (maks 20 per kuis)
-        $quizResults = $user->academyProgress;
-        foreach ($quizResults as $result) {
-            $points += min($result->score ?? 0, 20); // maks 20 poin per kuis
-        }
-
-        // 6. Bagikan Konten: +20 per share
-        $points += count($user->sharedContents) * 20;
-
-        return $points;
+        return (int) $user->eco_points;
     }
 
     /**
@@ -98,20 +74,20 @@ class PointCalculationService
      */
     public function getAllUsersWithPoints(): \Illuminate\Support\Collection
     {
-        // Hanya ambil user dengan peran 'user'
-        $users = User::where('role', 'user')->get();
+        // Hanya ambil user dengan peran 'user', urutkan berdasarkan eco_points
+        $users = User::where('role', 'user')->orderBy('eco_points', 'desc')->get();
         
         return $users->map(function ($user) {
-            $points = $this->calculateTotalPoints($user);
+            $points = (int) $user->eco_points;
             return (object) [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'avatar' => $user->photo ?? null, // dari 'photo' di DB
+                'avatar' => $user->photo ?? null, 
                 'total_points' => $points,
-                'level' => $this->calculateLevel($points),
+                'level' => $user->eco_level ?? $this->calculateLevel($points),
                 'progress' => $this->calculateProgress($points)
             ];
-        })->sortByDesc('total_points')->values();
+        });
     }
 }

@@ -16,30 +16,7 @@ class LeaderboardService
      */
     public function calculateUserPoints(User $user): int
     {
-        $points = 0;
-
-        // Laporan: +10 per laporan
-        $points += $user->reports()->count() * 10;
-
-        // Event: +50 per partisipasi (melalui tabel pivot participant_events)
-        $points += $user->eventParticipations()->count() * 50;
-
-        // Verifikasi: +5 per verifikasi (karena 'verified_by' mungkin tidak ada, gunakan status = diverifikasi sebagai ganti sementara)
-        $points += $user->reports()->where('status', 'diverifikasi')->count() * 5;
-
-        // Forum: +15 per post
-        $points += $user->forumPosts()->count() * 15;
-
-        // Quiz: sesuai score (maks 20 per quiz)
-        $quizResults = $user->academyProgress;
-        foreach ($quizResults as $result) {
-            $points += min($result->score ?? 0, 20);
-        }
-
-        // Share: +20 per konten
-        $points += $user->sharedContents()->count() * 20;
-
-        return $points;
+        return (int) $user->eco_points;
     }
 
     /**
@@ -57,35 +34,25 @@ class LeaderboardService
      */
     public function getLeaderboard(int $perPage = 10): LengthAwarePaginator
     {
-        // Ambil semua user dengan role user
-        $users = User::where('role', 'user')->orWhereNull('role')->get();
-        if ($users->isEmpty()) {
-            $users = User::all();
-        }
-        
-        // Hitung poin untuk setiap user
+        $users = User::where(function($query) {
+                $query->where('role', 'user')->orWhereNull('role');
+            })
+            ->orderBy('eco_points', 'desc')
+            ->get();
+            
         $leaderboardData = [];
-        foreach ($users as $user) {
-            $points = $this->calculateUserPoints($user);
+        foreach ($users as $index => $user) {
+            $points = (int) $user->eco_points;
             $leaderboardData[] = (object) [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'avatar' => $user->photo ?? null, // Menggunakan kolom photo karena avatar tidak ada
+                'avatar' => $user->photo ?? null, 
                 'total_points' => $points,
-                'level' => $this->getLevel($points),
-                'role' => $user->role ?? 'user'
+                'level' => $user->eco_level ?? $this->getLevel($points),
+                'role' => $user->role ?? 'user',
+                'rank' => $index + 1
             ];
-        }
-
-        // Urutkan berdasarkan poin tertinggi
-        usort($leaderboardData, function($a, $b) {
-            return $b->total_points <=> $a->total_points;
-        });
-
-        // Tambahkan rank ke setiap user
-        foreach ($leaderboardData as $index => $user) {
-            $user->rank = $index + 1;
         }
 
         // Konversi ke pagination

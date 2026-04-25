@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\EventMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\RankingService;
 
 class EventController extends Controller
 {
@@ -140,6 +141,15 @@ class EventController extends Controller
 
         if (!$event->isJoinedBy($user->id)) {
             $event->participants()->attach($user->id);
+
+            // Cek apakah user sudah pernah dapat poin dari event ini sebelumnya
+            $hasEarned = \App\Models\PointLedger::where('user_id', $user->id)
+                ->where('description', 'like', '%(ID: ' . $event->id . ')%')
+                ->exists();
+
+            if (!$hasEarned) {
+                RankingService::addPoints($user, 'community_action', null, 'Bergabung ke event: ' . $event->name . ' (ID: ' . $event->id . ')');
+            }
         }
 
         return redirect()->route('aksi.index')->with('success', 'Berhasil bergabung ke event "' . $event->name . '"!');
