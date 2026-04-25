@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\UserAchievement;
+use App\Models\PointLedger;
 use Illuminate\Support\Carbon;
 
 class RankingService
@@ -98,11 +99,20 @@ class RankingService
     /**
      * Add points to user
      */
-    public static function addPoints(User $user, $pointType, $amount = null)
+    public static function addPoints(User $user, $pointType, $amount = null, $description = null)
     {
         $points = $amount ?? self::POINT_RULES[$pointType] ?? 0;
         
         if ($points > 0) {
+            // Log to ledger
+            PointLedger::create([
+                'user_id' => $user->id,
+                'points' => $points,
+                'type' => 'earning',
+                'description' => $description ?? 'Earning from ' . $pointType,
+            ]);
+
+            // Add points to user
             $user->addEcoPoints($points);
         }
 
