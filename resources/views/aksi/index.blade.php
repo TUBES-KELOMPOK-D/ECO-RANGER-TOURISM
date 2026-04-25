@@ -618,10 +618,20 @@
                 <div id="detail-description" class="text-sm text-slate-600 leading-relaxed max-h-40 overflow-y-auto pr-2"></div>
             </div>
             
-            <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-2 text-sm text-slate-500 font-semibold">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    <span id="detail-participants-count"></span> Peserta Bergabung
+            <div class="mt-6 pt-5 border-t border-slate-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2 text-sm text-slate-500 font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span id="detail-participants-count"></span> Peserta Bergabung
+                    </div>
+                </div>
+                
+                {{-- Container for Participant List (Visible to array members/admin) --}}
+                <div id="detail-participants-container" class="hidden">
+                    <p class="text-xs font-bold text-slate-800 mb-3">Daftar Peserta</p>
+                    <div id="detail-participants-list" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                        {{-- Injected by JS --}}
+                    </div>
                 </div>
             </div>
         </div>
@@ -630,6 +640,7 @@
 
 {{-- Data event untuk Modals (Detail & Kelola Anggota, dapat diakses publik/user regular untuk detail) --}}
 @php
+    $isAdmin = auth()->check() && auth()->user()->role === 'admin';
     $allEventsJson = $events->map(function ($e) {
         return [
             'id'                 => $e->id,
@@ -640,6 +651,7 @@
             'participants_count' => $e->participants_count,
             'description'        => $e->description ?? '',
             'image_url'          => $e->image_path ? asset('storage/' . $e->image_path) : null,
+            'is_joined'          => $e->is_joined ?? false,
             'participants'       => $e->participants->map(function ($p) {
                 return ['id' => $p->id, 'name' => $p->name];
             })->values(),
@@ -648,6 +660,7 @@
 @endphp
 <script>
 const eventsData = @json($allEventsJson);
+const currentUserIsAdmin = @json($isAdmin);
 </script>
 
 @endsection
@@ -686,6 +699,32 @@ function openDetailModal(id) {
     }
 
     document.getElementById('detail-participants-count').textContent = eventObj.participants_count;
+
+    // Handle participants list visibility
+    const participantsContainer = document.getElementById('detail-participants-container');
+    const participantsList = document.getElementById('detail-participants-list');
+    
+    if (currentUserIsAdmin || eventObj.is_joined) {
+        participantsContainer.classList.remove('hidden');
+        participantsList.innerHTML = '';
+        if (eventObj.participants && eventObj.participants.length > 0) {
+            eventObj.participants.forEach(member => {
+                const initials = member.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+                participantsList.innerHTML += `
+                    <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                        <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px] flex items-center justify-center flex-shrink-0">
+                            ${initials}
+                        </div>
+                        <p class="text-xs font-bold text-slate-800 truncate" title="${member.name}">${member.name}</p>
+                    </div>
+                `;
+            });
+        } else {
+            participantsList.innerHTML = '<p class="text-xs text-slate-400 italic col-span-2">Belum ada peserta.</p>';
+        }
+    } else {
+        participantsContainer.classList.add('hidden');
+    }
 
     const imgEl = document.getElementById('detail-image');
     const placeholderEl = document.getElementById('detail-placeholder');
