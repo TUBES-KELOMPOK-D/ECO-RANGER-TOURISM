@@ -28,7 +28,7 @@ class ProfileController extends Controller
 
         $reportCount = $user->ecoReports()->count();
 
-        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'latestReport', 'reportCount'));
+        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'latestReport', 'reportCount', 'totalPoints'));
     }
 
     public function settings()
