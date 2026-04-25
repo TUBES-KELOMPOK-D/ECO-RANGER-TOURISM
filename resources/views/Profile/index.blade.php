@@ -63,5 +63,10 @@
             </div>
         </div>
     </div>
+
+    {{-- Daftar Laporan Eco Reporter (Read-Only) --}}
+    <div class="rounded-3xl bg-white p-8 shadow-soft border border-slate-200 mt-8">
+        @include('Profile._eco_reports', ['ecoReports' => $ecoReports])
+    </div>
 </div>
 @endsection

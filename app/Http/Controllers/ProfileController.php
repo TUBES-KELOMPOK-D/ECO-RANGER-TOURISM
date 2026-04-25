@@ -15,7 +15,12 @@ class ProfileController extends Controller
             ? round((($user->eco_points - $nextLevel['current']) / ($nextLevel['required'] - $nextLevel['current'])) * 100)
             : 100;
 
-        return view('Profile.index', compact('user', 'nextLevel', 'progress'));
+        // Ambil laporan Eco Reporter milik user
+        $ecoReports = \App\Models\EcoReportSubmission::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'ecoReports'));
     }
 
     public function settings()
