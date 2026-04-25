@@ -52,7 +52,7 @@ class EcoReporterController extends Controller
             auth()->user()->addEcoPoints(10);
         }
 
-        return redirect()->route('reports.success');
+        return redirect()->route('profile.index')->with('success', 'Laporan berhasil dikirim. Lihat status laporan di Profil Anda.');
     }
 
     public function success()

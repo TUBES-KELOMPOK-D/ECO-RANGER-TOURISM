@@ -85,6 +85,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user's eco issue reports
+     */
+    public function ecoReports()
+    {
+        return $this->hasMany(EcoReportSubmission::class);
+    }
+
+    /**
      * Get user's forum posts
      */
     public function forumPosts()
