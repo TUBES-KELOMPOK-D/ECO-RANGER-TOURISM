@@ -6,7 +6,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\RankingController;
-use App\Http\Controllers\EcoRankingController;
+use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\GreenAcademyController;
 use App\Http\Controllers\MarkerDetailController;
 use App\Http\Controllers\Auth\LoginController;
@@ -31,12 +31,13 @@ Route::middleware('guest')->group(function () {
 // --Detail Lokasi--
 Route::get('/markers/{marker}', [MarkerDetailController::class, 'show'])->name('markers.show');
 
-// --Rankings--
-Route::get('/eco-rankings', [EcoRankingController::class, 'index'])->name('eco.rankings');
-Route::get('/peringkat', [EcoRankingController::class, 'index'])->name('peringkat.index');
-Route::get('/peringkat/dashboard', [RankingController::class, 'dashboard'])->name('peringkat.dashboard');
-Route::get('/api/peringkat/leaderboard', [RankingController::class, 'getLeaderboardJson'])->name('peringkat.leaderboard.json');
-Route::get('/api/peringkat/point-rules', [RankingController::class, 'getPointRulesJson'])->name('peringkat.rules.json');
+// --Rankings (PBI-17)--
+Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');
+Route::get('/api/leaderboard', [LeaderboardController::class, 'apiLeaderboard'])->name('api.leaderboard');
+
+// Redirect halaman leaderboard lama ke yang baru
+Route::redirect('/peringkat', '/leaderboard', 301);
+Route::redirect('/eco-rankings', '/leaderboard', 301);
 
 // --Reporter--
 Route::prefix('pelaporan')->group(function () {

@@ -70,20 +70,21 @@ class RankingService
      */
     public static function getTopRankers($limit = 10)
     {
-        return User::orderBy('eco_points', 'desc')
-            ->take($limit)
-            ->get()
-            ->map(function ($user, $index) {
-                return [
-                    'rank' => $index + 1,
-                    'user' => $user,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'initials' => $user->getInitialsAttribute(),
-                    'points' => $user->eco_points ?? 0,
-                    'level' => $user->eco_level ?? $user->calculateEcoLevel(),
-                ];
-            });
+        $pointService = app(\App\Services\LeaderboardService::class);
+        $usersWithPoints = $pointService->getLeaderboard($limit);
+
+        return collect($usersWithPoints->items())->map(function ($userData, $index) {
+            $user = User::find($userData->id);
+            return [
+                'rank' => $index + 1,
+                'user' => $user,
+                'name' => $userData->name,
+                'email' => $userData->email,
+                'initials' => $user ? $user->getInitialsAttribute() : '',
+                'points' => $userData->total_points,
+                'level' => $userData->level,
+            ];
+        });
     }
 
     /**
@@ -91,8 +92,7 @@ class RankingService
      */
     public static function getUserRank(User $user)
     {
-        return User::where('eco_points', '>', $user->eco_points)
-            ->count() + 1;
+        return $user->rank;
     }
 
     /**
@@ -203,8 +203,8 @@ class RankingService
     {
         $skip = ($page - 1) * $limit;
         
-        $total = User::count();
-        $users = self::getTopRankers(1000);
+        $total = User::where('role', 'user')->count();
+        $users = self::getTopRankers($total);
 
         return [
             'total' => $total,

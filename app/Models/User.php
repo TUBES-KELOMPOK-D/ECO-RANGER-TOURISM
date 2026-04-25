@@ -129,26 +129,7 @@ class User extends Authenticatable
      */
     public function getTotalPointsAttribute()
     {
-        $points = 0;
-
-        // +10 points for each report
-        $points += $this->reports()->count() * 10;
-
-        // +50 points for each event participation
-        $points += $this->eventParticipations()->count() * 50;
-
-        // +5 points for each verified report (by the user who reported it)
-        $points += $this->reports()
-            ->where('status', 'diverifikasi')
-            ->count() * 5;
-
-        // +15 points for each forum post
-        $points += $this->forumPosts()->count() * 15;
-
-        // +20 points for each shared content
-        $points += $this->sharedContents()->count() * 20;
-
-        return $points;
+        return app(\App\Services\LeaderboardService::class)->calculateUserPoints($this);
     }
 
     /**
@@ -156,17 +137,7 @@ class User extends Authenticatable
      */
     public function calculateEcoLevel()
     {
-        $points = $this->eco_points ?? 0;
-
-        if ($points >= 1500) {
-            return 'Eco-Hero';
-        }
-
-        if ($points >= 500) {
-            return 'Eco-Ranger';
-        }
-
-        return 'Eco-Newbie';
+        return app(\App\Services\LeaderboardService::class)->getLevel($this->total_points);
     }
 
     /**
@@ -174,8 +145,8 @@ class User extends Authenticatable
      */
     public function getRankAttribute()
     {
-        return self::where('eco_points', '>', $this->eco_points)
-            ->count() + 1;
+        $rank = app(\App\Services\LeaderboardService::class)->getUserRank($this);
+        return $rank ?? 1;
     }
 
     /**
