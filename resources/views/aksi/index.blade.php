@@ -133,16 +133,28 @@
 {{-- ═══════════════════════════════════════════════════════════
      FLASH MESSAGES
 ══════════════════════════════════════════════════════════════ --}}
-@if(session('success') || session('error'))
+@if(session('success') || session('error') || $errors->any())
 <div class="max-w-6xl mx-auto px-4 sm:px-6 mt-6">
     @if(session('success'))
-    <div class="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4 text-emerald-800 text-sm font-semibold shadow-sm">
+    <div class="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4 text-emerald-800 text-sm font-semibold shadow-sm mb-4">
         <span class="text-lg">✅</span> {{ session('success') }}
     </div>
     @endif
     @if(session('error'))
-    <div class="flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 px-5 py-4 text-rose-800 text-sm font-semibold shadow-sm">
+    <div class="flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 px-5 py-4 text-rose-800 text-sm font-semibold shadow-sm mb-4">
         <span class="text-lg">⚠️</span> {{ session('error') }}
+    </div>
+    @endif
+    @if($errors->any())
+    <div class="flex flex-col gap-2 rounded-2xl bg-rose-50 border border-rose-200 px-5 py-4 text-rose-800 text-sm font-semibold shadow-sm mb-4">
+        <div class="flex items-center gap-2">
+            <span class="text-lg">⚠️</span> <span>Terdapat kesalahan input:</span>
+        </div>
+        <ul class="list-disc list-inside ml-7">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
     </div>
     @endif
 </div>
@@ -237,57 +249,61 @@
         <div class="event-card rounded-3xl bg-white border border-slate-100 overflow-hidden shadow-sm animate-fadeinup"
              style="animation-delay: {{ $index * 0.07 }}s">
 
-            {{-- Event Image --}}
-            @if($event->image_path)
-                <img src="{{ asset('storage/' . $event->image_path) }}"
-                     alt="{{ $event->name }}" class="event-img" />
-            @else
-                <div class="event-img-placeholder">🌿</div>
-            @endif
-
-            <div class="p-5">
-                {{-- Header --}}
-                <div class="flex items-start justify-between gap-2">
-                    <div class="flex-1 min-w-0">
-                        <h2 class="text-base font-extrabold text-slate-900 leading-snug truncate">
-                            {{ $event->name }}
-                        </h2>
-                        <p class="text-xs text-emerald-700 font-semibold mt-0.5">
-                            {{ $event->organizer ?? 'Eco Ranger Tourism' }}
-                        </p>
-                    </div>
-                    {{-- Joined badge --}}
-                    @auth
-                        @if(auth()->user()->role !== 'admin' && $event->is_joined)
-                        <span class="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">✓ Joined</span>
-                        @endif
-                    @endauth
-                </div>
-
-                {{-- Meta Info --}}
-                <div class="mt-4 space-y-2">
-                    <div class="flex items-center gap-2 text-xs text-slate-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        <span>{{ $event->event_date ? $event->event_date->isoFormat('D MMMM YYYY') : '-' }}</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-slate-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span class="truncate">{{ $event->location ?? 'Lokasi belum ditentukan' }}</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-slate-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>{{ $event->participants_count }} Peserta</span>
-                    </div>
-                </div>
-
-                {{-- Description --}}
-                @if($event->description)
-                <p class="mt-3 text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                    {{ $event->description }}
-                </p>
+            {{-- Wrap content in a clickable area for detail view --}}
+            <div class="cursor-pointer group" onclick="openDetailModal({{ $event->id }})">
+                {{-- Event Image --}}
+                @if($event->image_path)
+                    <img src="{{ asset('storage/' . $event->image_path) }}"
+                         alt="{{ $event->name }}" class="event-img" />
+                @else
+                    <div class="event-img-placeholder group-hover:scale-105 transition-transform">🌿</div>
                 @endif
 
-                {{-- ── CTA Buttons ── --}}
+                <div class="p-5 pb-0">
+                    {{-- Header --}}
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <h2 class="text-base font-extrabold text-slate-900 leading-snug truncate group-hover:text-emerald-600 transition-colors">
+                                {{ $event->name }}
+                            </h2>
+                            <p class="text-xs text-emerald-700 font-semibold mt-0.5">
+                                {{ $event->organizer ?? 'Eco Ranger Tourism' }}
+                            </p>
+                        </div>
+                        {{-- Joined badge --}}
+                        @auth
+                            @if(auth()->user()->role !== 'admin' && $event->is_joined)
+                            <span class="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">✓ Joined</span>
+                            @endif
+                        @endauth
+                    </div>
+
+                    {{-- Meta Info --}}
+                    <div class="mt-4 space-y-2">
+                        <div class="flex items-center gap-2 text-xs text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span>{{ $event->event_date ? $event->event_date->isoFormat('D MMMM YYYY') : '-' }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span class="truncate">{{ $event->location ?? 'Lokasi belum ditentukan' }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <span>{{ $event->participants_count }} Peserta</span>
+                        </div>
+                    </div>
+
+                    {{-- Description --}}
+                    @if($event->description)
+                    <p class="mt-3 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {{ $event->description }}
+                    </p>
+                    @endif
+                </div>
+            </div>
+
+            <div class="p-5 pt-2">
                 @auth
                     {{-- ═══ ADMIN CTA ═══ --}}
                     @if(auth()->user()->role === 'admin')
@@ -546,25 +562,93 @@
 @endif
 @endauth
 
-{{-- Data anggota event (untuk modal admin — dikirim lewat JS) --}}
-@auth
-@if(auth()->user()->role === 'admin')
+{{-- ═══════════════════════════════════════════════════════════
+     MODAL: DETAIL EVENT (Semua User)
+══════════════════════════════════════════════════════════════ --}}
+<div id="modal-detail-event" class="modal-overlay" onclick="closeOnBackdrop(event, 'modal-detail-event')">
+    <div class="modal-box p-0 overflow-hidden" style="max-width:540px">
+        <div id="detail-image-container" class="w-full h-48 flex items-center justify-center relative bg-gradient-to-br from-emerald-50 to-teal-100">
+            <button onclick="closeModal('modal-detail-event')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/70 backdrop-blur-sm text-slate-800 flex items-center justify-center hover:bg-white shadow-sm transition z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <img id="detail-image" src="" alt="" class="w-full h-full object-cover hidden">
+            <div id="detail-placeholder" class="text-5xl hidden">🌿</div>
+        </div>
+        <div class="p-6">
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <div>
+                    <h3 id="detail-name" class="text-2xl font-black text-slate-900 leading-tight"></h3>
+                    <p id="detail-organizer" class="text-sm font-bold text-emerald-600 mt-1"></p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="mt-0.5 text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Tanggal</p>
+                        <p id="detail-date" class="text-xs font-bold text-slate-700"></p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="mt-0.5 text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Lokasi</p>
+                        <p id="detail-location" class="text-xs font-bold text-slate-700"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold text-slate-800 mb-2">Penyelenggara</p>
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <span id="detail-organizer-small" class="text-sm font-semibold text-slate-700"></span>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100">
+                <p class="text-xs font-bold text-slate-800 mb-2">Tentang Event Ini</p>
+                <div id="detail-description" class="text-sm text-slate-600 leading-relaxed max-h-40 overflow-y-auto pr-2"></div>
+            </div>
+            
+            <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-slate-500 font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span id="detail-participants-count"></span> Peserta Bergabung
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Data event untuk Modals (Detail & Kelola Anggota, dapat diakses publik/user regular untuk detail) --}}
 @php
-    $eventsJson = $events->map(function ($e) {
+    $allEventsJson = $events->map(function ($e) {
         return [
-            'id'           => $e->id,
-            'name'         => $e->name,
-            'participants' => $e->participants->map(function ($p) {
+            'id'                 => $e->id,
+            'name'               => $e->name,
+            'event_date'         => $e->event_date ? $e->event_date->isoFormat('D MMMM YYYY') : '-',
+            'location'           => $e->location ?? 'Lokasi belum ditentukan',
+            'organizer'          => $e->organizer ?? 'Eco Ranger Tourism',
+            'participants_count' => $e->participants_count,
+            'description'        => $e->description ?? '',
+            'image_url'          => $e->image_path ? asset('storage/' . $e->image_path) : null,
+            'participants'       => $e->participants->map(function ($p) {
                 return ['id' => $p->id, 'name' => $p->name];
             })->values(),
         ];
     })->values();
 @endphp
 <script>
-const eventsData = @json($eventsJson);
+const eventsData = @json($allEventsJson);
 </script>
-@endif
-@endauth
 
 @endsection
 
@@ -581,6 +665,45 @@ function closeModal(id) {
 }
 function closeOnBackdrop(e, id) {
     if (e.target === e.currentTarget) closeModal(id);
+}
+
+// ── User/Admin: Buka Detail Event ──────────────────────────────
+function openDetailModal(id) {
+    const eventObj = eventsData.find(e => e.id === id);
+    if (!eventObj) return;
+
+    document.getElementById('detail-name').textContent = eventObj.name;
+    document.getElementById('detail-date').textContent = eventObj.event_date;
+    document.getElementById('detail-location').textContent = eventObj.location;
+    document.getElementById('detail-organizer').textContent = eventObj.organizer;
+    document.getElementById('detail-organizer-small').textContent = eventObj.organizer;
+    
+    const descEl = document.getElementById('detail-description');
+    if (eventObj.description) {
+        descEl.innerHTML = eventObj.description.replace(/\n/g, '<br>');
+    } else {
+        descEl.innerHTML = '<span class="italic text-slate-400">Tidak ada deskripsi</span>';
+    }
+
+    document.getElementById('detail-participants-count').textContent = eventObj.participants_count;
+
+    const imgEl = document.getElementById('detail-image');
+    const placeholderEl = document.getElementById('detail-placeholder');
+    const containerEl = document.getElementById('detail-image-container');
+    
+    if (eventObj.image_url) {
+        imgEl.src = eventObj.image_url;
+        imgEl.classList.remove('hidden');
+        placeholderEl.classList.add('hidden');
+        containerEl.classList.remove('bg-gradient-to-br', 'from-emerald-50', 'to-teal-100');
+    } else {
+        imgEl.classList.add('hidden');
+        imgEl.src = '';
+        placeholderEl.classList.remove('hidden');
+        containerEl.classList.add('bg-gradient-to-br', 'from-emerald-50', 'to-teal-100');
+    }
+
+    openModal('modal-detail-event');
 }
 
 // ── Admin: Edit Event ──────────────────────────────────────────
@@ -667,7 +790,7 @@ if (btnMonthFilter) {
 // Close all modals with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        ['modal-add-event','modal-edit-event','modal-delete-event','modal-members'].forEach(closeModal);
+        ['modal-add-event','modal-edit-event','modal-delete-event','modal-members','modal-detail-event'].forEach(closeModal);
     }
 });
 </script>
