@@ -112,18 +112,33 @@
 
                     <div class="flex flex-wrap gap-3">
                         <span class="rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700">{{ $artikel->duration ?? 'Estimasi baca belum tersedia' }}</span>
-                        <span class="rounded-full bg-amber-50 px-4 py-2 text-xs font-bold text-amber-600 shadow-sm">+{{ $artikel->points }} poin jika lulus</span>
                         @if($isCompleted)
-                            <span class="rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 shadow-sm">Skor terakhir: {{ $progress?->score ?? 0 }}</span>
+                            <span class="rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 shadow-sm">✓ Poin sudah didapatkan</span>
+                            <span class="rounded-full bg-slate-100 px-4 py-2 text-xs font-bold text-slate-600 shadow-sm">Skor terakhir: {{ $progress?->score ?? 0 }}</span>
+                        @else
+                            <span class="rounded-full bg-amber-50 px-4 py-2 text-xs font-bold text-amber-600 shadow-sm">+{{ $artikel->points }} poin jika lulus</span>
                         @endif
                     </div>
 
                 <div class="border-t border-slate-200 pt-6">
                     @auth
                     @if($isCompleted)
-                        <a href="{{ route('academy.result', $artikel->id) }}" class="flex w-full items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
-                            Lihat Hasil Kuis
-                        </a>
+                        {{-- Sudah pernah lulus: tampilkan dua tombol --}}
+                        <div class="space-y-3">
+                            <a href="{{ route('academy.quiz', $artikel->id) }}" class="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.75v3" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 4.5h-7.5A.75.75 0 0 0 7.5 5.25v3.75a4.5 4.5 0 0 0 9 0V5.25a.75.75 0 0 0-.75-.75Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 7.5H4.875A1.875 1.875 0 0 0 3 9.375c0 1.863 1.34 3.412 3.108 3.736" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5h1.125A1.875 1.875 0 0 1 21 9.375c0 1.863-1.34 3.412-3.108 3.736" />
+                                </svg>
+                                Latihan Lagi
+                            </a>
+                            <a href="{{ route('academy.result', $artikel->id) }}" class="flex w-full items-center justify-center rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
+                                Lihat Hasil Terakhir
+                            </a>
+                        </div>
                     @else
                         <a href="{{ route('academy.quiz', $artikel->id) }}" class="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">

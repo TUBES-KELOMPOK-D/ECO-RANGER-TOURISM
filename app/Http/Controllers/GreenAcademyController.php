@@ -34,13 +34,13 @@ class GreenAcademyController extends Controller
                     : null;
 
                 $artikel->is_completed = (bool) optional($progress)->completed;
-                $artikel->user_score = optional($progress)->score;
+                $artikel->user_score   = optional($progress)->score;
 
                 return $artikel;
             });
 
-        $totalModules = $artikels->count();
-        $completedModules = $artikels->where('is_completed', true)->count();
+        $totalModules      = $artikels->count();
+        $completedModules  = $artikels->where('is_completed', true)->count();
         $progressPercentage = $totalModules > 0
             ? (int) round(($completedModules / $totalModules) * 100)
             : 0;
@@ -55,26 +55,24 @@ class GreenAcademyController extends Controller
 
     public function show(int $id)
     {
-        $artikel = Artikel::with('quiz')->findOrFail($id);
+        $artikel  = Artikel::with('quiz')->findOrFail($id);
         $progress = $this->userProgressForArticle($artikel->id);
 
         return view('green-academy.show', [
-            'artikel' => $artikel,
-            'progress' => $progress,
+            'artikel'     => $artikel,
+            'progress'    => $progress,
             'isCompleted' => (bool) optional($progress)->completed,
         ]);
     }
 
+    /**
+     * Halaman kuis – sekarang selalu bisa diakses (reattempt diizinkan).
+     * Jika sudah pernah completed, tampilkan pesan kecil di view.
+     */
     public function quiz(int $id)
     {
-        $artikel = Artikel::with('quiz')->findOrFail($id);
+        $artikel  = Artikel::with('quiz')->findOrFail($id);
         $progress = $this->userProgressForArticle($artikel->id);
-
-        if ($progress?->completed) {
-            return redirect()
-                ->route('academy.result', $artikel->id)
-                ->with('info', 'Kuis untuk materi ini sudah diselesaikan.');
-        }
 
         if (!$artikel->quiz || empty($artikel->quiz->questions)) {
             return redirect()
@@ -82,15 +80,23 @@ class GreenAcademyController extends Controller
                 ->with('error', 'Kuis untuk materi ini belum tersedia.');
         }
 
-        $questions = $artikel->quiz->questions;
+        $questions    = $artikel->quiz->questions;
+        $isReattempt  = (bool) optional($progress)->completed;
 
-        return view('green-academy.quiz', compact('artikel', 'questions'));
+        return view('green-academy.quiz', compact('artikel', 'questions', 'isReattempt'));
     }
 
+    /**
+     * Submit kuis dengan logika poin sekali seumur hidup.
+     *
+     * - Poin diberikan hanya jika belum pernah completed AND skor >= 80%.
+     * - Jika sudah completed sebelumnya: update score saja, completed tetap 1.
+     * - Jika belum completed dan skor < 80%: completed = 0, tidak ada poin.
+     */
     public function submitQuiz(Request $request, int $id)
     {
         $artikel = Artikel::with('quiz')->findOrFail($id);
-        $user = Auth::user();
+        $user    = Auth::user();
 
         if (!$artikel->quiz || empty($artikel->quiz->questions)) {
             return redirect()
@@ -98,16 +104,9 @@ class GreenAcademyController extends Controller
                 ->with('error', 'Kuis untuk materi ini belum tersedia.');
         }
 
-        $existingProgress = $this->userProgressForArticle($artikel->id);
-        if ($existingProgress?->completed) {
-            return redirect()
-                ->route('academy.result', $artikel->id)
-                ->with('info', 'Kuis untuk materi ini sudah diselesaikan.');
-        }
-
-        $questions = $artikel->quiz->questions;
+        $questions      = $artikel->quiz->questions;
         $totalQuestions = count($questions);
-        $answers = $request->input('answers', []);
+        $answers        = $request->input('answers', []);
 
         if (count($answers) !== $totalQuestions) {
             return back()
@@ -115,10 +114,11 @@ class GreenAcademyController extends Controller
                 ->withInput();
         }
 
+        // Hitung skor
         $score = 0;
         foreach ($questions as $index => $question) {
             $selectedAnswer = $answers[$index] ?? null;
-            $correctAnswer = $question['answer'] ?? null;
+            $correctAnswer  = $question['answer'] ?? null;
 
             if ($selectedAnswer !== null && $selectedAnswer === $correctAnswer) {
                 $score++;
@@ -126,54 +126,134 @@ class GreenAcademyController extends Controller
         }
 
         $minimumPassingScore = $this->minimumPassingScore($totalQuestions);
-        $pointsAwarded = $score >= $minimumPassingScore ? (int) $artikel->points : 0;
 
-        DB::transaction(function () use ($artikel, $user, $score, $pointsAwarded) {
-            UserProgress::updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'artikel_id' => $artikel->id,
-                ],
-                [
-                    'completed' => true,
-                    'score' => $score,
-                ]
-            );
+        // Cek apakah user sudah pernah completed sebelumnya
+        $existingProgress  = $this->userProgressForArticle($artikel->id);
+        $alreadyCompleted  = (bool) optional($existingProgress)->completed;
+        $passedThisAttempt = $score >= $minimumPassingScore;
 
-            if ($pointsAwarded > 0) {
+        // Tentukan logika poin dan completed
+        $pointsAwarded = 0;
+        $earnedPoints  = false;
+
+        if ($alreadyCompleted) {
+            // Sudah pernah lulus: update skor saja, tidak beri poin
+            DB::transaction(function () use ($artikel, $user, $score) {
+                UserProgress::updateOrCreate(
+                    [
+                        'user_id'    => $user->id,
+                        'artikel_id' => $artikel->id,
+                    ],
+                    [
+                        'completed' => true,   // tetap 1
+                        'score'     => $score,
+                    ]
+                );
+            });
+
+            $earnedPoints = false;
+
+        } elseif ($passedThisAttempt) {
+            // Pertama kali lulus: beri poin
+            $pointsAwarded = (int) $artikel->points;
+            $earnedPoints  = true;
+
+            DB::transaction(function () use ($artikel, $user, $score, $pointsAwarded) {
+                UserProgress::updateOrCreate(
+                    [
+                        'user_id'    => $user->id,
+                        'artikel_id' => $artikel->id,
+                    ],
+                    [
+                        'completed' => true,
+                        'score'     => $score,
+                    ]
+                );
+
                 RankingService::addPoints($user, 'quiz', $pointsAwarded, 'Lulus kuis materi: ' . $artikel->title);
-            }
 
-            Action::create([
-                'user_id' => $user->id,
-                'action_name' => 'quiz_completed',
-                'points' => $pointsAwarded,
-                'status' => 'selesai',
-                'joined_date' => now()->toDateString(),
-            ]);
-        });
+                Action::create([
+                    'user_id'     => $user->id,
+                    'action_name' => 'quiz_completed',
+                    'points'      => $pointsAwarded,
+                    'status'      => 'selesai',
+                    'joined_date' => now()->toDateString(),
+                ]);
+            });
+
+        } else {
+            // Belum pernah lulus dan skor di bawah passing grade
+            DB::transaction(function () use ($artikel, $user, $score) {
+                UserProgress::updateOrCreate(
+                    [
+                        'user_id'    => $user->id,
+                        'artikel_id' => $artikel->id,
+                    ],
+                    [
+                        'completed' => false,
+                        'score'     => $score,
+                    ]
+                );
+            });
+
+            $earnedPoints = false;
+        }
 
         return redirect()
             ->route('academy.result', $artikel->id)
-            ->with('success', 'Kuis berhasil dikirim.');
+            ->with([
+                'success'        => 'Kuis berhasil dikirim.',
+                'quiz_score'     => $score,
+                'quiz_total'     => $totalQuestions,
+                'quiz_passed'    => $passedThisAttempt,
+                'earned_points'  => $earnedPoints,
+                'points_awarded' => $pointsAwarded,
+                'was_reattempt'  => $alreadyCompleted,
+            ]);
     }
 
+    /**
+     * Halaman hasil kuis.
+     * Mendukung data sesi dari submitQuiz maupun akses langsung dari show.
+     */
     public function result(int $id)
     {
-        $artikel = Artikel::with('quiz')->findOrFail($id);
+        $artikel  = Artikel::with('quiz')->findOrFail($id);
         $progress = $this->userProgressForArticle($artikel->id);
 
-        if (!$progress || !$progress->completed) {
-            return redirect()
-                ->route('academy.show', $artikel->id)
-                ->with('error', 'Kuis untuk materi ini belum diselesaikan.');
-        }
-
-        $totalQuestions = count($artikel->quiz?->questions ?? []);
+        $totalQuestions      = count($artikel->quiz?->questions ?? []);
         $minimumPassingScore = $this->minimumPassingScore($totalQuestions);
-        $score = (int) $progress->score;
-        $pointsAwarded = $score >= $minimumPassingScore ? (int) $artikel->points : 0;
-        $passed = $score >= $minimumPassingScore;
+
+        // Ambil skor tertinggi yang pernah dicapai user untuk materi ini
+        $highestScore = Auth::check()
+            ? UserProgress::where('user_id', Auth::id())
+                ->where('artikel_id', $artikel->id)
+                ->max('score')
+            : null;
+
+        // Jika dari redirect submitQuiz, gunakan data sesi; jika akses langsung, hitung dari progress
+        if (session()->has('quiz_score')) {
+            $score         = (int) session('quiz_score');
+            $passed        = (bool) session('quiz_passed');
+            $earnedPoints  = (bool) session('earned_points');
+            $pointsAwarded = (int) session('points_awarded');
+            $wasReattempt  = (bool) session('was_reattempt');
+        } else {
+            // Akses langsung: hitung dari progress yang sudah tersimpan
+            if (!$progress) {
+                return redirect()
+                    ->route('academy.show', $artikel->id)
+                    ->with('error', 'Kuis untuk materi ini belum dikerjakan.');
+            }
+
+            $score         = (int) $progress->score;
+            $passed        = $score >= $minimumPassingScore;
+            $wasReattempt  = false;
+            // Pada akses langsung tidak bisa tahu apakah sesi ini mendapat poin,
+            // tampilkan saja info netral
+            $earnedPoints  = false;
+            $pointsAwarded = $passed ? (int) $artikel->points : 0;
+        }
 
         return view('green-academy.result', compact(
             'artikel',
@@ -181,9 +261,16 @@ class GreenAcademyController extends Controller
             'score',
             'totalQuestions',
             'pointsAwarded',
-            'passed'
+            'passed',
+            'earnedPoints',
+            'wasReattempt',
+            'highestScore'
         ));
     }
+
+    // ──────────────────────────────────────────────
+    // Helper methods
+    // ──────────────────────────────────────────────
 
     protected function userProgressForArticle(int $artikelId): ?UserProgress
     {
@@ -199,8 +286,7 @@ class GreenAcademyController extends Controller
 
     protected function minimumPassingScore(int $totalQuestions): int
     {
-        return (int) ceil($totalQuestions * 0.8);
+        // Poin hanya diberikan jika semua jawaban benar (100%)
+        return $totalQuestions;
     }
-
-
 }
