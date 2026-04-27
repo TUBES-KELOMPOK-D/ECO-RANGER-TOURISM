@@ -31,6 +31,17 @@
             @csrf
 
             <div class="mt-8 space-y-8">
+                @if($isReattempt)
+                    <div class="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                        </svg>
+                        <p class="text-sm font-semibold text-amber-800">
+                            Ini adalah latihan ulang. Kamu sudah mendapatkan poin untuk materi ini sebelumnya — poin tidak akan berubah.
+                        </p>
+                    </div>
+                @endif
+
                 @if($errors->has('answers'))
                     <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-800">
                         {{ $errors->first('answers') }}
