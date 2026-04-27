@@ -91,7 +91,10 @@ Route::middleware('auth')->group(function () {
 
     // -- ADMIN TARUH SINI --
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
+
         // -- Markers --
+        Route::get('/markers', [MapController::class, 'adminIndex'])->name('markers.index');
+        Route::get('/markers/create', [MapController::class, 'create'])->name('markers.create');
         Route::post('/markers', [MapController::class, 'store'])->name('markers.store');
         Route::get('/markers/{marker}/edit', [MapController::class, 'edit'])->name('markers.edit');
         Route::post('/markers/{marker}/update', [MapController::class, 'update'])->name('markers.update');
