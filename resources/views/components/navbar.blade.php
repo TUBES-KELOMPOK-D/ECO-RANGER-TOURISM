@@ -1,12 +1,11 @@
-<nav class="sticky top-0 z-[100] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 font-sans">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<nav class="sticky top-0 z-[100] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 font-sans w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20 items-center">
             
             <a href="/" class="flex items-center gap-3 cursor-pointer group hover:opacity-80 transition-opacity decoration-transparent">
                 <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12"/></svg>
                 </div>
-                <!-- Judul dinamis, jika layar semakin kecil maka judul akan hilang -->
                 <span class="text-xl font-black tracking-tighter text-slate-800 md:block hidden">Eco<span class="text-emerald-600"> Ranger Tourism</span></span>
             </a>
 
@@ -26,15 +25,29 @@
 
                 @auth
                     <div class="relative group ml-4">
-                        <button class="w-10 h-10 rounded-full overflow-hidden border-2 transition-all bg-emerald-100 text-emerald-700 border-emerald-500 hover:scale-110 focus:outline-none">
-                            @if(auth()->user()->photo)
+                        <button class="w-10 h-10 rounded-full overflow-hidden border-2 transition-all flex items-center justify-center focus:outline-none {{ auth()->user()->role === 'admin' ? 'bg-slate-800 border-slate-700 text-white shadow-lg shadow-slate-200' : 'bg-emerald-100 border-emerald-500 text-emerald-700' }} hover:scale-110">
+                            @if(auth()->user()->role === 'admin')
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            @elseif(auth()->user()->photo)
                                 <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Foto Profil" class="h-full w-full object-cover" />
                             @else
                                 <span class="inline-flex h-full w-full items-center justify-center font-bold">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
                             @endif
                         </button>
                         <div class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                            <a href="/profile" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50 rounded-t-2xl">Profil Saya</a>
+                            <div class="px-4 py-2 border-b border-slate-50">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ auth()->user()->role }}</p>
+                                <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user()->name }}</p>
+                            </div>
+                            @if(auth()->user()->role === 'user')
+                                <a href="/profile" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Profil Saya</a>
+                                <a href="/reports" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Pantau Laporan</a>
+                            @else
+                                <a href="/admin/dashboard" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Panel Admin</a>
+                                <a href="/admin/markers/create" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Tambah Marker</a>
+                                <a href="/reports" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Laporan</a>
+                            @endif
+                            
                             <a href="/profile/settings" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Pengaturan</a>
                             <form action="{{ route('logout') }}" method="POST" class="border-t border-slate-100">
                                 @csrf
@@ -44,12 +57,8 @@
                     </div>
                 @else
                     <div class="flex items-center gap-2 ml-4">
-                        <a href="/login" class="px-5 py-2.5 rounded-full font-bold text-sm transition-all text-slate-600 hover:bg-slate-100 decoration-transparent">
-                            Login
-                        </a>
-                        <a href="/register" class="px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-slate-900 text-white hover:bg-slate-800 shadow-lg decoration-transparent">
-                            Registrasi
-                        </a>
+                        <a href="/login" class="px-5 py-2.5 rounded-full font-bold text-sm transition-all text-slate-600 hover:bg-slate-100 decoration-transparent">Login</a>
+                        <a href="/register" class="px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-slate-900 text-white hover:bg-slate-800 shadow-lg decoration-transparent">Registrasi</a>
                     </div>
                 @endauth
             </div>
@@ -65,7 +74,6 @@
                     <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
-            
         </div>
     </div>
 
@@ -92,20 +100,43 @@
             
             <div class="pt-4 border-t border-slate-50">
                 @auth
-                    <a href="/profile" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold bg-slate-50 text-slate-700 hover:bg-slate-100 transition-all">
-                        <div class="w-8 h-8 rounded-lg overflow-hidden bg-emerald-100">
-                            @if(auth()->user()->photo)
+                    <a href="{{ auth()->user()->role === 'admin' ? '/admin/dashboard' : '/profile' }}" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold {{ auth()->user()->role === 'admin' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-700' }} hover:opacity-90 transition-all">
+                        <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center {{ auth()->user()->role === 'admin' ? 'bg-slate-800 text-white' : 'bg-emerald-100 text-emerald-700' }}">
+                            @if(auth()->user()->role === 'admin')
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            @elseif(auth()->user()->photo)
                                 <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Foto Profil" class="h-full w-full object-cover" />
                             @else
-                                <div class="flex h-full w-full items-center justify-center text-xs font-bold text-emerald-700">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+                                <div class="text-xs font-bold">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
                             @endif
                         </div>
-                        Profil Saya
+                        <div class="flex flex-col text-left">
+                            <span class="text-xs opacity-60 font-medium uppercase">{{ auth()->user()->role }}</span>
+                            <span>{{ auth()->user()->role === 'admin' ? 'Panel Admin' : 'Profil Saya' }}</span>
+                        </div>
                     </a>
+
+                    @if(auth()->user()->role === 'admin')
+                    <a href="/admin/markers/create" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        Tambah Marker
+                    </a>
+                    <a href="/reports" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Kelola Laporan
+                    </a>
+                    @elseif(auth()->user()->role === 'user')
+                    <a href="/reports" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Pantau Laporan
+                    </a>
+                    @endif
+
                     <a href="/profile/settings" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24M19.78 19.78l-4.24-4.24m-2.12-2.12l-4.24-4.24"/></svg>
                         Pengaturan
                     </a>
+                    
                     <form action="{{ route('logout') }}" method="POST" class="w-full">
                         @csrf
                         <button type="submit" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-red-700 hover:bg-red-50 transition-all">
@@ -115,12 +146,8 @@
                     </form>
                 @else
                     <div class="flex flex-col gap-2">
-                        <a href="/register" class="text-center w-full p-4 rounded-2xl font-bold bg-slate-900 text-white hover:bg-slate-800 transition-all decoration-transparent">
-                            Registrasi
-                        </a>
-                        <a href="/login" class="text-center w-full p-4 rounded-2xl font-bold bg-slate-50 text-slate-700 hover:bg-slate-100 transition-all decoration-transparent">
-                            Login
-                        </a>
+                        <a href="/register" class="text-center w-full p-4 rounded-2xl font-bold bg-slate-900 text-white hover:bg-slate-800 transition-all decoration-transparent">Registrasi</a>
+                        <a href="/login" class="text-center w-full p-4 rounded-2xl font-bold bg-slate-50 text-slate-700 hover:bg-slate-100 transition-all decoration-transparent">Login</a>
                     </div>
                 @endauth
             </div>
