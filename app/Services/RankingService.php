@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\UserAchievement;
+use App\Models\PointLedger;
 use Illuminate\Support\Carbon;
 
 class RankingService
@@ -70,20 +71,21 @@ class RankingService
      */
     public static function getTopRankers($limit = 10)
     {
-        return User::orderBy('eco_points', 'desc')
-            ->take($limit)
-            ->get()
-            ->map(function ($user, $index) {
-                return [
-                    'rank' => $index + 1,
-                    'user' => $user,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'initials' => $user->getInitialsAttribute(),
-                    'points' => $user->eco_points ?? 0,
-                    'level' => $user->eco_level ?? $user->calculateEcoLevel(),
-                ];
-            });
+        $pointService = app(\App\Services\LeaderboardService::class);
+        $usersWithPoints = $pointService->getLeaderboard($limit);
+
+        return collect($usersWithPoints->items())->map(function ($userData, $index) {
+            $user = User::find($userData->id);
+            return [
+                'rank' => $index + 1,
+                'user' => $user,
+                'name' => $userData->name,
+                'email' => $userData->email,
+                'initials' => $user ? $user->getInitialsAttribute() : '',
+                'points' => $userData->total_points,
+                'level' => $userData->level,
+            ];
+        });
     }
 
     /**
@@ -91,18 +93,26 @@ class RankingService
      */
     public static function getUserRank(User $user)
     {
-        return User::where('eco_points', '>', $user->eco_points)
-            ->count() + 1;
+        return $user->rank;
     }
 
     /**
      * Add points to user
      */
-    public static function addPoints(User $user, $pointType, $amount = null)
+    public static function addPoints(User $user, $pointType, $amount = null, $description = null)
     {
         $points = $amount ?? self::POINT_RULES[$pointType] ?? 0;
         
         if ($points > 0) {
+            // Log to ledger
+            PointLedger::create([
+                'user_id' => $user->id,
+                'points' => $points,
+                'type' => 'earning',
+                'description' => $description ?? 'Earning from ' . $pointType,
+            ]);
+
+            // Add points to user
             $user->addEcoPoints($points);
         }
 
@@ -203,8 +213,8 @@ class RankingService
     {
         $skip = ($page - 1) * $limit;
         
-        $total = User::count();
-        $users = self::getTopRankers(1000);
+        $total = User::where('role', 'user')->count();
+        $users = self::getTopRankers($total);
 
         return [
             'total' => $total,

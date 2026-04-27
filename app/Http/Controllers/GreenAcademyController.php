@@ -8,6 +8,7 @@ use App\Models\UserProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\RankingService;
 
 class GreenAcademyController extends Controller
 {
@@ -140,15 +141,7 @@ class GreenAcademyController extends Controller
             );
 
             if ($pointsAwarded > 0) {
-                $this->updateEcoPoints($user->id, $pointsAwarded);
-
-                DB::table('poin')->insert([
-                    'user_id' => $user->id,
-                    'points' => $pointsAwarded,
-                    'source' => 'activity',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                RankingService::addPoints($user, 'quiz', $pointsAwarded, 'Lulus kuis materi: ' . $artikel->title);
             }
 
             Action::create([
@@ -209,27 +202,5 @@ class GreenAcademyController extends Controller
         return (int) ceil($totalQuestions * 0.8);
     }
 
-    protected function updateEcoPoints(int $userId, int $pointsToAdd): void
-    {
-        $user = Auth::user()?->id === $userId
-            ? Auth::user()
-            : \App\Models\User::findOrFail($userId);
 
-        $user->eco_points = ((int) $user->eco_points) + $pointsToAdd;
-        $user->eco_level = $this->resolveEcoLevel((int) $user->eco_points);
-        $user->save();
-    }
-
-    protected function resolveEcoLevel(int $totalPoints): string
-    {
-        if ($totalPoints >= 1500) {
-            return 'Eco-Hero';
-        }
-
-        if ($totalPoints >= 500) {
-            return 'Eco-Ranger';
-        }
-
-        return 'Eco-Newbie';
-    }
 }

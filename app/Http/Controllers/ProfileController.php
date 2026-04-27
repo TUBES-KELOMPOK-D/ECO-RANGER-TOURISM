@@ -10,17 +10,30 @@ class ProfileController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $nextLevel = $this->nextLevelInfo($user->eco_points);
-        $progress = $nextLevel['required'] > $nextLevel['current']
-            ? round((($user->eco_points - $nextLevel['current']) / ($nextLevel['required'] - $nextLevel['current'])) * 100)
-            : 100;
+        $pointService = app(\App\Services\LeaderboardService::class);
+        $totalPoints = $pointService->calculateUserPoints($user);
+        $nextLevel = [
+            'label' => $pointService->getLevel($totalPoints + 1), // Ini hanya fallback sementara, logika next level ditangani LeaderboardService
+            'current' => 0,
+            'required' => 500,
+            'remaining' => 500 - $totalPoints
+        ];
+        
+        $progress = min(100, ($totalPoints / 500) * 100);
+
+        $latestReport = $user->ecoReports()
+            ->orderByDesc('report_date')
+            ->orderByDesc('created_at')
+            ->first();
+
+        $reportCount = $user->ecoReports()->count();
 
         // Ambil laporan Eco Reporter milik user
         $ecoReports = \App\Models\EcoReportSubmission::where('user_id', $user->id)
             ->orderByDesc('created_at')
             ->get();
 
-        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'ecoReports'));
+        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'ecoReports', 'latestReport', 'reportCount', 'totalPoints'));
     }
 
     public function settings()
