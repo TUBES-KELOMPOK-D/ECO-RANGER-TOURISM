@@ -28,7 +28,12 @@ class ProfileController extends Controller
 
         $reportCount = $user->ecoReports()->count();
 
-        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'latestReport', 'reportCount', 'totalPoints'));
+        // Ambil laporan Eco Reporter milik user
+        $ecoReports = \App\Models\EcoReportSubmission::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'ecoReports', 'latestReport', 'reportCount', 'totalPoints'));
     }
 
     public function settings()
