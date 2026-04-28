@@ -108,8 +108,16 @@
         );
 
         // 4. Kontrol Layer
+        // const landLayer = L.layerGroup().addTo(map);
+        // const seaLayer = L.layerGroup().addTo(map);
+
         const baseMaps    = { "Peta Standar": streetMap, "Peta Topografi (Gunung/Hutan)": topoMap };
-        const overlayMaps = { "Layer Cuaca & Curah Hujan": rainLayer, "Layer Kualitas Udara (AQI)": aqiLayer };
+        const overlayMaps = { 
+            "Layer Cuaca & Curah Hujan": rainLayer, 
+            "Layer Kualitas Udara (AQI)": aqiLayer
+            // "Area Daratan": landLayer,
+            // "Area Lautan / ZEE": seaLayer
+        };
         L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
 
         // 5. Ambil Data Cuaca RainViewer
@@ -120,6 +128,35 @@
                 rainLayer.setUrl(`https://tilecache.rainviewer.com${path}/256/{z}/{x}/{y}/2/1_1.png`);
             })
             .catch(err => console.error('Gagal mengambil data cuaca:', err));
+
+        // // Tambahan Layer GeoJSON Daratan & Lautan
+        // fetch('/geojson/indonesia-land.geojson')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         L.geoJSON(data, {
+        //             style: {
+        //                 color: "#22c55e", // Warna garis (Hijau)
+        //                 weight: 2,
+        //                 fillColor: "#4ade80", // Warna isi
+        //                 fillOpacity: 0.4
+        //             }
+        //         }).addTo(landLayer);
+        //     })
+        //     .catch(err => console.error('Gagal meload indonesia-land.geojson:', err));
+
+        // fetch('/geojson/indonesia-sea.geojson')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         L.geoJSON(data, {
+        //             style: {
+        //                 color: "#3b82f6", // Warna garis (Biru)
+        //                 weight: 2,
+        //                 fillColor: "#60a5fa", // Warna isi
+        //                 fillOpacity: 0.2
+        //             }
+        //         }).addTo(seaLayer);
+        //     })
+        //     .catch(err => console.error('Gagal meload indonesia-sea.geojson:', err));
 
         // 6. Render Markers dari Database
         let searchableFeatures = [];

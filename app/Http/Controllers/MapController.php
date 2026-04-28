@@ -16,8 +16,27 @@ class MapController extends Controller
         return view('map', compact('markers'));
     }
 
+    public function create()
+    {
+        return view('markers.create');
+    }
+
+    public function adminIndex()
+    {
+        $markers = Marker::orderBy('created_at', 'desc')->paginate(15);
+        return view('markers.index', compact('markers'));
+    }
+
     public function store(Request $request)
     {
+        // Decode coordinates if it's a JSON string (from manual form)
+        if (is_string($request->input('coordinates'))) {
+            $decoded = json_decode($request->input('coordinates'), true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $request->merge(['coordinates' => $decoded]);
+            }
+        }
+
         $request->validate([
             'shape_type' => ['nullable', 'string'],
             'status' => ['nullable', 'string'],
@@ -36,9 +55,6 @@ class MapController extends Controller
         ]);
 
         $coordinates = $request->input('coordinates', []);
-        if (is_string($coordinates)) {
-            $coordinates = json_decode($coordinates, true) ?: [];
-        }
 
         // Handle image upload
         $imagePath = null;
@@ -83,7 +99,11 @@ class MapController extends Controller
 
         $marker->save();
 
-        return response()->json(['message' => 'Berhasil menyimpan lokasi']);
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Berhasil menyimpan lokasi']);
+        }
+
+        return redirect()->route('markers.edit', $marker->id)->with('success', 'Data marker berhasil ditambahkan!');
     }
 
     public function edit(Marker $marker)

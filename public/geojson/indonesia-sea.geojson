@@ -1,0 +1,24 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lautan / ZEE Indonesia (Dummy Kasar)",
+        "type": "sea"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [92.0, 8.0],
+            [142.0, 8.0],
+            [142.0, -13.0],
+            [92.0, -13.0],
+            [92.0, 8.0]
+          ]
+        ]
+      }
+    }
+  ]
+}
