@@ -91,18 +91,61 @@
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <h2 class="text-2xl font-extrabold text-slate-900">Aksi yang Diikuti</h2>
-                    <p class="mt-2 text-sm text-slate-500">Tidak ada aksi aktif yang diikuti saat ini.</p>
+                    <p class="mt-2 text-sm text-slate-500">{{ $participatedEvents->count() }} aksi aktif yang sedang diikuti.</p>
                 </div>
-                <a href="/aksi" class="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700">Cari Aksi Sekarang</a>
+                <a href="{{ route('aksi.index') }}" class="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700">Cari Aksi Sekarang</a>
             </div>
 
-            <div class="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-8 text-center">
-                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-2xl text-emerald-700">
-                    🌿
+            @if($participatedEvents->count() > 0)
+                <div class="mt-8 space-y-4">
+                    @foreach($participatedEvents as $event)
+                        <div class="rounded-3xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-slate-900">{{ $event->name }}</h3>
+                                    
+                                    <div class="mt-4 grid gap-3 sm:grid-cols-3 text-sm">
+                                        <div class="flex items-center gap-2 text-slate-600">
+                                            <span class="font-semibold">📍 Lokasi:</span>
+                                            <span>{{ $event->location ?? 'Lokasi tidak tersedia' }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-600">
+                                            <span class="font-semibold">📅 Tanggal:</span>
+                                            <span>{{ $event->event_date->format('d M Y') ?? 'Tanggal tidak tersedia' }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">Sudah Bergabung</span>
+                                        </div>
+                                    </div>
+                                    
+                                    @if($event->description)
+                                        <p class="mt-3 text-sm text-slate-600 line-clamp-2">{{ $event->description }}</p>
+                                    @endif
+                                </div>
+                                <div class="flex flex-col gap-2 sm:flex-row">
+                                    <a href="{{ route('aksi.chat', $event->id) }}" class="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 text-center">
+                                        💬 Chat Grup
+                                    </a>
+                                    <form action="{{ route('aksi.leave', $event->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan keikutsertaan?');">
+                                        @csrf
+                                        <button type="submit" class="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">
+                                            ❌ Batal
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                <p class="mt-6 text-sm font-semibold text-slate-900">Belum ada aksi yang diikuti.</p>
-                <p class="mt-2 text-sm text-slate-500">Jelajahi aksi lingkungan dan kumpulkan poin eco untuk naik level.</p>
-            </div>
+            @else
+                <div class="mt-8 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center">
+                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-2xl text-emerald-700">
+                        🌿
+                    </div>
+                    <p class="mt-6 text-sm font-semibold text-slate-900">Belum ada aksi yang diikuti.</p>
+                    <p class="mt-2 text-sm text-slate-500">Jelajahi aksi lingkungan dan kumpulkan poin eco untuk naik level.</p>
+                </div>
+            @endif
         </div>
     </div>
 
