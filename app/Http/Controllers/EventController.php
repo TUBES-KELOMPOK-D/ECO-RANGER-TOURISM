@@ -164,6 +164,26 @@ class EventController extends Controller
 
         $event->participants()->detach($user->id);
 
+        // Hapus poin reward jika user membatalkan keikutsertaan
+        $ledgers = \App\Models\PointLedger::where('user_id', $user->id)
+            ->where('description', 'like', '%(ID: ' . $event->id . ')%')
+            ->get();
+            
+        $pointsToDeduct = 0;
+        foreach ($ledgers as $ledger) {
+            if ($ledger->type === 'earning') {
+                $pointsToDeduct += $ledger->points;
+            } elseif ($ledger->type === 'deduction') {
+                $pointsToDeduct -= $ledger->points;
+            }
+            $ledger->delete();
+        }
+
+        if ($pointsToDeduct > 0) {
+            $user->addEcoPoints(-$pointsToDeduct);
+            RankingService::updateUserAchievements($user);
+        }
+
         return redirect()->route('aksi.index')->with('success', 'Berhasil membatalkan keikutsertaan dari event "' . $event->name . '"!');
     }
 
