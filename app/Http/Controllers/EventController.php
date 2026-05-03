@@ -150,6 +150,17 @@ class EventController extends Controller
             if (!$hasEarned) {
                 RankingService::addPoints($user, 'community_action', null, 'Bergabung ke event: ' . $event->name . ' (ID: ' . $event->id . ')');
             }
+            
+            // Check and award badges
+            $newBadges = app(\App\Services\BadgeCheckerService::class)->checkAndAwardBadges($user);
+            
+            $successMsg = 'Berhasil bergabung ke event "' . $event->name . '"!';
+            if (!empty($newBadges)) {
+                $badgeNames = collect($newBadges)->pluck('name')->implode(', ');
+                $successMsg .= ' Selamat! Anda mendapatkan Badge Baru: ' . $badgeNames . ' 🏆';
+            }
+            
+            return redirect()->route('aksi.index')->with('success', $successMsg);
         }
 
         return redirect()->route('aksi.index')->with('success', 'Berhasil bergabung ke event "' . $event->name . '"!');

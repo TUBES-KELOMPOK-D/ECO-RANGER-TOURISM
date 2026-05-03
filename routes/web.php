@@ -88,6 +88,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/pencapaian/{user}', [RankingController::class, 'achievements'])->name('pencapaian.index');
     Route::get('/api/user/pencapaian/{user}', [RankingController::class, 'getUserAchievementsJson'])->name('user.pencapaian.json');
 
+    // -- Badges (PBI-18) --
+    Route::get('/badges', [\App\Http\Controllers\BadgeController::class, 'index'])->name('badges.index');
+    Route::get('/api/user-badges', [\App\Http\Controllers\BadgeController::class, 'apiUserBadges'])->name('api.user.badges');
+
+    // -- Vouchers (PBI-18) --
+    Route::get('/vouchers', [\App\Http\Controllers\VoucherController::class, 'index'])->name('vouchers.index');
+    Route::post('/vouchers/{voucher}/claim', [\App\Http\Controllers\VoucherController::class, 'claim'])->name('vouchers.claim');
+    Route::post('/vouchers/{voucher}/use', [\App\Http\Controllers\VoucherController::class, 'useVoucher'])->name('vouchers.use');
+
+
 
     // -- ADMIN TARUH SINI --
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {

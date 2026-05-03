@@ -51,6 +51,17 @@ class EcoReporterController extends Controller
 
         if (auth()->check()) {
             RankingService::addPoints(auth()->user(), 'report_issue', null, 'Laporan: ' . $report->title);
+            
+            // Check and award badges
+            $newBadges = app(\App\Services\BadgeCheckerService::class)->checkAndAwardBadges(auth()->user());
+            
+            $successMsg = 'Laporan berhasil dikirim. Lihat status laporan di Profil Anda.';
+            if (!empty($newBadges)) {
+                $badgeNames = collect($newBadges)->pluck('name')->implode(', ');
+                $successMsg .= ' Selamat! Anda mendapatkan Badge Baru: ' . $badgeNames . ' 🏆';
+            }
+            
+            return redirect()->route('profile.index')->with('success', $successMsg);
         }
 
         return redirect()->route('profile.index')->with('success', 'Laporan berhasil dikirim. Lihat status laporan di Profil Anda.');

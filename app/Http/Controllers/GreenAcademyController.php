@@ -198,11 +198,20 @@ class GreenAcademyController extends Controller
 
             $earnedPoints = false;
         }
+        
+        // Check and award badges
+        $newBadges = app(\App\Services\BadgeCheckerService::class)->checkAndAwardBadges($user);
+        
+        $successMsg = 'Kuis berhasil dikirim.';
+        if (!empty($newBadges)) {
+            $badgeNames = collect($newBadges)->pluck('name')->implode(', ');
+            $successMsg .= ' Selamat! Anda mendapatkan Badge Baru: ' . $badgeNames . ' 🏆';
+        }
 
         return redirect()
             ->route('academy.result', $artikel->id)
             ->with([
-                'success'        => 'Kuis berhasil dikirim.',
+                'success'        => $successMsg,
                 'quiz_score'     => $score,
                 'quiz_total'     => $totalQuestions,
                 'quiz_passed'    => $passedThisAttempt,
