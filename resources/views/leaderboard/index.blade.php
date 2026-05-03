@@ -5,7 +5,7 @@
     <!-- GREEN HEADER WITH PODIUM -->
     <div class="bg-gradient-to-b from-emerald-700 to-emerald-600 rounded-b-3xl shadow-lg py-16" style="background: linear-gradient(to bottom, #098352, #10A96E);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl font-bold text-white text-center mb-12">Eco-Rankings 🏆</h1>
+            <h1 class="text-4xl font-bold text-white text-center mb-12">Eco-Rankings</h1>
             
             <!-- PODIUM SECTION -->
             <div class="flex flex-col md:flex-row justify-center items-end gap-8 md:gap-6 h-96 md:h-80 w-full max-w-4xl mx-auto">
@@ -31,8 +31,8 @@
                 @php $rank1 = $topThree[0] ?? null; @endphp
                 <div class="flex-1 text-center flex flex-col items-center h-full mb-4 w-full cursor-pointer z-10" onclick="window.location.href='/profile/{{ $rank1->id ?? '' }}'">
                     @if($rank1)
-                        <div class="mb-4 animate-bounce">
-                            <div class="text-5xl">👑</div>
+                        <div class="mb-4 animate-bounce text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-lg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         </div>
                         <div class="mb-4 flex justify-center">
                             <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-3xl flex items-center justify-center text-white text-2xl font-black shadow-xl border-4 border-white transform scale-110">
@@ -74,16 +74,26 @@
         
         <!-- REWARD VOUCHER -->
         <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                Reward Voucher
-            </h2>
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    Reward Voucher
+                </h2>
+                <a href="{{ route('vouchers.index') }}" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm flex items-center gap-2 text-sm justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8v12"/><path d="M19 12v.01"/><path d="M19 16v.01"/><path d="M5 12v.01"/><path d="M5 16v.01"/><path d="M10.5 8c0-1.5-1.5-3-3-3s-3 1.5-3 3"/><path d="M13.5 8c0-1.5 1.5-3 3-3s3 1.5 3 3"/></svg>
+                    Klaim & Gunakan Voucher
+                </a>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 @foreach($rewards as $rank => $reward)
                 <div class="bg-gradient-to-r @if($rank == 1) from-yellow-50 to-yellow-100 border-yellow-300 @elseif($rank == 2) from-gray-100 to-gray-200 border-gray-400 @else from-orange-50 to-orange-100 border-orange-300 @endif rounded-xl p-4 border">
-                    <p class="font-bold text-sm @if($rank == 1) text-yellow-700 @elseif($rank == 2) text-gray-700 @else text-orange-700 @endif">
-                        {{ $reward['icon'] }} {{ $reward['title'] }}
+                    <p class="font-bold text-sm @if($rank == 1) text-yellow-700 @elseif($rank == 2) text-gray-700 @else text-orange-700 @endif flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                        {{ $reward['title'] }}
                     </p>
-                    <p class="text-sm font-semibold text-gray-700 mt-2">🎫 {{ $reward['reward'] }}</p>
+                    <p class="text-sm font-semibold text-gray-700 mt-2 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+                        {{ $reward['reward'] }}
+                    </p>
                 </div>
                 @endforeach
             </div>
@@ -97,12 +107,14 @@
                        value="{{ request('search') }}"
                        placeholder="Cari nama atau level pengguna..." 
                        class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-700 bg-slate-50">
-                <button type="submit" class="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-bold shadow-md shadow-emerald-500/20 active:translate-y-0.5">
-                    🔍 Cari
+                <button type="submit" class="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-bold shadow-md shadow-emerald-500/20 active:translate-y-0.5 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    Cari
                 </button>
                 @if(request('search'))
-                    <a href="{{ route('leaderboard') }}" class="px-6 py-3 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 transition font-bold text-center active:translate-y-0.5">
-                        ✕ Reset
+                    <a href="{{ route('leaderboard') }}" class="px-6 py-3 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 transition font-bold text-center active:translate-y-0.5 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        Reset
                     </a>
                 @endif
             </form>
@@ -135,11 +147,11 @@
                                 <tr class="hover:bg-emerald-50/50 transition-colors group">
                                     <td class="py-4 px-6 text-center">
                                         @if($user->rank == 1) 
-                                            <span class="text-2xl" title="Rank 1">🥇</span>
+                                            <span class="font-bold text-yellow-600 bg-yellow-100 px-3 py-1 rounded-lg border border-yellow-200">#1</span>
                                         @elseif($user->rank == 2) 
-                                            <span class="text-2xl" title="Rank 2">🥈</span>
+                                            <span class="font-bold text-slate-600 bg-slate-200 px-3 py-1 rounded-lg border border-slate-300">#2</span>
                                         @elseif($user->rank == 3) 
-                                            <span class="text-2xl" title="Rank 3">🥉</span>
+                                            <span class="font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded-lg border border-orange-200">#3</span>
                                         @else 
                                             <span class="font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">#{{ $user->rank }}</span>
                                         @endif
@@ -184,7 +196,9 @@
                 </div>
             @else
                 <div class="text-center py-16 text-slate-400">
-                    <div class="text-5xl mb-4 opacity-50">🌱</div>
+                    <div class="flex justify-center mb-4 opacity-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                    </div>
                     <p class="font-medium text-lg text-slate-500">Tidak ada pengguna yang ditemukan</p>
                     @if(request('search'))
                         <a href="{{ route('leaderboard') }}" class="text-emerald-600 font-bold mt-2 inline-block hover:underline">Reset Pencarian</a>
@@ -198,12 +212,22 @@
             <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 Aturan Poin
             </h2>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 @foreach($pointRules as $rule)
                 <div class="flex flex-col items-center justify-center p-5 bg-gradient-to-b from-slate-50 to-slate-100 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all group">
-                    <span class="text-3xl mb-3 group-hover:scale-110 transition-transform">{{ $rule['icon'] }}</span>
-                    <span class="text-xs font-bold text-slate-600 text-center uppercase tracking-wider h-8 flex items-center justify-center mb-1">{{ $rule['activity'] }}</span>
-                    <span class="font-black text-lg text-emerald-600 bg-emerald-100/50 px-3 py-1 rounded-xl">+{{ $rule['points'] }}</span>
+                    <div class="w-12 h-12 mb-3 text-emerald-500 group-hover:scale-110 transition-transform flex items-center justify-center bg-white rounded-full shadow-sm border border-emerald-100">
+                        @if($rule['activity'] == 'Lapor Isu Lingkungan')
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                        @elseif($rule['activity'] == 'Ikuti event Lingkungan')
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        @elseif($rule['activity'] == 'Laporan Diverifikasi')
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        @else
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                        @endif
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold text-slate-600 text-center uppercase tracking-wider h-8 flex items-center justify-center mb-1">{{ $rule['activity'] }}</span>
+                    <span class="font-black text-lg text-emerald-600 bg-emerald-100/50 px-3 py-1 rounded-xl whitespace-nowrap text-sm sm:text-lg">+{{ $rule['points'] }}</span>
                 </div>
                 @endforeach
             </div>
@@ -211,37 +235,44 @@
         
         <!-- LENCANA & PENCAPAIAN -->
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                Lencana & Pencapaian
-            </h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    Lencana & Pencapaian
+                </h2>
+                @if(Auth::check() && count($badges) > 0)
+                    <a href="{{ route('badges.index') }}" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline">Lihat Semua Badge &rarr;</a>
+                @endif
+            </div>
             
             @if(Auth::check() && count($badges) > 0)
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     @foreach($badges as $badge)
-                        <div class="p-5 bg-[#0f172a] rounded-xl border border-slate-700 shadow-md relative overflow-hidden group hover:border-emerald-500 transition-colors">
+                        <div class="p-5 bg-[#0f172a] rounded-xl border border-slate-700 shadow-md relative overflow-hidden group hover:border-emerald-500 transition-colors flex flex-col justify-between h-40">
                             <div class="absolute right-0 bottom-0 opacity-5 transform translate-x-4 translate-y-4 group-hover:scale-110 transition-transform">
-                                <span class="text-8xl">🏆</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                             </div>
-                            <div class="relative z-10">
-                                <h3 class="font-bold text-white text-base mb-1 flex items-center gap-2">
-                                    {{ $badge['name'] }}
+                            <div class="relative z-10 flex-grow">
+                                <h3 class="font-bold text-white text-base mb-1 flex items-center gap-2 line-clamp-1">
+                                    {{ $badge->name }}
                                 </h3>
-                                <p class="text-xs text-slate-400 mb-4">{{ $badge['target'] }}</p>
-                                
+                                <p class="text-[10px] text-slate-400 mb-2 line-clamp-2">{{ $badge->description }}</p>
+                            </div>
+                            <div class="relative z-10 mt-auto">
                                 <div class="w-full bg-slate-800 rounded-full h-2 mb-2 overflow-hidden border border-slate-700">
-                                    <div class="h-full transition-all duration-1000 @if($badge['progress'] >= 100) bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] @else bg-emerald-500 @endif" style="width: {{ $badge['progress'] }}%;"></div>
+                                    <div class="h-full transition-all duration-1000 @if($badge->progress_percentage >= 100) bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] @else bg-emerald-500 @endif" style="width: {{ $badge->progress_percentage }}%;"></div>
                                 </div>
                                 <div class="flex justify-between items-center text-[10px] font-bold text-slate-400">
                                     <span class="uppercase tracking-wider">Progress</span>
-                                    <span class="text-white">{{ (int)$badge['current'] }}/{{ $badge['max'] }}</span>
+                                    <span class="text-white">{{ (int)$badge->current_progress }}/{{ $badge->target }}</span>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @else
-                <div class="text-center py-8 text-slate-500 text-sm font-medium bg-slate-50 rounded-xl border border-slate-100">
-                    📝 Silakan Login untuk melihat progress pencapaian Anda
+                <div class="text-center py-8 text-slate-500 text-sm font-medium bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="9" x2="15" y1="9" y2="9"/><line x1="9" x2="15" y1="13" y2="13"/><line x1="9" x2="11" y1="17" y2="17"/></svg>
+                    Belum ada lencana yang tersedia atau silakan Login untuk melihat progress pencapaian Anda
                 </div>
             @endif
         </div>
@@ -252,11 +283,10 @@
                 Tips Naik Peringkat
             </h3>
             <ul class="text-sm font-medium text-blue-700/80 grid grid-cols-1 md:grid-cols-2 gap-3">
-                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Laporkan isu lingkungan yang Anda temui</li>
-                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Ikuti event-event komunitas hijau</li>
-                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Aktif berdiskusi di forum komunitas</li>
-                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Bagikan konten tentang lingkungan</li>
-                <li class="flex items-center gap-2 md:col-span-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Selesaikan semua kuis di Green Academy</li>
+                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Laporkan isu lingkungan di sekitar Anda</li>
+                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Ikuti event-event aksi lingkungan</li>
+                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Pastikan laporan Anda diverifikasi oleh Admin</li>
+                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Selesaikan modul pembelajaran di Green Academy</li>
             </ul>
         </div>
         
@@ -274,7 +304,10 @@
                         <span class="text-6xl font-black text-white leading-none">#{{ $userPosition ?? '?' }}</span>
                     </div>
                     <p class="text-xl font-medium mt-6 text-emerald-50"><strong class="font-bold text-white">{{ number_format($userPoints ?? 0) }}</strong> total poin Eco</p>
-                    <p class="text-sm font-bold text-emerald-100 mt-6 bg-black/10 inline-block px-4 py-2 rounded-full">✨ Terus berkontribusi untuk naik peringkat!</p>
+                    <p class="text-sm font-bold text-emerald-100 mt-6 bg-black/10 inline-flex items-center gap-2 px-4 py-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        Terus berkontribusi untuk naik peringkat!
+                    </p>
                 </div>
             </div>
         @else
