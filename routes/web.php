@@ -12,6 +12,7 @@ use App\Http\Controllers\MarkerDetailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EcoReporterController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\AdminMiddleware;
 
 // ========================================================PUBLIK BISA AKSES=============================================================================
@@ -103,6 +104,11 @@ Route::middleware('auth')->group(function () {
     // -- ADMIN TARUH SINI --
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
 
+        // -- Dashboard --
+        Route::get('/dashboard', function () {
+            return redirect()->route('users.index');
+        })->name('admin.dashboard');
+
         // -- Markers --
         Route::get('/markers', [MapController::class, 'adminIndex'])->name('markers.index');
         Route::get('/markers/create', [MapController::class, 'create'])->name('markers.create');
@@ -123,6 +129,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/{report}/edit', [ReportController::class, 'edit'])->name('admin.reports.edit');
         Route::post('/reports/{report}/update', [ReportController::class, 'update'])->name('admin.reports.update');
         Route::delete('/reports/{report}/delete', [ReportController::class, 'destroy'])->name('admin.reports.delete');
+
+        // -- Users (Profile Management) --
+        Route::resource('users', UserController::class);
     });
 
     
