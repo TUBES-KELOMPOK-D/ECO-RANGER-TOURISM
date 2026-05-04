@@ -8,6 +8,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\GreenAcademyController;
+use App\Http\Controllers\Admin\AcademyAdminController;
 use App\Http\Controllers\MarkerDetailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -109,6 +110,27 @@ Route::middleware('auth')->group(function () {
         Route::get('/markers/{marker}/edit', [MapController::class, 'edit'])->name('markers.edit');
         Route::post('/markers/{marker}/update', [MapController::class, 'update'])->name('markers.update');
         Route::post('/markers/{marker}/delete', [MapController::class, 'destroy'])->name('markers.destroy');
+
+        // -- Academy Admin (PBI-27) --
+        Route::prefix('academy')->name('admin.academy.')->group(function () {
+            Route::get('/', [AcademyAdminController::class, 'index'])->name('index');
+
+            Route::get('/articles', [AcademyAdminController::class, 'articlesIndex'])->name('articles.index');
+            Route::get('/articles/create', [AcademyAdminController::class, 'articlesCreate'])->name('articles.create');
+            Route::post('/articles', [AcademyAdminController::class, 'articlesStore'])->name('articles.store');
+            Route::get('/articles/{artikel}/edit', [AcademyAdminController::class, 'articlesEdit'])->name('articles.edit');
+            Route::match(['put', 'patch'], '/articles/{artikel}', [AcademyAdminController::class, 'articlesUpdate'])->name('articles.update');
+            Route::delete('/articles/{artikel}', [AcademyAdminController::class, 'articlesDestroy'])->name('articles.destroy');
+
+            Route::get('/quizzes', [AcademyAdminController::class, 'quizzesIndex'])->name('quizzes.index');
+            Route::get('/quizzes/create', [AcademyAdminController::class, 'quizzesCreate'])->name('quizzes.create');
+            Route::post('/quizzes', [AcademyAdminController::class, 'quizzesStore'])->name('quizzes.store');
+            Route::get('/quizzes/{kuis}/edit', [AcademyAdminController::class, 'quizzesEdit'])->name('quizzes.edit');
+            Route::match(['put', 'patch'], '/quizzes/{kuis}', [AcademyAdminController::class, 'quizzesUpdate'])->name('quizzes.update');
+            Route::delete('/quizzes/{kuis}', [AcademyAdminController::class, 'quizzesDestroy'])->name('quizzes.destroy');
+
+            Route::get('/progress', [AcademyAdminController::class, 'progress'])->name('progress');
+        });
 
         // -- Aksi / Event (CRUD & kelola anggota) --
         Route::post('/aksi', [EventController::class, 'store'])->name('aksi.store');
