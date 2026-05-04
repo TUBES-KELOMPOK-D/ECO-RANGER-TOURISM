@@ -15,8 +15,9 @@ class EventController extends Controller
     // ═══════════════════════════════════════════
     public function index(Request $request)
     {
-        $user  = auth()->user();
-        $month = $request->query('month'); // filter bulan (untuk regular user)
+        $user   = auth()->user();
+        $month  = $request->query('month'); // filter bulan (untuk regular user)
+        $search = $request->query('search'); // fitur search
 
         $query = Event::withCount('participants')
                        ->with('participants');
@@ -24,6 +25,15 @@ class EventController extends Controller
         // Filter bulan hanya untuk regular user
         if ($month && (!$user || $user->role !== 'admin')) {
             $query->whereMonth('event_date', $month);
+        }
+
+        // Fitur pencarian berdasarkan nama atau lokasi event
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
         }
 
         $events = $query->orderByDesc('event_date')->get();
@@ -36,7 +46,7 @@ class EventController extends Controller
             });
         }
 
-        return view('aksi.index', compact('events', 'month'));
+        return view('aksi.index', compact('events', 'month', 'search'));
     }
 
     // ═══════════════════════════════════════════
