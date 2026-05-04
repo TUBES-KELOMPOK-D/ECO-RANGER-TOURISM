@@ -200,8 +200,6 @@ class EventController extends Controller
         $user = auth()->user();
 
         $event->participants()->detach($user->id);
-
-<<<<<<< ert-45-pbi-25-manajemen-event-admin
         // Hapus poin yang didapatkan dari event ini jika ada
         $ledger = \App\Models\PointLedger::where('user_id', $user->id)
             ->where('description', 'like', '%(ID: ' . $event->id . ')%')
@@ -215,7 +213,6 @@ class EventController extends Controller
             $ledger->delete();
         }
 
-=======
         // Hapus poin reward jika user membatalkan keikutsertaan
         $ledgers = \App\Models\PointLedger::where('user_id', $user->id)
             ->where('description', 'like', '%(ID: ' . $event->id . ')%')
@@ -235,8 +232,6 @@ class EventController extends Controller
             $user->addEcoPoints(-$pointsToDeduct);
             RankingService::updateUserAchievements($user);
         }
-
->>>>>>> main
         return redirect()->route('aksi.index')->with('success', 'Berhasil membatalkan keikutsertaan dari event "' . $event->name . '"!');
     }
 
