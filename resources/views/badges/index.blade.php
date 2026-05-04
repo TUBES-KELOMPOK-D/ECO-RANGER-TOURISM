@@ -5,8 +5,16 @@
     <!-- Header Section -->
     <div class="bg-gradient-to-r from-green-600 to-green-800 rounded-2xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
         <div class="relative z-10">
-            <h1 class="text-3xl font-bold mb-2 font-inter">Koleksi Badge Eco Ranger</h1>
-            <p class="text-green-100 mb-6 font-inter">Kumpulkan badge dengan aktif berkontribusi dalam menjaga lingkungan!</p>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2 font-inter">Koleksi Lencana Eco Ranger</h1>
+                    <p class="text-green-100 font-inter">Kumpulkan lencana dengan aktif berkontribusi dalam menjaga lingkungan!</p>
+                </div>
+                <a href="{{ route('leaderboard') }}" class="inline-flex items-center gap-2 px-6 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-xl font-bold transition-all border border-white/30 shadow-sm self-start md:self-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    Kembali ke Peringkat
+                </a>
+            </div>
             
             <!-- Stats -->
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4">

@@ -101,7 +101,45 @@
                                 {{ $isMine
                                     ? 'bg-emerald-600 text-white rounded-br-md'
                                     : 'bg-white border border-slate-100 text-slate-800 shadow-sm rounded-bl-md' }}">
-                                {{ $msg->message }}
+                                @if($msg->image_path)
+                                    <div class="mb-2">
+                                        <img src="{{ asset('storage/' . $msg->image_path) }}" alt="Foto Aksi" class="max-w-[200px] sm:max-w-xs w-full rounded-xl shadow-sm object-cover">
+                                    </div>
+                                @endif
+                                @if($msg->message)
+                                    {{ $msg->message }}
+                                @endif
+                            </div>
+                            
+                            {{-- Reactions --}}
+                            <div class="flex flex-wrap items-center gap-1 mt-1 {{ $isMine ? 'justify-end' : '' }}">
+                                @php
+                                    $reactionsGroup = $msg->reactions->groupBy('reaction');
+                                @endphp
+                                @foreach($reactionsGroup as $reactionType => $reactionsList)
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-600 shadow-sm">
+                                        {{ $reactionType }} {{ $reactionsList->count() }}
+                                    </span>
+                                @endforeach
+
+                                {{-- React Button --}}
+                                <div class="relative group ml-1">
+                                    <button type="button" class="text-slate-400 hover:text-emerald-600 transition text-sm flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                    </button>
+                                    {{-- Emoji Menu --}}
+                                    <div class="absolute bottom-full {{ $isMine ? 'right-0' : 'left-0' }} pb-2 hidden group-hover:block z-10">
+                                        <div class="flex items-center gap-1 bg-white border border-slate-100 shadow-md rounded-full px-2 py-1">
+                                            @foreach(['👍', '❤️', '🔥', '👏', '🌿'] as $emoji)
+                                                <form method="POST" action="{{ route('aksi.chat.react', [$event->id, $msg->id]) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="reaction" value="{{ $emoji }}">
+                                                    <button type="submit" class="hover:bg-slate-100 w-6 h-6 rounded-full flex items-center justify-center text-sm transition">{{ $emoji }}</button>
+                                                </form>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="flex items-center gap-2 mt-1 {{ $isMine ? 'justify-end' : '' }}">
                                 <p class="text-xs text-slate-400">
@@ -127,12 +165,25 @@
 
         {{-- Send Message Form --}}
         <div class="px-5 py-4 border-t border-slate-100 bg-white">
-            <form method="POST" action="{{ route('aksi.chat.send', $event) }}" class="flex items-end gap-3">
+            <form method="POST" action="{{ route('aksi.chat.send', $event) }}" class="flex items-end gap-3" enctype="multipart/form-data">
                 @csrf
-                <div class="flex-1">
-                    <textarea name="message" rows="1" required
+                
+                {{-- Image Input --}}
+                <label for="chat-image" class="flex-shrink-0 w-11 h-11 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-all cursor-pointer shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </label>
+                <input type="file" name="image" id="chat-image" accept="image/*" class="hidden" onchange="previewImage(this)">
+
+                <div class="flex-1 flex flex-col gap-2">
+                    {{-- Image Preview Container --}}
+                    <div id="image-preview-container" class="hidden relative w-32 h-32 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                        <img id="image-preview" class="w-full h-full object-cover">
+                        <button type="button" onclick="removeImage()" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow hover:bg-red-600 transition">&times;</button>
+                    </div>
+                    
+                    <textarea name="message" rows="1"
                         id="chat-input"
-                        placeholder="Ketik pesan..."
+                        placeholder="Ketik pesan atau lampirkan foto aksi..."
                         class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-800 resize-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition leading-relaxed"
                         oninput="autoResize(this)"
                         onkeydown="submitOnEnter(event, this.form)"></textarea>
@@ -166,6 +217,29 @@
             e.preventDefault();
             form.submit();
         }
+    }
+
+    // Image Preview Logic
+    function previewImage(input) {
+        const previewContainer = document.getElementById('image-preview-container');
+        const previewImg = document.getElementById('image-preview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.classList.remove('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function removeImage() {
+        const input = document.getElementById('chat-image');
+        const previewContainer = document.getElementById('image-preview-container');
+        const previewImg = document.getElementById('image-preview');
+        input.value = '';
+        previewImg.src = '';
+        previewContainer.classList.add('hidden');
     }
 </script>
 @endpush

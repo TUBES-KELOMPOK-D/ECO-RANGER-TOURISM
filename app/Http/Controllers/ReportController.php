@@ -22,6 +22,18 @@ class ReportController extends Controller
         return view('reports.index', compact('reports', 'status'));
     }
 
+    public function publicIndex(Request $request)
+    {
+        $status = $request->query('status');
+
+        $reports = EcoReportSubmission::with('user')
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->orderByDesc('report_date')
+            ->get();
+
+        return view('reports.index', compact('reports', 'status'))->with('isPublic', true);
+    }
+
     public function adminIndex(Request $request)
     {
         $status = $request->query('status');
@@ -32,6 +44,11 @@ class ReportController extends Controller
             ->get();
 
         return view('reports.index', compact('reports', 'status'));
+    }
+
+    public function show(EcoReportSubmission $report)
+    {
+        return view('reports.show', compact('report'));
     }
 
     public function edit(EcoReportSubmission $report)
@@ -55,7 +72,20 @@ class ReportController extends Controller
             'status' => 'required|in:menunggu,diverifikasi,diterima,ditolak',
         ]);
 
+        $oldStatus = $report->status;
         $report->update($data);
+
+        // Tambah poin jika status berubah menjadi diverifikasi atau diterima
+        if (in_array($data['status'], ['diverifikasi', 'diterima']) && !in_array($oldStatus, ['diverifikasi', 'diterima'])) {
+            if ($report->user) {
+                \App\Services\RankingService::addPoints(
+                    $report->user, 
+                    'verify_report', 
+                    null, 
+                    'Poin dari verifikasi laporan: ' . $report->report_type
+                );
+            }
+        }
 
         return redirect()->route('admin.reports.index')->with('success', 'Status laporan berhasil diperbarui.');
     }

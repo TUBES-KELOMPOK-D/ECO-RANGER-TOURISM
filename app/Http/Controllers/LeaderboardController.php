@@ -59,13 +59,7 @@ class LeaderboardController extends Controller
         }
         
         // Mengambil data aturan poin dari RankingService dan database (jika ada)
-        $pointRules = [
-            ['activity' => 'Lapor Isu Lingkungan', 'points' => \App\Services\RankingService::POINT_RULES['report_issue'] ?? 10],
-            ['activity' => 'Ikuti event Lingkungan', 'points' => \App\Services\RankingService::POINT_RULES['community_action'] ?? 50],
-            ['activity' => 'Laporan Diverifikasi', 'points' => \App\Services\RankingService::POINT_RULES['verify_report'] ?? 5],
-            // Untuk modul akademi, ini diatur langsung dari poin di tabel artikels per modul (default 20)
-            ['activity' => 'Menyelesaikan Modul Akademi', 'points' => \App\Models\Artikel::first()->points ?? 20],
-        ];
+        $pointRules = \App\Services\RankingService::getPointRules();
         
         // Mengambil voucher secara dinamis dari database untuk Top 3
         $vouchers = \App\Models\Voucher::orderBy('id', 'asc')->take(3)->get();
@@ -86,6 +80,8 @@ class LeaderboardController extends Controller
             ];
         }
         
+        $rankingTips = \App\Models\RankingTip::all();
+
         return view('leaderboard.index', compact(
             'leaderboard',
             'topThree',
@@ -94,6 +90,7 @@ class LeaderboardController extends Controller
             'pointRules',
             'rewards',
             'badges',
+            'rankingTips',
             'perPage'
         ));
     }
@@ -124,5 +121,212 @@ class LeaderboardController extends Controller
             ],
             'top_three' => $this->leaderboardService->getTopThree(),
         ]);
+    }
+
+    // ========================================================
+    // ADMIN: MANAJEMEN SISTEM POIN & REWARD (PBI-26)
+    // ========================================================
+
+    public function managePointRules()
+    {
+        $rules = \App\Models\PointRule::all();
+        return view('leaderboard.admin_point_rules', compact('rules'));
+    }
+
+    public function storePointRule(Request $request)
+    {
+        $validated = $request->validate([
+            'action_name' => 'required|string|max:255',
+            'points_reward' => 'required|integer|min:0',
+            'icon' => 'nullable|string|max:50',
+            'description' => 'nullable|string',
+        ]);
+
+        $validated['action_key'] = \Illuminate\Support\Str::slug($request->action_name, '_');
+
+        \App\Models\PointRule::create($validated);
+        return redirect()->route('leaderboard.admin.point_rules')->with('success', 'Aturan Poin berhasil ditambahkan.');
+    }
+
+    public function updatePointRule(Request $request, \App\Models\PointRule $rule)
+    {
+        $validated = $request->validate([
+            'action_name' => 'required|string|max:255',
+            'points_reward' => 'required|integer|min:0',
+            'description' => 'nullable|string',
+        ]);
+
+        $rule->update($validated);
+        return redirect()->route('leaderboard.admin.point_rules')->with('success', 'Aturan Poin berhasil diperbarui.');
+    }
+
+    public function destroyPointRule(\App\Models\PointRule $rule)
+    {
+        $rule->delete();
+        return redirect()->route('leaderboard.admin.point_rules')->with('success', 'Aturan Poin berhasil dihapus.');
+    }
+
+    public function manageBadges()
+    {
+        $badges = \App\Models\Badge::all();
+        return view('leaderboard.admin_badges', compact('badges'));
+    }
+
+    public function storeBadge(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|unique:badges|max:255',
+            'icon' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|max:255',
+            'target' => 'required|integer|min:1',
+            'target_column' => 'required|string|max:255',
+            'target_condition' => 'required|string|max:255',
+            'points_reward' => 'required|integer|min:0',
+            'level' => 'required|integer|min:1',
+        ]);
+
+        \App\Models\Badge::create($validated);
+        return redirect()->route('leaderboard.admin.badges')->with('success', 'Lencana berhasil ditambahkan.');
+    }
+
+    public function updateBadge(Request $request, \App\Models\Badge $badge)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|max:255',
+            'target' => 'required|integer|min:1',
+            'points_reward' => 'required|integer|min:0',
+            'level' => 'required|integer|min:1',
+        ]);
+
+        $badge->update($validated);
+        return redirect()->route('leaderboard.admin.badges')->with('success', 'Lencana berhasil diperbarui.');
+    }
+
+    public function destroyBadge(\App\Models\Badge $badge)
+    {
+        $badge->delete();
+        return redirect()->route('leaderboard.admin.badges')->with('success', 'Lencana berhasil dihapus.');
+    }
+
+    // ========================================================
+    // ADMIN: MANAJEMEN VOUCHER & HADIAH
+    // ========================================================
+
+    public function manageVouchers()
+    {
+        $vouchers = \App\Models\Voucher::all();
+        return view('leaderboard.admin_vouchers', compact('vouchers'));
+    }
+
+    public function storeVoucher(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'poin_required' => 'required|integer|min:0',
+        ]);
+
+        $validated['kategori'] = 'lainnya';
+
+        \App\Models\Voucher::create($validated);
+        return redirect()->route('leaderboard.admin.vouchers')->with('success', 'Voucher berhasil ditambahkan.');
+    }
+
+    public function updateVoucher(Request $request, \App\Models\Voucher $voucher)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'poin_required' => 'required|integer|min:0',
+        ]);
+
+        $voucher->update($validated);
+        return redirect()->route('leaderboard.admin.vouchers')->with('success', 'Voucher berhasil diperbarui.');
+    }
+
+    public function destroyVoucher(\App\Models\Voucher $voucher)
+    {
+        if ($voucher->image_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($voucher->image_path);
+        }
+        $voucher->delete();
+        return redirect()->route('leaderboard.admin.vouchers')->with('success', 'Voucher berhasil dihapus.');
+    }
+
+    // ========================================================
+    // ADMIN: MANAJEMEN TIPS NAIK PERINGKAT
+    // ========================================================
+
+    public function manageTips()
+    {
+        $tips = \App\Models\RankingTip::all();
+        return view('leaderboard.admin_tips', compact('tips'));
+    }
+
+    public function storeTip(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'icon' => 'nullable|string|max:50',
+        ]);
+
+        \App\Models\RankingTip::create($validated);
+        return redirect()->route('leaderboard.admin.tips')->with('success', 'Tips berhasil ditambahkan.');
+    }
+
+    public function updateTip(Request $request, \App\Models\RankingTip $tip)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'icon' => 'nullable|string|max:50',
+        ]);
+
+        $tip->update($validated);
+        return redirect()->route('leaderboard.admin.tips')->with('success', 'Tips berhasil diperbarui.');
+    }
+
+    public function destroyTip(\App\Models\RankingTip $tip)
+    {
+        $tip->delete();
+        return redirect()->route('leaderboard.admin.tips')->with('success', 'Tips berhasil dihapus.');
+    }
+
+    public function resetLeaderboard()
+    {
+        // Reset points for all users
+        $users = \App\Models\User::where('role', 'user')->get();
+        foreach ($users as $user) {
+            $user->eco_points = 0;
+            $user->save();
+        }
+        return redirect()->route('leaderboard')->with('success', 'Leaderboard berhasil di-reset untuk musim baru.');
+    }
+
+    public function adjustPoints(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'points' => 'required|integer',
+            'description' => 'required|string|max:255',
+        ]);
+
+        $user = \App\Models\User::findOrFail($validated['user_id']);
+        
+        \App\Models\PointLedger::create([
+            'user_id' => $user->id,
+            'points' => $validated['points'],
+            'type' => $validated['points'] >= 0 ? 'earning' : 'redemption',
+            'description' => 'Admin adjustment: ' . $validated['description'],
+        ]);
+
+        $user->addEcoPoints($validated['points']);
+
+        return redirect()->route('leaderboard')->with('success', 'Poin pengguna berhasil disesuaikan.');
     }
 }

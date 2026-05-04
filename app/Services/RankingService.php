@@ -10,14 +10,15 @@ use Illuminate\Support\Carbon;
 class RankingService
 {
     /**
-     * Point rules configuration
+     * Default point rules configuration (fallback if database is empty)
      */
-    public const POINT_RULES = [
+    public const DEFAULT_POINT_RULES = [
         'report_issue' => 10,           // Lapor isu lingkungan
         'community_action' => 50,       // Ikut aksi komunitas
         'verify_report' => 5,           // Verifikasi laporan
         'forum_discussion' => 15,       // Diskusi forum
         'share_content' => 20,          // Bagikan konten
+        'quiz' => 20,                   // Lulus kuis akademi
     ];
 
     /**
@@ -99,9 +100,14 @@ class RankingService
     /**
      * Add points to user
      */
-    public static function addPoints(User $user, $pointType, $amount = null, $description = null)
+    public static function addPoints(User $user, $pointType, $amount = null, $description = null, $recursive = true)
     {
-        $points = $amount ?? self::POINT_RULES[$pointType] ?? 0;
+        $points = $amount;
+        
+        if ($points === null) {
+            $rule = \App\Models\PointRule::where('action_key', $pointType)->first();
+            $points = $rule ? $rule->points_reward : (self::DEFAULT_POINT_RULES[$pointType] ?? 0);
+        }
         
         if ($points > 0) {
             // Log to ledger
@@ -114,10 +120,12 @@ class RankingService
 
             // Add points to user
             $user->addEcoPoints($points);
+            
+            // Sync badges if not in a recursive call (badge reward)
+            if ($recursive) {
+                app(\App\Services\BadgeCheckerService::class)->checkAndAwardBadges($user);
+            }
         }
-
-        // Update achievements
-        self::updateUserAchievements($user);
 
         return $user;
     }
@@ -229,41 +237,62 @@ class RankingService
      */
     public static function getPointRules()
     {
+        $dbRules = \App\Models\PointRule::all();
+        
+        if ($dbRules->count() > 0) {
+            return $dbRules->map(function($rule) {
+                return [
+                    'activity' => $rule->action_name,
+                    'points' => $rule->points_reward,
+                    'icon' => $rule->icon,
+                    'key' => $rule->action_key,
+                    'description' => $rule->description
+                ];
+            })->toArray();
+        }
+
         return [
             [
-                'title' => 'Lapor Isu Lingkungan',
+                'activity' => 'Lapor Isu Lingkungan',
                 'description' => 'Buat laporan tentang masalah lingkungan',
                 'icon' => '📋',
-                'points' => self::POINT_RULES['report_issue'],
+                'points' => self::DEFAULT_POINT_RULES['report_issue'],
                 'key' => 'report_issue',
             ],
             [
-                'title' => 'Ikut Aksi Komunitas',
+                'activity' => 'Ikuti event Lingkungan',
                 'description' => 'Berpartisipasi dalam kegiatan komunitas',
                 'icon' => '👥',
-                'points' => self::POINT_RULES['community_action'],
+                'points' => self::DEFAULT_POINT_RULES['community_action'],
                 'key' => 'community_action',
             ],
             [
-                'title' => 'Verifikasi Laporan',
-                'description' => 'Verifikasi laporan dari pengguna lain',
+                'activity' => 'Laporan Diverifikasi',
+                'description' => 'Laporan Anda telah divalidasi oleh tim',
                 'icon' => '✅',
-                'points' => self::POINT_RULES['verify_report'],
+                'points' => self::DEFAULT_POINT_RULES['verify_report'],
                 'key' => 'verify_report',
             ],
             [
-                'title' => 'Diskusi Forum',
+                'activity' => 'Diskusi Forum',
                 'description' => 'Berbagi wawasan di forum komunitas',
                 'icon' => '💬',
-                'points' => self::POINT_RULES['forum_discussion'],
+                'points' => self::DEFAULT_POINT_RULES['forum_discussion'],
                 'key' => 'forum_discussion',
             ],
             [
-                'title' => 'Bagikan Konten',
+                'activity' => 'Bagikan Konten',
                 'description' => 'Bagikan foto/video mengenai inisiatif hijau',
                 'icon' => '📸',
-                'points' => self::POINT_RULES['share_content'],
+                'points' => self::DEFAULT_POINT_RULES['share_content'],
                 'key' => 'share_content',
+            ],
+            [
+                'activity' => 'Menyelesaikan Modul Akademi',
+                'description' => 'Menyelesaikan kuis di Green Academy',
+                'icon' => '🎓',
+                'points' => self::DEFAULT_POINT_RULES['quiz'] ?? 20,
+                'key' => 'quiz',
             ],
         ];
     }

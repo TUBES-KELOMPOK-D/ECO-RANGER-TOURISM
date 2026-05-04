@@ -13,6 +13,7 @@ use App\Http\Controllers\MarkerDetailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EcoReporterController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\AdminMiddleware;
 
 // ========================================================PUBLIK BISA AKSES=============================================================================
@@ -46,6 +47,10 @@ Route::prefix('pelaporan')->group(function () {
     Route::post('/', [EcoReporterController::class, 'store'])->name('reports.store');
     Route::get('/berhasil', [EcoReporterController::class, 'success'])->name('reports.success');
 });
+
+// --Laporan Publik--
+Route::get('/laporan', [ReportController::class, 'publicIndex'])->name('reports.public');
+Route::get('/laporan/{report}', [ReportController::class, 'show'])->name('reports.show');
 
 // --Akademi--
 Route::prefix('academy')->group(function () {
@@ -83,6 +88,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/{event}/leave', [EventController::class, 'leave'])->name('aksi.leave');
         Route::get('/{event}/chat', [EventController::class, 'chat'])->name('aksi.chat');
         Route::post('/{event}/chat/send', [EventController::class, 'sendMessage'])->name('aksi.chat.send');
+        Route::post('/{event}/chat/{message}/react', [EventController::class, 'react'])->name('aksi.chat.react');
     });
 
     // --Achievements--
@@ -102,6 +108,11 @@ Route::middleware('auth')->group(function () {
 
     // -- ADMIN TARUH SINI --
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
+
+        // -- Dashboard --
+        Route::get('/dashboard', function () {
+            return redirect()->route('users.index');
+        })->name('admin.dashboard');
 
         // -- Markers --
         Route::get('/markers', [MapController::class, 'adminIndex'])->name('markers.index');
@@ -144,6 +155,32 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/{report}/edit', [ReportController::class, 'edit'])->name('admin.reports.edit');
         Route::post('/reports/{report}/update', [ReportController::class, 'update'])->name('admin.reports.update');
         Route::delete('/reports/{report}/delete', [ReportController::class, 'destroy'])->name('admin.reports.delete');
+
+        // -- PBI-26: Kelola Peringkat (Point Rules, Badges, Leaderboard) --
+        Route::get('/leaderboard/admin/point-rules', [\App\Http\Controllers\LeaderboardController::class, 'managePointRules'])->name('leaderboard.admin.point_rules');
+        Route::post('/leaderboard/admin/point-rules', [\App\Http\Controllers\LeaderboardController::class, 'storePointRule'])->name('leaderboard.admin.point_rules.store');
+        Route::put('/leaderboard/admin/point-rules/{rule}', [\App\Http\Controllers\LeaderboardController::class, 'updatePointRule'])->name('leaderboard.admin.point_rules.update');
+        Route::post('/leaderboard/admin/point-rules/{rule}/delete', [\App\Http\Controllers\LeaderboardController::class, 'destroyPointRule'])->name('leaderboard.admin.point_rules.destroy');
+        
+        Route::get('/leaderboard/admin/badges', [\App\Http\Controllers\LeaderboardController::class, 'manageBadges'])->name('leaderboard.admin.badges');
+        Route::post('/leaderboard/admin/badges', [\App\Http\Controllers\LeaderboardController::class, 'storeBadge'])->name('leaderboard.admin.badges.store');
+        Route::put('/leaderboard/admin/badges/{badge}', [\App\Http\Controllers\LeaderboardController::class, 'updateBadge'])->name('leaderboard.admin.badges.update');
+        Route::post('/leaderboard/admin/badges/{badge}/delete', [\App\Http\Controllers\LeaderboardController::class, 'destroyBadge'])->name('leaderboard.admin.badges.destroy');
+
+        Route::get('/leaderboard/admin/vouchers', [\App\Http\Controllers\LeaderboardController::class, 'manageVouchers'])->name('leaderboard.admin.vouchers');
+        Route::post('/leaderboard/admin/vouchers', [\App\Http\Controllers\LeaderboardController::class, 'storeVoucher'])->name('leaderboard.admin.vouchers.store');
+        Route::put('/leaderboard/admin/vouchers/{voucher}', [\App\Http\Controllers\LeaderboardController::class, 'updateVoucher'])->name('leaderboard.admin.vouchers.update');
+        Route::post('/leaderboard/admin/vouchers/{voucher}/delete', [\App\Http\Controllers\LeaderboardController::class, 'destroyVoucher'])->name('leaderboard.admin.vouchers.destroy');
+
+        Route::get('/leaderboard/admin/tips', [\App\Http\Controllers\LeaderboardController::class, 'manageTips'])->name('leaderboard.admin.tips');
+        Route::post('/leaderboard/admin/tips', [\App\Http\Controllers\LeaderboardController::class, 'storeTip'])->name('leaderboard.admin.tips.store');
+        Route::put('/leaderboard/admin/tips/{tip}', [\App\Http\Controllers\LeaderboardController::class, 'updateTip'])->name('leaderboard.admin.tips.update');
+        Route::post('/leaderboard/admin/tips/{tip}/delete', [\App\Http\Controllers\LeaderboardController::class, 'destroyTip'])->name('leaderboard.admin.tips.destroy');
+
+        Route::post('/leaderboard/admin/reset', [\App\Http\Controllers\LeaderboardController::class, 'resetLeaderboard'])->name('leaderboard.admin.reset');
+        Route::post('/leaderboard/admin/adjust', [\App\Http\Controllers\LeaderboardController::class, 'adjustPoints'])->name('leaderboard.admin.adjust');
+        // -- Users (Profile Management) --
+        Route::resource('users', UserController::class);
     });
 
     
