@@ -101,7 +101,7 @@ class MarkerDetailController extends Controller
 
         return match (true) {
             $code === 0 => 'Cerah',
-            $code === 1 => 'Cerah Berawan',
+            $code === 1 => 'Cerah Berawans',
             $code === 2 => 'Berawan',
             $code === 3 => 'Mendung',
             in_array($code, [45, 48]) => 'Berkabut',
