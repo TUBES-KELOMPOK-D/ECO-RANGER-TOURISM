@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Action;
 use App\Models\Artikel;
+use App\Models\Marker;
 use App\Models\UserProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Services\RankingService;
 
 class GreenAcademyController extends Controller
@@ -45,11 +47,39 @@ class GreenAcademyController extends Controller
             ? (int) round(($completedModules / $totalModules) * 100)
             : 0;
 
+        $recommendedDestinations = Marker::query()
+            ->whereNotNull('eco_health_score')
+            ->orderByDesc('eco_health_score')
+            ->orderByDesc('created_at')
+            ->take(3)
+            ->get();
+
+        if ($recommendedDestinations->count() < 3) {
+            // Fallback saat belum ada cukup marker dengan skor aktif.
+            $fallbackDestinations = Marker::query()
+                ->whereNotIn('id', $recommendedDestinations->pluck('id'))
+                ->latest()
+                ->take(3 - $recommendedDestinations->count())
+                ->get();
+
+            $recommendedDestinations = $recommendedDestinations->concat($fallbackDestinations);
+        }
+
+        $recommendedDestinations = $recommendedDestinations
+            ->take(3)
+            ->values()
+            ->each(function (Marker $marker) {
+                $marker->recommendation_image_url = $marker->image_path && Storage::disk('public')->exists($marker->image_path)
+                    ? asset('storage/' . $marker->image_path)
+                    : null;
+            });
+
         return view('green-academy.index', compact(
             'artikels',
             'totalModules',
             'completedModules',
-            'progressPercentage'
+            'progressPercentage',
+            'recommendedDestinations'
         ));
     }
 

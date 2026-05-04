@@ -104,6 +104,73 @@
             <div class="mt-8">
                 <div class="flex items-center justify-between">
                     <div>
+                        <h2 class="text-2xl font-extrabold text-slate-900">Rekomendasi Destinasi Wisata</h2>
+                        <p class="mt-2 text-sm text-slate-500">Destinasi pilihan berdasarkan skor wisata hijau tertinggi.</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 grid gap-5 md:grid-cols-3">
+                    @forelse($recommendedDestinations->take(3) as $marker)
+                    @php
+                        $statusLabel = [
+                            'green' => 'Sangat Terjaga',
+                            'yellow' => 'Terjaga',
+                            'red' => 'Perlu Perhatian',
+                        ][$marker->status] ?? ($marker->category ?? 'Destinasi');
+
+                        $statusClass = match($marker->status) {
+                            'yellow' => 'bg-amber-50 text-amber-700 ring-amber-100',
+                            'red' => 'bg-rose-50 text-rose-700 ring-rose-100',
+                            default => 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+                        };
+                    @endphp
+                    <a href="{{ route('markers.show', ['marker' => $marker->id, 'from' => 'academy']) }}" class="academy-card group overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-sm">
+                        <div class="h-36 overflow-hidden bg-emerald-50">
+                            @if($marker->recommendation_image_url)
+                            <img src="{{ $marker->recommendation_image_url }}" alt="{{ $marker->title ?? $marker->location_name ?? 'Destinasi wisata' }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+                            @else
+                            <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100 via-slate-50 to-amber-50 text-emerald-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0Z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                            </div>
+                            @endif
+                        </div>
+                        <div class="p-5">
+                            <div class="mb-4 flex items-center justify-between gap-3">
+                                <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ring-1 {{ $statusClass }}">
+                                    {{ $marker->category ?? $statusLabel }}
+                                </span>
+                                <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 0 0 .95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 0 0-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 0 0-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 0 0-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 0 0 .951-.69l1.07-3.292Z" />
+                                    </svg>
+                                    {{ $marker->eco_health_score !== null ? number_format($marker->eco_health_score, 1) : 'Baru' }}
+                                </span>
+                            </div>
+                            <h3 class="line-clamp-2 text-lg font-extrabold text-slate-900">{{ $marker->title ?? 'Destinasi Wisata' }}</h3>
+                            <p class="mt-1 text-sm font-semibold text-emerald-700">{{ $marker->location_name ?? 'Lokasi belum tersedia' }}</p>
+                            <p class="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{{ \Illuminate\Support\Str::limit($marker->description ?? 'Belum ada deskripsi untuk destinasi ini.', 110) }}</p>
+                            <div class="mt-5 inline-flex items-center gap-2 text-sm font-black text-slate-900 group-hover:text-emerald-700">
+                                Lihat Detail
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                                </svg>
+                            </div>
+                        </div>
+                    </a>
+                    @empty
+                    <div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500 md:col-span-3">
+                        Belum ada rekomendasi destinasi yang tersedia.
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <div class="flex items-center justify-between">
+                    <div>
                         <h2 class="text-2xl font-extrabold text-slate-900">Materi Tersedia</h2>
                         <p class="mt-2 text-sm text-slate-500">Pilih materi yang ingin dipelajari lebih dulu.</p>
                     </div>
