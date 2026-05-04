@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marker;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -64,7 +65,31 @@ class MarkerDetailController extends Controller
         // Map weather code to description
         $weatherDescription = $this->getWeatherDescription($weather['weathercode'] ?? null);
 
-        return view('markers.detail', compact('marker', 'weather', 'weatherDescription', 'lat', 'lng'));
+        // Load reviews for this marker (standalone — tidak terkait laporan)
+        $reviews = Review::with('user')
+            ->where('marker_id', $marker->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $totalReviews = $reviews->count();
+        $averageRating = $totalReviews > 0 ? round($reviews->avg('rating'), 1) : 0;
+
+        // Star distribution (1-5)
+        $starDistribution = [];
+        for ($i = 5; $i >= 1; $i--) {
+            $starDistribution[$i] = $reviews->where('rating', $i)->count();
+        }
+
+        // Check if current logged-in user already reviewed
+        $userHasReviewed = false;
+        if (auth()->check()) {
+            $userHasReviewed = $reviews->where('user_id', auth()->id())->isNotEmpty();
+        }
+
+        return view('markers.detail', compact(
+            'marker', 'weather', 'weatherDescription', 'lat', 'lng',
+            'reviews', 'totalReviews', 'averageRating', 'starDistribution', 'userHasReviewed'
+        ));
     }
 
     /**

@@ -175,6 +175,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user's reviews/ulasan
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
      * Get the badges awarded to the user.
      */
     public function badges()

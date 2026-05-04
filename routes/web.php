@@ -12,6 +12,7 @@ use App\Http\Controllers\MarkerDetailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EcoReporterController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\AdminMiddleware;
 
@@ -103,7 +104,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/vouchers/{voucher}/claim', [\App\Http\Controllers\VoucherController::class, 'claim'])->name('vouchers.claim');
     Route::post('/vouchers/{voucher}/use', [\App\Http\Controllers\VoucherController::class, 'useVoucher'])->name('vouchers.use');
 
-
+    // -- Review & Ulasan (standalone, tidak terkait laporan) --
+    Route::post('/markers/{marker}/reviews', [ReviewController::class, 'store'])->name('markers.reviews.store');
 
     // -- ADMIN TARUH SINI --
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {

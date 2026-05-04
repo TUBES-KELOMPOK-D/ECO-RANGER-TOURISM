@@ -14,4 +14,12 @@ class Marker extends Model
         'eco_rules' => 'array',
         'eco_health_score' => 'float',
     ];
+
+    /**
+     * Review/ulasan yang diberikan untuk lokasi ini.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }
