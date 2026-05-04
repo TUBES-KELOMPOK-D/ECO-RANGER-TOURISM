@@ -55,7 +55,20 @@ class ReportController extends Controller
             'status' => 'required|in:menunggu,diverifikasi,diterima,ditolak',
         ]);
 
+        $oldStatus = $report->status;
         $report->update($data);
+
+        // Tambah poin jika status berubah menjadi diverifikasi atau diterima
+        if (in_array($data['status'], ['diverifikasi', 'diterima']) && !in_array($oldStatus, ['diverifikasi', 'diterima'])) {
+            if ($report->user) {
+                \App\Services\RankingService::addPoints(
+                    $report->user, 
+                    'verify_report', 
+                    null, 
+                    'Poin dari verifikasi laporan: ' . $report->report_type
+                );
+            }
+        }
 
         return redirect()->route('admin.reports.index')->with('success', 'Status laporan berhasil diperbarui.');
     }

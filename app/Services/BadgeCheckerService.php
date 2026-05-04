@@ -26,7 +26,7 @@ class BadgeCheckerService
             'points' => $user->total_points ?? 0,
             'reports_count' => DB::table('eco_report_submissions')->where('user_id', $user->id)->count(),
             'events_count' => DB::table('participant_events')->where('user_id', $user->id)->count(),
-            'verified_reports_count' => DB::table('eco_report_submissions')->where('user_id', $user->id)->whereIn('status', ['selesai', 'diverifikasi'])->count(),
+            'verified_reports_count' => DB::table('eco_report_submissions')->where('user_id', $user->id)->whereIn('status', ['selesai', 'diverifikasi', 'diterima'])->count(),
             'academy_modules_count' => DB::table('user_progress')->where('user_id', $user->id)->where('completed', 1)->count(),
         ];
 
@@ -55,11 +55,15 @@ class BadgeCheckerService
                     'achieved_at' => now(),
                 ]);
                 
-                // If there's points reward, you might want to add points here or via PointCalculationService
-                // (Omitted point addition here to adhere to not changing PointCalculationService and assuming it might be handled separately, or add points directly to user)
+                // If there's points reward, award it via RankingService
                 if ($badge->points_reward > 0) {
-                    $user->points = ($user->points ?? 0) + $badge->points_reward;
-                    $user->save();
+                    \App\Services\RankingService::addPoints(
+                        $user, 
+                        'badge_achievement', 
+                        $badge->points_reward, 
+                        'Lencana diraih: ' . $badge->name,
+                        false // Set recursive to false to prevent infinite loops
+                    );
                 }
 
                 $newBadges[] = $badge;
@@ -107,7 +111,7 @@ class BadgeCheckerService
             'points' => $user->total_points ?? 0,
             'reports_count' => DB::table('eco_report_submissions')->where('user_id', $user->id)->count(),
             'events_count' => DB::table('participant_events')->where('user_id', $user->id)->count(),
-            'verified_reports_count' => DB::table('eco_report_submissions')->where('user_id', $user->id)->whereIn('status', ['selesai', 'diverifikasi'])->count(),
+            'verified_reports_count' => DB::table('eco_report_submissions')->where('user_id', $user->id)->whereIn('status', ['selesai', 'diverifikasi', 'diterima'])->count(),
             'academy_modules_count' => DB::table('user_progress')->where('user_id', $user->id)->where('completed', 1)->count(),
         ];
 
