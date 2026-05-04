@@ -250,14 +250,22 @@
              style="animation-delay: {{ $index * 0.07 }}s">
 
             {{-- Wrap content in a clickable area for detail view --}}
-            <div class="cursor-pointer group" onclick="openDetailModal({{ $event->id }})">
+            <div class="cursor-pointer group relative" onclick="openDetailModal({{ $event->id }})">
                 {{-- Event Image --}}
-                @if($event->image_path)
-                    <img src="{{ asset('storage/' . $event->image_path) }}"
-                         alt="{{ $event->name }}" class="event-img" />
-                @else
-                    <div class="event-img-placeholder group-hover:scale-105 transition-transform">🌿</div>
-                @endif
+                <div class="relative overflow-hidden rounded-t-3xl">
+                    @if($event->image_path)
+                        <img src="{{ asset('storage/' . $event->image_path) }}"
+                             alt="{{ $event->name }}" class="event-img group-hover:scale-105 transition-transform duration-500" />
+                    @else
+                        <div class="event-img-placeholder group-hover:scale-105 transition-transform duration-500">🌿</div>
+                    @endif
+                    
+                    {{-- Gamification Badge: Points/Reward Indicator --}}
+                    <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg border border-amber-200 flex items-center gap-1.5 z-10 group-hover:-translate-y-0.5 transition-all">
+                        <span class="text-amber-500 text-sm">🌟</span>
+                        <span class="text-xs font-black text-amber-700 tracking-wide">+50 Poin</span>
+                    </div>
+                </div>
 
                 <div class="p-5 pb-0">
                     {{-- Header --}}
