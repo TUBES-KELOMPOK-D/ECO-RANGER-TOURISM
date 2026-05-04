@@ -69,15 +69,29 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT (Tumpuk ke bawah) -->
+    <!-- MAIN CONTENT -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-8">
         
+        <!-- SUCCESS MESSAGE -->
+        @if(session('success'))
+        <div class="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl text-emerald-600 font-bold text-center animate-pulse">
+            {{ session('success') }}
+        </div>
+        @endif
+
         <!-- REWARD VOUCHER -->
         <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
             <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    Reward Voucher
-                </h2>
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        Reward Voucher
+                    </h2>
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <a href="{{ route('leaderboard.admin.vouchers') }}" class="p-2 bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-600 rounded-xl transition-all shadow-sm group" title="Kelola Voucher">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-45 transition-transform"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </a>
+                    @endif
+                </div>
                 <a href="{{ route('vouchers.index') }}" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm flex items-center gap-2 text-sm justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8v12"/><path d="M19 12v.01"/><path d="M19 16v.01"/><path d="M5 12v.01"/><path d="M5 16v.01"/><path d="M10.5 8c0-1.5-1.5-3-3-3s-3 1.5-3 3"/><path d="M13.5 8c0-1.5 1.5-3 3-3s3 1.5 3 3"/></svg>
                     Klaim & Gunakan Voucher
@@ -123,9 +137,19 @@
         <!-- PAPAN PERINGKAT -->
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
             <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    Papan Peringkat
-                </h2>
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        Papan Peringkat
+                    </h2>
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <form action="{{ route('leaderboard.admin.reset') }}" method="POST" onsubmit="return confirm('PERINGATAN: Aksi ini akan mereset SEMUA poin pengguna menjadi 0. Lanjutkan?')" class="inline">
+                            @csrf
+                            <button type="submit" class="p-2 bg-slate-100 text-red-400 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all shadow-sm group" title="Reset Semua Poin">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            </button>
+                        </form>
+                    @endif
+                </div>
                 <div class="text-sm font-semibold text-slate-500 bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm">
                     Total: {{ $leaderboard->total() }} Pengguna
                 </div>
@@ -140,6 +164,9 @@
                                 <th class="py-4 px-6">Pengguna</th>
                                 <th class="py-4 px-6">Level</th>
                                 <th class="py-4 px-6 text-right">Total Poin</th>
+                                @if(auth()->check() && auth()->user()->role === 'admin')
+                                <th class="py-4 px-6 text-center bg-slate-50 border-l border-slate-200">Aksi (Admin)</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -184,6 +211,17 @@
                                             <span class="text-xs font-bold text-emerald-400">PTS</span>
                                         </div>
                                     </td>
+                                    @if(auth()->check() && auth()->user()->role === 'admin')
+                                    <td class="py-4 px-6 bg-slate-50/50 border-l border-slate-100">
+                                        <form action="{{ route('leaderboard.admin.adjust') }}" method="POST" class="flex gap-2 items-center justify-center">
+                                            @csrf
+                                            <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                            <input type="number" name="points" placeholder="Poin" required class="w-20 rounded-lg border-slate-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-xs p-2 text-center bg-white" title="Bisa nilai positif atau negatif">
+                                            <input type="text" name="description" placeholder="Alasan..." required class="w-32 rounded-lg border-slate-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-xs p-2 bg-white">
+                                            <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-2 text-white text-xs font-bold hover:bg-emerald-700 shadow-sm transition-all">Set</button>
+                                        </form>
+                                    </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
@@ -209,9 +247,18 @@
 
         <!-- ATURAN POIN -->
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                Aturan Poin
-            </h2>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        Aturan Poin
+                    </h2>
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <a href="{{ route('leaderboard.admin.point_rules') }}" class="p-2 bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-600 rounded-xl transition-all shadow-sm group" title="Kelola Aturan Poin">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-45 transition-transform"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </a>
+                    @endif
+                </div>
+            </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 @foreach($pointRules as $rule)
                 <div class="flex flex-col items-center justify-center p-5 bg-gradient-to-b from-slate-50 to-slate-100 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all group">
@@ -236,11 +283,18 @@
         <!-- LENCANA & PENCAPAIAN -->
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    Lencana & Pencapaian
-                </h2>
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        Lencana & Pencapaian
+                    </h2>
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <a href="{{ route('leaderboard.admin.badges') }}" class="p-2 bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-600 rounded-xl transition-all shadow-sm group" title="Kelola Lencana">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-45 transition-transform"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </a>
+                    @endif
+                </div>
                 @if(Auth::check() && count($badges) > 0)
-                    <a href="{{ route('badges.index') }}" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline">Lihat Semua Badge &rarr;</a>
+                    <a href="{{ route('badges.index') }}" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline">Lihat Semua Lencana &rarr;</a>
                 @endif
             </div>
             
@@ -277,21 +331,9 @@
             @endif
         </div>
         
-        <!-- TIPS NAIK PERINGKAT -->
-        <div class="bg-blue-50/50 rounded-2xl shadow-sm p-6 border border-blue-100">
-            <h3 class="font-bold text-blue-800 mb-4 flex items-center gap-2">
-                Tips Naik Peringkat
-            </h3>
-            <ul class="text-sm font-medium text-blue-700/80 grid grid-cols-1 md:grid-cols-2 gap-3">
-                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Laporkan isu lingkungan di sekitar Anda</li>
-                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Ikuti event-event aksi lingkungan</li>
-                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Pastikan laporan Anda diverifikasi oleh Admin</li>
-                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Selesaikan modul pembelajaran di Green Academy</li>
-            </ul>
-        </div>
-        
         <!-- POSISI USER SAAT INI (Paling Bawah) -->
         @auth
+            @if(auth()->user()->role !== 'admin')
             <div class="rounded-3xl shadow-lg p-10 text-white text-center relative overflow-hidden" style="background: linear-gradient(135deg, #098352 0%, #10A96E 100%);">
                 <!-- Decorative Elements -->
                 <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-5 mix-blend-overlay"></div>
@@ -310,6 +352,7 @@
                     </p>
                 </div>
             </div>
+            @endif
         @else
             <div class="rounded-3xl shadow-lg p-10 text-white text-center bg-slate-800 relative overflow-hidden">
                 <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
