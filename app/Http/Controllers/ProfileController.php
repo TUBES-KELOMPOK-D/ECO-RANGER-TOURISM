@@ -33,7 +33,12 @@ class ProfileController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'ecoReports', 'latestReport', 'reportCount', 'totalPoints'));
+        // Ambil event yang diikuti user (Aksi yang Diikuti)
+        $participatedEvents = $user->participatedEvents()
+            ->orderByDesc('event_date')
+            ->get();
+
+        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'ecoReports', 'latestReport', 'reportCount', 'totalPoints', 'participatedEvents'));
     }
 
     public function settings()

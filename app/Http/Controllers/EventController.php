@@ -176,6 +176,17 @@ class EventController extends Controller
             if (!$hasEarned) {
                 RankingService::addPoints($user, 'community_action', null, 'Bergabung ke event: ' . $event->name . ' (ID: ' . $event->id . ')');
             }
+            
+            // Check and award badges
+            $newBadges = app(\App\Services\BadgeCheckerService::class)->checkAndAwardBadges($user);
+            
+            $successMsg = 'Berhasil bergabung ke event "' . $event->name . '"!';
+            if (!empty($newBadges)) {
+                $badgeNames = collect($newBadges)->pluck('name')->implode(', ');
+                $successMsg .= ' Selamat! Anda mendapatkan Badge Baru: ' . $badgeNames . ' 🏆';
+            }
+            
+            return redirect()->route('aksi.index')->with('success', $successMsg);
         }
 
         return redirect()->route('aksi.index')->with('success', 'Berhasil bergabung ke event "' . $event->name . '"!');
@@ -190,6 +201,7 @@ class EventController extends Controller
 
         $event->participants()->detach($user->id);
 
+<<<<<<< ert-45-pbi-25-manajemen-event-admin
         // Hapus poin yang didapatkan dari event ini jika ada
         $ledger = \App\Models\PointLedger::where('user_id', $user->id)
             ->where('description', 'like', '%(ID: ' . $event->id . ')%')
@@ -203,6 +215,28 @@ class EventController extends Controller
             $ledger->delete();
         }
 
+=======
+        // Hapus poin reward jika user membatalkan keikutsertaan
+        $ledgers = \App\Models\PointLedger::where('user_id', $user->id)
+            ->where('description', 'like', '%(ID: ' . $event->id . ')%')
+            ->get();
+            
+        $pointsToDeduct = 0;
+        foreach ($ledgers as $ledger) {
+            if ($ledger->type === 'earning') {
+                $pointsToDeduct += $ledger->points;
+            } elseif ($ledger->type === 'deduction') {
+                $pointsToDeduct -= $ledger->points;
+            }
+            $ledger->delete();
+        }
+
+        if ($pointsToDeduct > 0) {
+            $user->addEcoPoints(-$pointsToDeduct);
+            RankingService::updateUserAchievements($user);
+        }
+
+>>>>>>> main
         return redirect()->route('aksi.index')->with('success', 'Berhasil membatalkan keikutsertaan dari event "' . $event->name . '"!');
     }
 

@@ -50,27 +50,41 @@ class LeaderboardController extends Controller
             }
         }
         
-        
-        $badges = [];
+        $badges = collect();
         if ($currentUser) {
-            $badges = $this->getUserBadges($currentUser);
+            $badgeService = app(\App\Services\BadgeCheckerService::class);
+            // Ensure badges are up to date
+            $badgeService->checkAndAwardBadges($currentUser);
+            $badges = $badgeService->getAllBadgesWithProgress($currentUser)->take(5);
         }
         
-        // Data aturan poin untuk ditampilkan
+        // Mengambil data aturan poin dari RankingService dan database (jika ada)
         $pointRules = [
-            ['activity' => 'Lapor Isu Lingkungan', 'points' => 10, 'icon' => '📋'],
-            ['activity' => 'Ikut Aksi Komunitas', 'points' => 50, 'icon' => '🤝'],
-            ['activity' => 'Verifikasi Laporan', 'points' => 5, 'icon' => '✅'],
-            ['activity' => 'Diskusi Forum', 'points' => 15, 'icon' => '💬'],
-            ['activity' => 'Bagikan Konten', 'points' => 20, 'icon' => '📤'],
+            ['activity' => 'Lapor Isu Lingkungan', 'points' => \App\Services\RankingService::POINT_RULES['report_issue'] ?? 10],
+            ['activity' => 'Ikuti event Lingkungan', 'points' => \App\Services\RankingService::POINT_RULES['community_action'] ?? 50],
+            ['activity' => 'Laporan Diverifikasi', 'points' => \App\Services\RankingService::POINT_RULES['verify_report'] ?? 5],
+            // Untuk modul akademi, ini diatur langsung dari poin di tabel artikels per modul (default 20)
+            ['activity' => 'Menyelesaikan Modul Akademi', 'points' => \App\Models\Artikel::first()->points ?? 20],
         ];
         
-        // Reward untuk top 3
-        $rewards = [
-            1 => ['title' => 'Rank #1', 'reward' => 'Voucher Wisata Rp500.000', 'icon' => '🥇'],
-            2 => ['title' => 'Rank #2', 'reward' => 'Voucher Wisata Rp250.000', 'icon' => '🥈'],
-            3 => ['title' => 'Rank #3', 'reward' => 'Voucher Wisata Rp100.000', 'icon' => '🥉'],
-        ];
+        // Mengambil voucher secara dinamis dari database untuk Top 3
+        $vouchers = \App\Models\Voucher::orderBy('id', 'asc')->take(3)->get();
+        
+        $rewards = [];
+        if ($vouchers->count() >= 3) {
+            $rewards = [
+                1 => ['title' => 'Juara 1', 'reward' => $vouchers[0]->name],
+                2 => ['title' => 'Juara 2', 'reward' => $vouchers[1]->name],
+                3 => ['title' => 'Juara 3', 'reward' => $vouchers[2]->name],
+            ];
+        } else {
+            // Fallback default jika tabel belum diisi penuh
+            $rewards = [
+                1 => ['title' => 'Juara 1', 'reward' => 'Voucher Wisata Rp 500.000'],
+                2 => ['title' => 'Juara 2', 'reward' => 'Voucher Wisata Rp 250.000'],
+                3 => ['title' => 'Juara 3', 'reward' => 'Voucher Wisata Rp 100.000'],
+            ];
+        }
         
         return view('leaderboard.index', compact(
             'leaderboard',
@@ -84,74 +98,7 @@ class LeaderboardController extends Controller
         ));
     }
     
-    /**
-     * Hitung badge progress user
-     */
-    private function getUserBadges($user)
-    {
-        $badges = [];
-        
-        // Plastic Hunter: 10 laporan sampah
-        $plasticReports = Report::where('user_id', $user->id)->count();
-        $badges['plastic_hunter'] = [
-            'name' => 'Plastic Hunter',
-            'icon' => '🪣',
-            'target' => 'Lapor 10 tumpukan sampah',
-            'current' => $plasticReports,
-            'max' => 10,
-            'progress' => min(100, ($plasticReports / 10) * 100)
-        ];
-        
-        // Tree Hugger: 5 event
-        $treeEvents = Event::whereHas('participants', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })->count();
-        $badges['tree_hugger'] = [
-            'name' => 'Tree Hugger',
-            'icon' => '🌳',
-            'target' => 'Ikut 5 aksi komunitas',
-            'current' => $treeEvents,
-            'max' => 5,
-            'progress' => min(100, ($treeEvents / 5) * 100)
-        ];
-        
-        // Turtle Saver: laporan yang diverifikasi
-        $verifiedReports = Report::where('user_id', $user->id)
-            ->where('status', 'diverifikasi')
-            ->count();
-        $badges['turtle_saver'] = [
-            'name' => 'Turtle Saver',
-            'icon' => '🐢',
-            'target' => 'Verifikasi 3 laporan',
-            'current' => $verifiedReports,
-            'max' => 3,
-            'progress' => min(100, ($verifiedReports / 3) * 100)
-        ];
-        
-        // Eco-Speaker: 20 postingan forum
-        $forumPosts = ForumDiskusi::where('user_id', $user->id)->count();
-        $badges['eco_speaker'] = [
-            'name' => 'Eco-Speaker',
-            'icon' => '💬',
-            'target' => '20 postingan forum',
-            'current' => $forumPosts,
-            'max' => 20,
-            'progress' => min(100, ($forumPosts / 20) * 100)
-        ];
-        
-        // Green Influencer: 10 konten dibagikan
-        $sharedContents = SharedContent::where('user_id', $user->id)->count();
-        $badges['green_influencer'] = [
-            'name' => 'Green Influencer',
-            'icon' => '📸',
-            'target' => '10 konten dibagikan',
-            'current' => $sharedContents,
-            'max' => 10,
-            'progress' => min(100, ($sharedContents / 10) * 100)
-        ];
-        
-        return $badges;
-    }
+    // Metode getUserBadges dihapus karena sudah memakai BadgeCheckerService langsung
     
     /**
      * API endpoint untuk mengambil data leaderboard (AJAX)

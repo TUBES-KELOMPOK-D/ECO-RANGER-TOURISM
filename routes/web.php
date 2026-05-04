@@ -89,6 +89,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/pencapaian/{user}', [RankingController::class, 'achievements'])->name('pencapaian.index');
     Route::get('/api/user/pencapaian/{user}', [RankingController::class, 'getUserAchievementsJson'])->name('user.pencapaian.json');
 
+    // -- Badges (PBI-18) --
+    Route::get('/badges', [\App\Http\Controllers\BadgeController::class, 'index'])->name('badges.index');
+    Route::get('/api/user-badges', [\App\Http\Controllers\BadgeController::class, 'apiUserBadges'])->name('api.user.badges');
+
+    // -- Vouchers (PBI-18) --
+    Route::get('/vouchers', [\App\Http\Controllers\VoucherController::class, 'index'])->name('vouchers.index');
+    Route::post('/vouchers/{voucher}/claim', [\App\Http\Controllers\VoucherController::class, 'claim'])->name('vouchers.claim');
+    Route::post('/vouchers/{voucher}/use', [\App\Http\Controllers\VoucherController::class, 'useVoucher'])->name('vouchers.use');
+
+
 
     // -- ADMIN TARUH SINI --
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
@@ -109,6 +119,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/aksi/{event}/chat/{message}/delete', [EventController::class, 'deleteMessage'])->name('aksi.chat.delete');
 
         // -- Reports (Admin CRUD) --
+        Route::get('/reports', [ReportController::class, 'adminIndex'])->name('admin.reports.index');
         Route::get('/reports/{report}/edit', [ReportController::class, 'edit'])->name('admin.reports.edit');
         Route::post('/reports/{report}/update', [ReportController::class, 'update'])->name('admin.reports.update');
         Route::delete('/reports/{report}/delete', [ReportController::class, 'destroy'])->name('admin.reports.delete');

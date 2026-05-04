@@ -173,4 +173,46 @@ class User extends Authenticatable
         }
         return substr($initials, 0, 2);
     }
+
+    /**
+     * Get the badges awarded to the user.
+     */
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class, 'user_badges')
+            ->withPivot('achieved_at', 'progress_at_achievement')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if the user has a specific badge.
+     */
+    public function hasBadge($badgeId)
+    {
+        return $this->badges()->where('badge_id', $badgeId)->exists();
+    }
+
+    /**
+     * Add a badge to the user.
+     */
+    public function addBadge($badgeId, $progress = 0)
+    {
+        if (!$this->hasBadge($badgeId)) {
+            $this->badges()->attach($badgeId, [
+                'progress_at_achievement' => $progress,
+                'achieved_at' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Get the latest badges achieved by the user.
+     */
+    public function getLatestBadgesAttribute()
+    {
+        return $this->badges()
+            ->orderBy('user_badges.achieved_at', 'desc')
+            ->take(5)
+            ->get();
+    }
 }
