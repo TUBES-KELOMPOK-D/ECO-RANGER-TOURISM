@@ -164,6 +164,21 @@
      TOOLBAR: Filter (User) | Tambah Event (Admin)
 ══════════════════════════════════════════════════════════════ --}}
 <div class="max-w-6xl mx-auto px-4 sm:px-6 mt-8">
+    {{-- ── Fitur Pencarian ── --}}
+    <form method="GET" action="{{ route('aksi.index') }}" class="mb-6 relative">
+        @if(request('month'))
+            <input type="hidden" name="month" value="{{ request('month') }}">
+        @endif
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari event berdasarkan nama, lokasi, atau deskripsi..." class="w-full pl-12 pr-12 py-3.5 rounded-2xl border border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 transition-all text-sm font-semibold text-slate-700 outline-none">
+        <svg class="absolute left-4 top-3.5 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        @if(request('search'))
+            <a href="{{ route('aksi.index', ['month' => request('month')]) }}" class="absolute right-4 top-3.5 text-slate-400 hover:text-rose-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </a>
+        @endif
+        <button type="submit" class="hidden"></button>
+    </form>
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 
         @auth
@@ -199,12 +214,12 @@
                 {{-- Month picker dropdown --}}
                 <div id="month-dropdown" class="hidden absolute mt-2 z-50">
                     <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-3 grid grid-cols-3 gap-2 w-64">
-                        <a href="{{ route('aksi.index') }}"
+                        <a href="{{ route('aksi.index', ['search' => request('search')]) }}"
                            class="text-center px-2 py-2 rounded-xl text-xs font-semibold {{ !$month ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50' }} transition">
                             Semua
                         </a>
                         @foreach(range(1,12) as $m)
-                        <a href="{{ route('aksi.index', ['month' => $m]) }}"
+                        <a href="{{ route('aksi.index', ['month' => $m, 'search' => request('search')]) }}"
                            class="text-center px-2 py-2 rounded-xl text-xs font-semibold {{ $month == $m ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50' }} transition">
                             {{ \Carbon\Carbon::create()->month($m)->translatedFormat('M') }}
                         </a>
@@ -213,7 +228,7 @@
                 </div>
 
                 @if($month)
-                <a href="{{ route('aksi.index') }}" class="text-xs text-slate-400 hover:text-slate-700 underline transition">Reset</a>
+                <a href="{{ route('aksi.index', ['search' => request('search')]) }}" class="text-xs text-slate-400 hover:text-slate-700 underline transition">Reset</a>
                 @endif
             </div>
             <span class="text-sm text-slate-500 font-semibold">{{ $events->count() }} Event Ditemukan</span>
@@ -250,8 +265,22 @@
              style="animation-delay: {{ $index * 0.07 }}s">
 
             {{-- Wrap content in a clickable area for detail view --}}
-            <div class="cursor-pointer group" onclick="openDetailModal({{ $event->id }})">
+            <div class="cursor-pointer group relative" onclick="openDetailModal({{ $event->id }})">
                 {{-- Event Image --}}
+<<<<<<< ert-45-pbi-25-manajemen-event-admin
+                <div class="relative overflow-hidden rounded-t-3xl">
+                    @if($event->image_path)
+                        <img src="{{ asset('storage/' . $event->image_path) }}"
+                             alt="{{ $event->name }}" class="event-img group-hover:scale-105 transition-transform duration-500" />
+                    @else
+                        <div class="event-img-placeholder group-hover:scale-105 transition-transform duration-500">🌿</div>
+                    @endif
+                    
+                    {{-- Gamification Badge: Points/Reward Indicator --}}
+                    <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg border border-amber-200 flex items-center gap-1.5 z-10 group-hover:-translate-y-0.5 transition-all">
+                        <span class="text-amber-500 text-sm">🌟</span>
+                        <span class="text-xs font-black text-amber-700 tracking-wide">+50 Poin</span>
+=======
                 <div class="relative">
                     @if($event->image_path)
                         <img src="{{ asset('storage/' . $event->image_path) }}"
@@ -264,6 +293,7 @@
                     <div class="absolute top-3 right-3 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-lg border border-amber-300/50 flex items-center gap-1.5 z-10 transform group-hover:scale-105 transition-transform">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                         +50 Eco Points
+>>>>>>> main
                     </div>
                 </div>
 

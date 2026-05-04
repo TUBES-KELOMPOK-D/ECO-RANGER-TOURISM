@@ -15,8 +15,9 @@ class EventController extends Controller
     // ═══════════════════════════════════════════
     public function index(Request $request)
     {
-        $user  = auth()->user();
-        $month = $request->query('month'); // filter bulan (untuk regular user)
+        $user   = auth()->user();
+        $month  = $request->query('month'); // filter bulan (untuk regular user)
+        $search = $request->query('search'); // fitur search
 
         $query = Event::withCount('participants')
                        ->with('participants');
@@ -24,6 +25,15 @@ class EventController extends Controller
         // Filter bulan hanya untuk regular user
         if ($month && (!$user || $user->role !== 'admin')) {
             $query->whereMonth('event_date', $month);
+        }
+
+        // Fitur pencarian berdasarkan nama atau lokasi event
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
         }
 
         $events = $query->orderByDesc('event_date')->get();
@@ -36,7 +46,7 @@ class EventController extends Controller
             });
         }
 
-        return view('aksi.index', compact('events', 'month'));
+        return view('aksi.index', compact('events', 'month', 'search'));
     }
 
     // ═══════════════════════════════════════════
@@ -125,7 +135,23 @@ class EventController extends Controller
     {
         $event->participants()->detach($user_id);
 
-        return redirect()->route('aksi.index')->with('success', 'Anggota berhasil dihapus dari event!');
+        // Hapus poin yang didapatkan dari event ini jika ada
+        $user = \App\Models\User::find($user_id);
+        if ($user) {
+            $ledger = \App\Models\PointLedger::where('user_id', $user->id)
+                ->where('description', 'like', '%(ID: ' . $event->id . ')%')
+                ->first();
+
+            if ($ledger) {
+                $user->eco_points = max(0, ($user->eco_points ?? 0) - $ledger->points);
+                $user->eco_level = $user->calculateEcoLevel();
+                $user->save();
+                
+                $ledger->delete();
+            }
+        }
+
+        return redirect()->route('aksi.index')->with('success', 'Anggota berhasil dihapus dari event beserta poinnya!');
     }
 
     // ═══════════════════════════════════════════
@@ -174,6 +200,18 @@ class EventController extends Controller
         $user = auth()->user();
 
         $event->participants()->detach($user->id);
+        // Hapus poin yang didapatkan dari event ini jika ada
+        $ledger = \App\Models\PointLedger::where('user_id', $user->id)
+            ->where('description', 'like', '%(ID: ' . $event->id . ')%')
+            ->first();
+
+        if ($ledger) {
+            $user->eco_points = max(0, ($user->eco_points ?? 0) - $ledger->points);
+            $user->eco_level = $user->calculateEcoLevel();
+            $user->save();
+            
+            $ledger->delete();
+        }
 
         // Hapus poin reward jika user membatalkan keikutsertaan
         $ledgers = \App\Models\PointLedger::where('user_id', $user->id)
@@ -194,7 +232,6 @@ class EventController extends Controller
             $user->addEcoPoints(-$pointsToDeduct);
             RankingService::updateUserAchievements($user);
         }
-
         return redirect()->route('aksi.index')->with('success', 'Berhasil membatalkan keikutsertaan dari event "' . $event->name . '"!');
     }
 
@@ -210,7 +247,7 @@ class EventController extends Controller
             return redirect()->route('aksi.index')->with('error', 'Anda harus bergabung ke event terlebih dahulu untuk mengakses chat!');
         }
 
-        $messages = $event->messages()->with('user')->orderBy('created_at')->get();
+        $messages = $event->messages()->with(['user', 'reactions.user'])->orderBy('created_at')->get();
 
         return view('aksi.chat', compact('event', 'messages'));
     }
@@ -226,15 +263,65 @@ class EventController extends Controller
             return redirect()->route('aksi.index')->with('error', 'Anda harus bergabung ke event untuk mengirim pesan!');
         }
 
-        $request->validate(['message' => 'required|string|max:1000']);
+        $request->validate([
+            'message' => 'nullable|string|max:1000',
+            'image'   => 'nullable|image|max:2048'
+        ]);
+
+        if (empty($request->message) && !$request->hasFile('image')) {
+            return back()->with('error', 'Pesan atau foto harus diisi!');
+        }
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('chat_images', 'public');
+        }
 
         EventMessage::create([
-            'event_id' => $event->id,
-            'user_id'  => $user->id,
-            'message'  => $request->message,
+            'event_id'   => $event->id,
+            'user_id'    => $user->id,
+            'message'    => $request->message ?? '',
+            'image_path' => $imagePath,
         ]);
 
         return redirect()->route('aksi.chat', $event)->with('success', 'Pesan terkirim!');
+    }
+
+    // ═══════════════════════════════════════════
+    // REACT — Tambah/Hapus Reaksi
+    // ═══════════════════════════════════════════
+    public function react(Request $request, Event $event, EventMessage $message)
+    {
+        $user = auth()->user();
+
+        if (!$event->isJoinedBy($user->id) && $user->role !== 'admin') {
+            return back()->with('error', 'Anda harus bergabung ke event untuk memberikan reaksi!');
+        }
+
+        $request->validate(['reaction' => 'required|string|max:10']);
+
+        // Check if user already reacted
+        $existingReaction = \App\Models\EventMessageReaction::where('event_message_id', $message->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existingReaction) {
+            if ($existingReaction->reaction === $request->reaction) {
+                // If same reaction, remove it (toggle)
+                $existingReaction->delete();
+            } else {
+                // Change reaction type
+                $existingReaction->update(['reaction' => $request->reaction]);
+            }
+        } else {
+            \App\Models\EventMessageReaction::create([
+                'event_message_id' => $message->id,
+                'user_id'          => $user->id,
+                'reaction'         => $request->reaction,
+            ]);
+        }
+
+        return back();
     }
 
     // ═══════════════════════════════════════════
@@ -244,6 +331,9 @@ class EventController extends Controller
     {
         // Pastikan pesan yang akan dihapus memang milik event ini
         if ($message->event_id === $event->id) {
+            if ($message->image_path && Storage::disk('public')->exists($message->image_path)) {
+                Storage::disk('public')->delete($message->image_path);
+            }
             $message->delete();
         }
 

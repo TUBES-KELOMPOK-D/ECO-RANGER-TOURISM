@@ -12,6 +12,7 @@ use App\Http\Controllers\MarkerDetailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EcoReporterController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\AdminMiddleware;
 
 // ========================================================PUBLIK BISA AKSES=============================================================================
@@ -82,6 +83,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/{event}/leave', [EventController::class, 'leave'])->name('aksi.leave');
         Route::get('/{event}/chat', [EventController::class, 'chat'])->name('aksi.chat');
         Route::post('/{event}/chat/send', [EventController::class, 'sendMessage'])->name('aksi.chat.send');
+        Route::post('/{event}/chat/{message}/react', [EventController::class, 'react'])->name('aksi.chat.react');
     });
 
     // --Achievements--
@@ -101,6 +103,11 @@ Route::middleware('auth')->group(function () {
 
     // -- ADMIN TARUH SINI --
     Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
+
+        // -- Dashboard --
+        Route::get('/dashboard', function () {
+            return redirect()->route('users.index');
+        })->name('admin.dashboard');
 
         // -- Markers --
         Route::get('/markers', [MapController::class, 'adminIndex'])->name('markers.index');
@@ -146,6 +153,8 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/leaderboard/admin/reset', [\App\Http\Controllers\LeaderboardController::class, 'resetLeaderboard'])->name('leaderboard.admin.reset');
         Route::post('/leaderboard/admin/adjust', [\App\Http\Controllers\LeaderboardController::class, 'adjustPoints'])->name('leaderboard.admin.adjust');
+        // -- Users (Profile Management) --
+        Route::resource('users', UserController::class);
     });
 
     
