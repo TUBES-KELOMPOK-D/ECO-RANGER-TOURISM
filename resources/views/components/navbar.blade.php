@@ -37,7 +37,7 @@
                                 <span class="inline-flex h-full w-full items-center justify-center font-bold">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
                             @endif
                         </button>
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                        <div class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                             <div class="px-4 py-2 border-b border-slate-50">
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ auth()->user()->role }}</p>
                                 <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user()->name }}</p>
@@ -45,9 +45,11 @@
                             @if(auth()->user()->role === 'user')
                                 <a href="/profile" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Profil Saya</a>
                                 <a href="/reports" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Pantau Laporan</a>
-                            @else
+                            @elseif(auth()->user()->role === 'admin')
                                 <a href="/admin/dashboard" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Panel Admin</a>
                                 <a href="{{ route('markers.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Marker</a>
+                                <a href="/reports" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Laporan</a>
+                                <a href="{{ route('admin.academy.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Edukasi & Kuis</a>
                                 <a href="{{ route('admin.reports.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Laporan</a>
                             @endif
                             
@@ -136,6 +138,13 @@
                     <a href="{{ route('admin.reports.index') }}" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                         Kelola Laporan
+                    </a>
+                    <a href="{{ route('admin.academy.index') }}" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                        </svg>
+                        Kelola Edukasi & Kuis
                     </a>
                     @elseif(auth()->user()->role === 'user')
                     <a href="/reports" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
