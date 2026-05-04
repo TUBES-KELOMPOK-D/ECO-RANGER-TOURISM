@@ -15,6 +15,7 @@ class EventMessage extends Model
         'event_id',
         'user_id',
         'message',
+        'image_path',
     ];
 
     /**
@@ -31,5 +32,13 @@ class EventMessage extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Reaksi pada pesan ini.
+     */
+    public function reactions()
+    {
+        return $this->hasMany(EventMessageReaction::class, 'event_message_id');
     }
 }

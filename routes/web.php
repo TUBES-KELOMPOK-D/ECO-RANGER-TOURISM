@@ -82,6 +82,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/{event}/leave', [EventController::class, 'leave'])->name('aksi.leave');
         Route::get('/{event}/chat', [EventController::class, 'chat'])->name('aksi.chat');
         Route::post('/{event}/chat/send', [EventController::class, 'sendMessage'])->name('aksi.chat.send');
+        Route::post('/{event}/chat/{message}/react', [EventController::class, 'react'])->name('aksi.chat.react');
     });
 
     // --Achievements--
