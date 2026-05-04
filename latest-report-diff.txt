@@ -1,0 +1,233 @@
+﻿diff --git a/resources/views/components/navbar.blade.php b/resources/views/components/navbar.blade.php
+index db6558c..08a1fc3 100644
+--- a/resources/views/components/navbar.blade.php
++++ b/resources/views/components/navbar.blade.php
+@@ -13,6 +13,9 @@
+                 @if(!request()->is('login') && !request()->is('register'))
+                     <a href="/" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('/') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Beranda</a>
+                     <a href="/aksi" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('aksi') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Aksi</a>
++                    @if(!auth()->check() || auth()->user()->role !== 'admin')
++                        <a href="/laporan" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('laporan') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Laporan</a>
++                    @endif
+                     <a href="/peringkat" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('peringkat') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Peringkat</a>
+                     <a href="{{ route('academy.index') }}" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->routeIs('academy.*') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Akademi</a>
+                     <div class="h-6 w-px bg-slate-200 mx-2"></div>
+@@ -43,9 +46,9 @@
+                                 <a href="/profile" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Profil Saya</a>
+                                 <a href="/reports" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Pantau Laporan</a>
+                             @else
+-                                <a href="/admin/dashboard" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Panel Admin</a>
++                                <a href="{{ route('markers.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Panel Admin</a>
+                                 <a href="{{ route('markers.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Marker</a>
+-                                <a href="/reports" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Laporan</a>
++                                <a href="{{ route('admin.reports.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Laporan</a>
+                             @endif
+                             
+                             <a href="/profile/settings" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Pengaturan</a>
+@@ -88,6 +91,12 @@
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                     Aksi
+                 </a>
++                @if(!auth()->check() || auth()->user()->role !== 'admin')
++                    <a href="/laporan" class="flex items-center gap-4 w-full p-4 rounded-2xl transition-all font-bold decoration-transparent {{ request()->is('laporan') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50' }}">
++                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
++                        Laporan
++                    </a>
++                @endif
+                 <a href="/peringkat" class="flex items-center gap-4 w-full p-4 rounded-2xl transition-all font-bold decoration-transparent {{ request()->is('peringkat') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50' }}">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                     Peringkat
+@@ -100,11 +109,9 @@
+             
+             <div class="pt-4 border-t border-slate-50">
+                 @auth
+-                    <a href="{{ auth()->user()->role === 'admin' ? '/admin/dashboard' : '/profile' }}" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold {{ auth()->user()->role === 'admin' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-700' }} hover:opacity-90 transition-all">
++                    <a href="{{ route('profile.index') }}" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold bg-slate-50 text-slate-700 hover:opacity-90 transition-all">
+                         <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center {{ auth()->user()->role === 'admin' ? 'bg-slate-800 text-white' : 'bg-emerald-100 text-emerald-700' }}">
+-                            @if(auth()->user()->role === 'admin')
+-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+-                            @elseif(auth()->user()->photo)
++                            @if(auth()->user()->photo)
+                                 <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Foto Profil" class="h-full w-full object-cover" />
+                             @else
+                                 <div class="text-xs font-bold">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+@@ -112,7 +119,7 @@
+                         </div>
+                         <div class="flex flex-col text-left">
+                             <span class="text-xs opacity-60 font-medium uppercase">{{ auth()->user()->role }}</span>
+-                            <span>{{ auth()->user()->role === 'admin' ? 'Panel Admin' : 'Profil Saya' }}</span>
++                            <span>Profil Saya</span>
+                         </div>
+                     </a>
+ 
+@@ -124,7 +131,7 @@
+                         </svg>
+                         Kelola Marker
+                     </a>
+-                    <a href="/reports" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
++                    <a href="{{ route('admin.reports.index') }}" class="flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                         Kelola Laporan
+                     </a>
+diff --git a/resources/views/reports/edit.blade.php b/resources/views/reports/edit.blade.php
+index 40e00e3..b59ddce 100644
+--- a/resources/views/reports/edit.blade.php
++++ b/resources/views/reports/edit.blade.php
+@@ -10,7 +10,7 @@
+                 <h1 class="text-3xl font-extrabold text-slate-900">Edit Laporan</h1>
+                 <p class="mt-2 text-sm text-slate-500">Perbarui status laporan isu lingkungan.</p>
+             </div>
+-            <a href="{{ route('reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Kembali</a>
++            <a href="{{ route('admin.reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Kembali</a>
+         </div>
+ 
+         <div class="grid gap-8 lg:grid-cols-2">
+diff --git a/resources/views/reports/index.blade.php b/resources/views/reports/index.blade.php
+index 548ddfd..4a92c78 100644
+--- a/resources/views/reports/index.blade.php
++++ b/resources/views/reports/index.blade.php
+@@ -1,17 +1,22 @@
+ @extends('layouts.app')
+ 
+-@section('title', auth()->user()->role === 'admin' ? 'Kelola Laporan - GreenTour' : 'Laporan Saya - GreenTour')
++@php
++    $isPublic = $isPublic ?? false;
++    $isAdmin = auth()->check() && auth()->user()->role === 'admin';
++@endphp
++
++@section('title', $isAdmin ? 'Kelola Laporan - GreenTour' : ($isPublic ? 'Laporan - GreenTour' : 'Laporan Saya - GreenTour'))
+ 
+ @section('content')
+ <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+     <div class="rounded-3xl bg-white p-8 shadow-soft border border-slate-200">
+         <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+             <div>
+-                <h1 class="text-3xl font-extrabold text-slate-900">{{ auth()->user()->role === 'admin' ? 'Kelola Laporan' : 'Laporan Saya' }}</h1>
+-                <p class="mt-2 text-sm text-slate-500">{{ auth()->user()->role === 'admin' ? 'Kelola semua laporan isu lingkungan dari pengguna.' : 'Kelola laporan isu lingkungan Anda.' }}</p>
++                <h1 class="text-3xl font-extrabold text-slate-900">{{ $isAdmin ? 'Kelola Laporan' : ($isPublic ? 'Laporan' : 'Laporan Saya') }}</h1>
++                <p class="mt-2 text-sm text-slate-500">{{ $isAdmin ? 'Kelola semua laporan isu lingkungan dari pengguna.' : ($isPublic ? 'Lihat semua laporan yang masuk dari pengguna, baik login maupun tamu.' : 'Kelola laporan isu lingkungan Anda.') }}</p>
+             </div>
+             <div class="flex flex-wrap gap-3">
+-                @if(auth()->user()->role !== 'admin')
++                @if(auth()->check() && !$isAdmin)
+                 <a href="{{ route('profile.settings') }}" class="rounded-full border border-emerald-100 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-100">Pengaturan Profil</a>
+                 <a href="{{ route('profile.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Profil Saya</a>
+                 @endif
+@@ -27,57 +32,59 @@
+                     'diterima' => 'Diterima',
+                     'ditolak' => 'Ditolak',
+                 ];
++                $routeName = $isAdmin ? 'admin.reports.index' : ($isPublic ? 'reports.public' : 'reports.index');
+             @endphp
+             @foreach($filters as $key => $label)
+                 @php
+                     $isActive = $key === 'all' ? !$status : $status === $key;
+                 @endphp
+-                <a href="{{ route('reports.index', ['status' => $key === 'all' ? null : $key]) }}" class="rounded-full px-4 py-2 text-sm font-semibold {{ $isActive ? 'bg-toscagreen text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }} transition">
++                <a href="{{ route($routeName, ['status' => $key === 'all' ? null : $key]) }}" class="rounded-full px-4 py-2 text-sm font-semibold {{ $isActive ? 'bg-toscagreen text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }} transition">
+                     {{ $label }}
+                 </a>
+             @endforeach
+         </div>
+ 
+-        <div class="mt-8 space-y-5">
++        <div class="mt-8 grid gap-5 xl:grid-cols-3 lg:grid-cols-2">
+             @forelse($reports as $report)
+-                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+-                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+-                        <div class="flex-1">
+-                            <p class="text-xl font-semibold text-slate-900">{{ $report->title }}</p>
+-                            <p class="mt-2 text-sm text-slate-600">{{ $report->description }}</p>
+-                            @if($report->user)
+-                                <p class="mt-2 text-xs text-slate-500">Oleh: {{ $report->user->name }}</p>
+-                            @endif
+-                        </div>
+-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+-                            <span class="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] {{ $report->status === 'menunggu' ? 'bg-yellow-100 text-yellow-700' : ($report->status === 'diverifikasi' ? 'bg-sky-100 text-sky-700' : ($report->status === 'diterima' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) }}">{{ strtoupper($report->status) }}</span>
++                @php
++                    $reportAuthor = 'Anonim';
++                    if ($report->user) {
++                        if ($isAdmin || !$isPublic) {
++                            $reportAuthor = $report->user->name;
++                        } elseif (auth()->check() && auth()->id() === $report->user_id) {
++                            $reportAuthor = $report->user->name;
++                        }
++                    }
++                @endphp
++                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
++                    <div class="mb-4">
++                        <p class="text-xl font-semibold text-slate-900">{{ $report->title }}</p>
++                        <p class="mt-3 text-sm leading-6 text-slate-600">{{ \Illuminate\Support\Str::limit($report->description, 120, '...') }}</p>
++                    </div>
+ 
+-                            @if(auth()->user()->role === 'admin')
+-                            <div class="flex gap-2">
+-                                <a href="{{ route('admin.reports.edit', $report) }}" class="rounded-full bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 transition">
+-                                    Edit
+-                                </a>
+-                                <form action="{{ route('admin.reports.delete', $report) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan ini?')">
+-                                    @csrf
+-                                    @method('DELETE')
+-                                    <button type="submit" class="rounded-full bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 transition">
+-                                        Hapus
+-                                    </button>
+-                                </form>
+-                            </div>
+-                            @endif
+-                        </div>
++                    <div class="space-y-3 text-sm text-slate-600">
++                        <p><span class="font-semibold text-slate-900">Oleh:</span> {{ $reportAuthor }}</p>
++                        <p><span class="font-semibold text-slate-900">Status:</span> <span class="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] {{ $report->status === 'menunggu' ? 'bg-yellow-100 text-yellow-700' : ($report->status === 'diverifikasi' ? 'bg-sky-100 text-sky-700' : ($report->status === 'diterima' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) }}">{{ strtoupper($report->status) }}</span></p>
++                        <p><span class="font-semibold text-slate-900">Dikirim:</span> {{ $report->report_date?->format('d M Y') ?? $report->created_at->format('d M Y') }}</p>
+                     </div>
+-                    <div class="mt-5 flex flex-wrap items-center gap-4 text-sm text-slate-500">
+-                        <span>≡ƒôà {{ $report->report_date->format('Y-m-d') }}</span>
+-                        <span>≡ƒôì {{ number_format($report->latitude, 3) }}, {{ number_format($report->longitude, 3) }}</span>
+-                        @if($report->photo_path)
+-                        <span>≡ƒô╖ Ada foto bukti</span>
+-                        @endif
++
++                    <div class="mt-6 flex items-center justify-between gap-3">
++                        <span class="text-xs text-slate-500">Lokasi: {{ number_format($report->latitude, 3) }}, {{ number_format($report->longitude, 3) }}</span>
++                        <a href="{{ route('reports.show', $report) }}" class="inline-flex items-center gap-1 whitespace-nowrap text-blue-600 font-semibold text-xs hover:text-blue-800 transition">Baca Selengkapnya <span aria-hidden="true">ΓåÆ</span></a>
+                     </div>
++                    @if($isAdmin)
++                        <div class="mt-4 flex flex-wrap items-center gap-3">
++                            <a href="{{ route('admin.reports.edit', $report) }}" class="rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition">Edit</a>
++                            <form action="{{ route('admin.reports.delete', $report) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus laporan ini?');" class="inline-block">
++                                @csrf
++                                @method('DELETE')
++                                <button type="submit" class="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100 transition">Hapus</button>
++                            </form>
++                        </div>
++                    @endif
+                 </div>
+             @empty
+-                <div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
++                <div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500 xl:col-span-3">
+                     Belum ada laporan. Buat laporan baru untuk membantu lingkungan.
+                 </div>
+             @endforelse
+diff --git a/routes/web.php b/routes/web.php
+index 2dd18d2..5d581d1 100644
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -46,6 +46,10 @@
+     Route::get('/berhasil', [EcoReporterController::class, 'success'])->name('reports.success');
+ });
+ 
++// --Laporan Publik--
++Route::get('/laporan', [ReportController::class, 'publicIndex'])->name('reports.public');
++Route::get('/laporan/{report}', [ReportController::class, 'show'])->name('reports.show');
++
+ // --Akademi--
+ Route::prefix('academy')->group(function () {
+     Route::get('/', [GreenAcademyController::class, 'index'])->name('academy.index');
+@@ -108,6 +112,7 @@
+         Route::post('/aksi/{event}/chat/{message}/delete', [EventController::class, 'deleteMessage'])->name('aksi.chat.delete');
+ 
+         // -- Reports (Admin CRUD) --
++        Route::get('/reports', [ReportController::class, 'adminIndex'])->name('admin.reports.index');
+         Route::get('/reports/{report}/edit', [ReportController::class, 'edit'])->name('admin.reports.edit');
+         Route::post('/reports/{report}/update', [ReportController::class, 'update'])->name('admin.reports.update');
+         Route::delete('/reports/{report}/delete', [ReportController::class, 'destroy'])->name('admin.reports.delete');

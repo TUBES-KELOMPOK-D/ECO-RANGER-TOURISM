@@ -22,6 +22,18 @@ class ReportController extends Controller
         return view('reports.index', compact('reports', 'status'));
     }
 
+    public function publicIndex(Request $request)
+    {
+        $status = $request->query('status');
+
+        $reports = EcoReportSubmission::with('user')
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->orderByDesc('report_date')
+            ->get();
+
+        return view('reports.index', compact('reports', 'status'))->with('isPublic', true);
+    }
+
     public function adminIndex(Request $request)
     {
         $status = $request->query('status');
@@ -32,6 +44,11 @@ class ReportController extends Controller
             ->get();
 
         return view('reports.index', compact('reports', 'status'));
+    }
+
+    public function show(EcoReportSubmission $report)
+    {
+        return view('reports.show', compact('report'));
     }
 
     public function edit(EcoReportSubmission $report)

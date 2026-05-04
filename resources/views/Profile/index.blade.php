@@ -13,7 +13,11 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <a href="{{ route('profile.settings') }}" class="rounded-full border border-emerald-100 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-100">Pengaturan Profil</a>
-                    <a href="{{ route('reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Lihat Laporan</a>
+                    @if(auth()->user()->role === 'admin')
+                        <a href="{{ route('admin.reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Lihat Laporan</a>
+                    @else
+                        <a href="{{ route('reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Lihat Laporan</a>
+                    @endif
                 </div>
             </div>
 
@@ -59,7 +63,11 @@
                     <h2 class="text-2xl font-extrabold text-slate-900">Laporan Terbaru</h2>
                     <p class="mt-2 text-sm text-slate-500">Lihat laporan terakhir yang kamu kirim dan status terkininya.</p>
                 </div>
-                <a href="{{ route('reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Lihat Semua Laporan</a>
+                @if(auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Lihat Semua Laporan</a>
+                @else
+                    <a href="{{ route('reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Lihat Semua Laporan</a>
+                @endif
             </div>
 
             @if(isset($latestReport) && $latestReport)

@@ -47,6 +47,10 @@ Route::prefix('pelaporan')->group(function () {
     Route::get('/berhasil', [EcoReporterController::class, 'success'])->name('reports.success');
 });
 
+// --Laporan Publik--
+Route::get('/laporan', [ReportController::class, 'publicIndex'])->name('reports.public');
+Route::get('/laporan/{report}', [ReportController::class, 'show'])->name('reports.show');
+
 // --Akademi--
 Route::prefix('academy')->group(function () {
     Route::get('/', [GreenAcademyController::class, 'index'])->name('academy.index');
