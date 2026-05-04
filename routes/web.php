@@ -118,6 +118,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/aksi/{event}/chat/{message}/delete', [EventController::class, 'deleteMessage'])->name('aksi.chat.delete');
 
         // -- Reports (Admin CRUD) --
+        Route::get('/reports', [ReportController::class, 'adminIndex'])->name('admin.reports.index');
         Route::get('/reports/{report}/edit', [ReportController::class, 'edit'])->name('admin.reports.edit');
         Route::post('/reports/{report}/update', [ReportController::class, 'update'])->name('admin.reports.update');
         Route::delete('/reports/{report}/delete', [ReportController::class, 'destroy'])->name('admin.reports.delete');

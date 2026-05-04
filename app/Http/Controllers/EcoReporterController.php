@@ -33,7 +33,7 @@ class EcoReporterController extends Controller
         ]);
 
         $report = new EcoReportSubmission();
-        $report->user_id = auth()->id();
+        $report->user_id = auth()->check() ? auth()->id() : null;
         $report->title = $data['title'];
         $report->category = $data['category'];
         $report->description = $data['description'];
@@ -64,7 +64,7 @@ class EcoReporterController extends Controller
             return redirect()->route('profile.index')->with('success', $successMsg);
         }
 
-        return redirect()->route('profile.index')->with('success', 'Laporan berhasil dikirim. Lihat status laporan di Profil Anda.');
+        return redirect()->route('reports.success')->with('success', 'Laporan berhasil dikirim. Terima kasih atas laporan Anda.');
     }
 
     public function success()

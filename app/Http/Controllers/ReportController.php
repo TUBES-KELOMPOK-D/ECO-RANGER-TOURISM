@@ -22,6 +22,18 @@ class ReportController extends Controller
         return view('reports.index', compact('reports', 'status'));
     }
 
+    public function adminIndex(Request $request)
+    {
+        $status = $request->query('status');
+
+        $reports = EcoReportSubmission::with('user')
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->orderByDesc('report_date')
+            ->get();
+
+        return view('reports.index', compact('reports', 'status'));
+    }
+
     public function edit(EcoReportSubmission $report)
     {
         // Only admin can edit reports
@@ -45,7 +57,7 @@ class ReportController extends Controller
 
         $report->update($data);
 
-        return redirect()->route('reports.index')->with('success', 'Status laporan berhasil diperbarui.');
+        return redirect()->route('admin.reports.index')->with('success', 'Status laporan berhasil diperbarui.');
     }
 
     public function destroy(EcoReportSubmission $report)
@@ -62,6 +74,6 @@ class ReportController extends Controller
 
         $report->delete();
 
-        return redirect()->route('reports.index')->with('success', 'Laporan berhasil dihapus.');
+        return redirect()->route('admin.reports.index')->with('success', 'Laporan berhasil dihapus.');
     }
 }

@@ -27,12 +27,13 @@
                     'diterima' => 'Diterima',
                     'ditolak' => 'Ditolak',
                 ];
+                $routeName = auth()->user()->role === 'admin' ? 'admin.reports.index' : 'reports.index';
             @endphp
             @foreach($filters as $key => $label)
                 @php
                     $isActive = $key === 'all' ? !$status : $status === $key;
                 @endphp
-                <a href="{{ route('reports.index', ['status' => $key === 'all' ? null : $key]) }}" class="rounded-full px-4 py-2 text-sm font-semibold {{ $isActive ? 'bg-toscagreen text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }} transition">
+                <a href="{{ route($routeName, ['status' => $key === 'all' ? null : $key]) }}" class="rounded-full px-4 py-2 text-sm font-semibold {{ $isActive ? 'bg-toscagreen text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }} transition">
                     {{ $label }}
                 </a>
             @endforeach

@@ -10,7 +10,7 @@
                 <h1 class="text-3xl font-extrabold text-slate-900">Edit Laporan</h1>
                 <p class="mt-2 text-sm text-slate-500">Perbarui status laporan isu lingkungan.</p>
             </div>
-            <a href="{{ route('reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Kembali</a>
+            <a href="{{ route('admin.reports.index') }}" class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">Kembali</a>
         </div>
 
         <div class="grid gap-8 lg:grid-cols-2">
