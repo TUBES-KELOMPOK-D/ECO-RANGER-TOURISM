@@ -50,7 +50,7 @@ class MapController extends Controller
             'kebersihan' => ['nullable', 'string', 'max:50'],
             'akses' => ['nullable', 'string', 'max:50'],
             'populasi' => ['nullable', 'string', 'max:50'],
-            'eco_rules' => ['nullable', 'json'],
+            'eco_rules' => ['nullable', 'string'],
             'category' => ['nullable', 'string', 'max:100'],
         ]);
 
@@ -90,8 +90,13 @@ class MapController extends Controller
         if ($request->filled('populasi')) {
             $marker->populasi = $request->input('populasi');
         }
-        if ($request->filled('eco_rules')) {
-            $marker->eco_rules = json_decode($request->input('eco_rules'), true);
+        // Parse eco_rules JSON string from hidden input
+        $ecoRulesRaw = $request->input('eco_rules');
+        if ($ecoRulesRaw && $ecoRulesRaw !== 'null') {
+            $decoded = json_decode($ecoRulesRaw, true);
+            if (is_array($decoded)) {
+                $marker->eco_rules = $decoded;
+            }
         }
         if ($request->filled('category')) {
             $marker->category = $request->input('category');
