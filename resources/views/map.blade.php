@@ -120,6 +120,9 @@
         };
         L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
 
+        map.createPane('geoJsonPane');
+        map.getPane('geoJsonPane').style.zIndex = 200;
+
         // 5. Ambil Data Cuaca RainViewer
         fetch('https://api.rainviewer.com/public/weather-maps.json')
             .then(r => r.json())
@@ -135,11 +138,13 @@
              .then(data => {
                  L.geoJSON(data, {
                      style: {
-                         color: "#22c55e", // Warna garis (Hijau)
+                         color: "#01250eff",
                          weight: 2,
-                         fillColor: "#4ade80", // Warna isi
-                         fillOpacity: 0.4
-                     }
+                         fillColor: "#baa996ff",
+                         fillOpacity: 0.2
+                     },
+                     pane: 'geoJsonPane',   
+                     interactive: false,    
                  }).addTo(landLayer);
              })
              .catch(err => console.error('Gagal meload indonesia-land.geojson:', err));
