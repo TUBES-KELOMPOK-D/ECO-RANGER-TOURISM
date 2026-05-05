@@ -3,9 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Screen</title>
+    <meta name="description" content="Peta interaktif destinasi eco-tourism Indonesia - Eco Ranger Tourism">
+    <title>Peta — Eco Ranger Tourism</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -185,8 +200,8 @@
                     <h3 style="margin:0 0 4px 0; font-size:14px; font-weight:800; color:#1e293b;">${item.title || '(Tanpa Judul)'}</h3>
                     <p style="margin:0 0 8px 0; font-size:11px; color:#64748b;">${item.description || ''}</p>
                     ${weatherLine ? `<div style="padding-top:8px; border-top:1px solid #e2e8f0; font-size:11px; color:#0ea5e9; font-weight:bold;">${weatherLine}</div>` : ''}
-                    ${isAdmin ? `<a href="/admin/markers/${item.id}/edit" style="display:inline-block; margin-top:6px; margin-right:4px; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; background:#3b82f6; color:#fff; text-decoration:none;">Edit</a>` : ''}
-                    <a href="/markers/${item.id}" style="display:inline-block; margin-top:6px; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; background:#64748b; color:#fff; text-decoration:none;">Detail Info</a>
+                    ${isAdmin ? `<a href="/admin/markers/${item.id}/edit" style="display:inline-block; margin-top:6px; margin-right:4px; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; background:#059669; color:#fff; text-decoration:none;">Edit</a>` : ''}
+                    <a href="/markers/${item.id}" style="display:inline-block; margin-top:6px; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; background:#1e293b; color:#fff; text-decoration:none;">Detail Info</a>
                     <span style="display:inline-block; margin-top:6px; padding:2px 8px; border-radius:9999px; font-size:10px; font-weight:700; background:${color}; color:#fff;">${item.status.toUpperCase()}</span>
                 </div>`;
         }

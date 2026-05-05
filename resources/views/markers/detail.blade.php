@@ -227,8 +227,8 @@
 
         /* Review Section Styles */
         .review-summary-card {
-            background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 50%, #f0fdfa 100%);
-            border: 1px solid #e0f2fe;
+            background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 50%, #f0fdf9 100%);
+            border: 1px solid #bbf7d0;
             border-radius: 20px;
             padding: 24px;
         }
@@ -253,9 +253,9 @@
             outline: none;
         }
         .review-textarea:focus {
-            border-color: #0ea5e9;
+            border-color: #059669;
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
         }
         .review-textarea::placeholder { color: #94a3b8; }
         .star-rating-input {
@@ -283,7 +283,7 @@
             width: 100%;
             padding: 14px 20px;
             border-radius: 14px;
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
             font-weight: 700;
             font-size: 14px;
@@ -292,15 +292,15 @@
             transition: all 0.25s ease;
         }
         .review-submit-btn:hover {
-            background: linear-gradient(135deg, #0284c7 0%, #0891b2 100%);
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.25);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.25);
         }
         .login-review-btn {
             display: inline-block;
             padding: 12px 28px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            background: linear-gradient(135deg, #059669, #10b981);
             color: white;
             font-weight: 700;
             font-size: 13px;
@@ -320,13 +320,13 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #e0f2fe, #dbeafe);
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 12px;
             font-weight: 800;
-            color: #0369a1;
+            color: #047857;
             flex-shrink: 0;
             overflow: hidden;
         }
@@ -511,7 +511,7 @@
         <!-- ============================================================ -->
         <div class="fade-up fade-up-delay-3" style="margin-top:28px;" id="section-reviews">
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-                <div style="width:40px; height:40px; background:linear-gradient(135deg, #0ea5e9, #06b6d4); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                <div style="width:40px; height:40px; background:linear-gradient(135deg, #059669, #10b981); border-radius:12px; display:flex; align-items:center; justify-content:center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>

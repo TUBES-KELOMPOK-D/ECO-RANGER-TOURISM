@@ -27,11 +27,6 @@
         box-shadow: 0 24px 60px rgba(15,23,42,0.13);
     }
 
-    /* ── Hero gradient ── */
-    .hero-gradient {
-        background: linear-gradient(135deg, #064e3b 0%, #065f46 40%, #047857 70%, #10b981 100%);
-    }
-
     /* ── Badge pill ── */
     .badge-month { background: rgba(255,255,255,0.18); backdrop-filter: blur(8px); }
 
@@ -95,7 +90,7 @@
 {{-- ═══════════════════════════════════════════════════════════
      HERO SECTION
 ══════════════════════════════════════════════════════════════ --}}
-<div class="hero-gradient text-white py-16 px-4 sm:px-6">
+<div class="bg-gradient-to-r from-emerald-800 to-emerald-600 text-white py-16 px-4 sm:px-6">
     <div class="max-w-6xl mx-auto">
         <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between animate-fadeinup">
             <div>
@@ -330,33 +325,29 @@
                 @auth
                     {{-- ═══ ADMIN CTA ═══ --}}
                     @if(auth()->user()->role === 'admin')
-                    <div class="mt-5 flex flex-wrap gap-2">
+                    <div class="mt-5 flex items-center justify-end gap-2">
                         {{-- Chat --}}
                         <a href="{{ route('aksi.chat', $event) }}"
-                           class="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            Chat
+                           class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Chat">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                         </a>
                         {{-- Edit --}}
                         <button
                             onclick="openEditModal({{ $event->id }}, '{{ addslashes($event->name) }}', '{{ addslashes($event->description) }}', '{{ $event->event_date?->format('Y-m-d') }}', '{{ addslashes($event->location) }}', '{{ addslashes($event->organizer) }}')"
-                            class="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-sky-50 text-sky-700 hover:bg-sky-100 transition-all">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            Edit
+                            class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors" title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                         </button>
                         {{-- Anggota --}}
                         <button
                             onclick="openMembersModal({{ $event->id }}, '{{ addslashes($event->name) }}')"
-                            class="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-violet-50 text-violet-700 hover:bg-violet-100 transition-all">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            Anggota
+                            class="p-2 text-violet-600 bg-violet-50 hover:bg-violet-100 rounded-lg transition-colors" title="Anggota">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         </button>
                         {{-- Hapus --}}
                         <button
                             onclick="confirmDelete({{ $event->id }}, '{{ addslashes($event->name) }}')"
-                            class="flex-none inline-flex justify-center items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 transition-all">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                            Hapus
+                            class="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                         </button>
                     </div>
 
