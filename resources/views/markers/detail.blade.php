@@ -485,7 +485,7 @@
             <div style="display:flex; flex-direction:column; gap:4px;">
                 @foreach($marker->eco_rules as $rule)
                 <div class="rule-item">
-                    @if(($rule['type'] ?? 'allowed') === 'warning')
+                    @if(in_array($rule['type'] ?? 'allowed', ['warning', 'prohibited']))
                         <div class="rule-icon rule-icon-warning">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>

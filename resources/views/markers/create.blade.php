@@ -17,7 +17,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
         </div>
         <div>
-            <h1 class="text-2xl font-black text-slate-900">Tambah Marker Manual</h1>
+            <h1 class="text-2xl font-black text-slate-900">Tambah Marker Baru</h1>
             <p class="text-sm text-slate-500">Input data marker, polygon, atau polyline ke dalam sistem.</p>
         </div>
     </div>
@@ -91,7 +91,7 @@
         {{-- Coordinate Info Card --}}
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 class="text-lg font-bold text-slate-800 mb-2">Informasi Spasial (Koordinat)</h2>
-            <p class="text-xs text-slate-400 mb-5">Masukkan data bentuk dan koordinat untuk dirender di peta.</p>
+            <p class="text-xs text-slate-400 mb-5">Gambar bentuk di peta untuk mengisi koordinat secara otomatis.</p>
 
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
@@ -112,14 +112,32 @@
                     </div>
                 </div>
 
+                {{-- Mini Map Picker --}}
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Koordinat (Array JSON)</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Pilih Lokasi di Peta</label>
                     <p class="text-xs text-slate-400 mb-2">
-                        Untuk Marker/Circle: <code>[lat, lng]</code><br>
-                        Untuk Polygon/Polyline: <code>[[lat1, lng1], [lat2, lng2], ...]</code>
+                        Gunakan toolbar di pojok kiri atas peta untuk menggambar bentuk sesuai pilihan. Hanya 1 bentuk yang diizinkan.
                     </p>
-                    <textarea name="coordinates" rows="4" required
-                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm font-mono resize-none" placeholder="[-6.2088, 106.8456]">{{ old('coordinates') }}</textarea>
+
+                    {{-- Map Container --}}
+                    <div id="coord-map" class="w-full rounded-xl border border-slate-300 overflow-hidden" style="height: 380px; z-index: 0;"></div>
+
+                    {{-- Coordinate Preview --}}
+                    <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs font-semibold text-slate-600">Koordinat Terpilih</span>
+                            <button type="button" id="clear-shape-btn"
+                                class="text-xs text-red-500 hover:text-red-700 font-semibold transition hidden">
+                                Hapus Bentuk
+                            </button>
+                        </div>
+                        <code id="coord-preview" class="text-xs text-emerald-700 break-all">
+                            <span class="text-slate-400 italic">Belum ada koordinat dipilih...</span>
+                        </code>
+                    </div>
+
+                    {{-- Hidden inputs submitted with form --}}
+                    <input type="hidden" name="coordinates" id="coordinates-input" value="{{ old('coordinates') }}" required>
                 </div>
             </div>
         </div>
@@ -166,16 +184,45 @@
 
         {{-- Eco Rules Card --}}
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <h2 class="text-lg font-bold text-slate-800 mb-2">Aturan Wisata Hijau</h2>
-            <p class="text-xs text-slate-400 mb-4">Format JSON. Contoh: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">[{"text":"Dilarang buang sampah","type":"allowed"}]</code></p>
-            <textarea name="eco_rules" rows="5"
-                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm font-mono resize-none" placeholder='[{"text":"Aturan...","type":"allowed"}]'>{{ old('eco_rules') }}</textarea>
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Aturan Wisata Hijau</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Tambahkan daftar aturan untuk lokasi ini.</p>
+                </div>
+                <span id="rules-count-badge" class="hidden text-xs font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full">0 aturan</span>
+            </div>
+
+            {{-- Rule list --}}
+            <div id="eco-rules-list" class="space-y-2 mb-4"></div>
+
+            {{-- Add row --}}
+            <div class="flex gap-2">
+                <input type="text" id="rule-text-input" placeholder="Contoh: Dilarang buang sampah sembarangan"
+                    class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm">
+                <select id="rule-type-select"
+                    class="px-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm font-semibold min-w-[130px]">
+                    <option value="prohibited">Dilarang</option>
+                    <option value="allowed">Diizinkan</option>
+                </select>
+                <button type="button" id="add-rule-btn"
+                    class="px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition flex items-center gap-1.5 whitespace-nowrap">
+                    + Tambah
+                </button>
+            </div>
+
+            {{-- Empty state --}}
+            <div id="rules-empty" class="mt-3 text-center py-5 border-2 border-dashed border-slate-200 rounded-xl">
+                <p class="text-xs text-slate-400">Belum ada aturan. Tambahkan aturan di atas.</p>
+            </div>
+
+            {{-- Hidden field, serialized as JSON on submit --}}
+            <input type="hidden" name="eco_rules" id="eco-rules-input" value="{{ old('eco_rules') }}">
         </div>
 
         {{-- Action Buttons --}}
         <div class="flex items-center gap-4">
             <button type="submit" class="flex-1 bg-emerald-600 text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-emerald-700 hover:-translate-y-0.5 transition-all shadow-lg shadow-emerald-100 active:translate-y-0">
-                ➕ Tambah Marker
+                Tambah Marker
             </button>
             <a href="/" class="px-6 py-3.5 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-100 transition border border-slate-200">
                 Batal
@@ -184,24 +231,277 @@
     </form>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const shapeSelect = document.getElementById('shape_type');
-        const radiusInput = document.getElementById('radius');
+@endsection
 
-        function toggleRadius() {
-            if (shapeSelect.value === 'Circle') {
-                radiusInput.disabled = false;
-                radiusInput.required = true;
-            } else {
-                radiusInput.disabled = true;
-                radiusInput.required = false;
-                radiusInput.value = '';
-            }
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.16.0/dist/leaflet-geoman.css" />
+<style>
+    /* Fix leaflet z-index inside form card */
+    #coord-map { position: relative; }
+    .leaflet-pane, .leaflet-control { z-index: 1 !important; }
+    .leaflet-top, .leaflet-bottom { z-index: 2 !important; }
+
+    /* Custom Geoman toolbar style */
+    .leaflet-pm-toolbar .leaflet-pm-icon-marker { filter: hue-rotate(130deg); }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.16.0/dist/leaflet-geoman.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* ─── Elements ─────────────────────────────────── */
+    const shapeSelect      = document.getElementById('shape_type');
+    const radiusInput      = document.getElementById('radius');
+    const coordInput       = document.getElementById('coordinates-input');
+    const coordPreview     = document.getElementById('coord-preview');
+    const clearBtn         = document.getElementById('clear-shape-btn');
+
+    /* ─── 1. Radius toggle ──────────────────────────── */
+    function toggleRadius() {
+        const isCircle = shapeSelect.value === 'Circle';
+        radiusInput.disabled = !isCircle;
+        radiusInput.required = isCircle;
+        if (!isCircle) radiusInput.value = '';
+    }
+    shapeSelect.addEventListener('change', () => { toggleRadius(); rebuildToolbar(); });
+    toggleRadius();
+
+    /* ─── 2. Init Leaflet map ───────────────────────── */
+    const map = L.map('coord-map', { center: [-6.5971, 106.8060], zoom: 10 });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+    }).addTo(map);
+
+    // Fix map sizing after DOM is ready
+    setTimeout(() => map.invalidateSize(), 200);
+
+    /* ─── 3. Geoman helper ──────────────────────────── */
+    let drawnLayer = null;
+
+    function setCoord(jsonStr) {
+        coordInput.value = jsonStr;
+        coordPreview.textContent = jsonStr;
+        clearBtn.classList.remove('hidden');
+    }
+
+    function clearCoord() {
+        coordInput.value = '';
+        coordPreview.innerHTML = '<span class="text-slate-400 italic">Belum ada koordinat dipilih...</span>';
+        clearBtn.classList.add('hidden');
+    }
+
+    function removeCurrentLayer() {
+        if (drawnLayer) {
+            map.removeLayer(drawnLayer);
+            drawnLayer = null;
+        }
+    }
+
+    /* ─── 4. Build Geoman toolbar based on shape type ── */
+    function rebuildToolbar() {
+        map.pm.removeControls();
+
+        const type = shapeSelect.value;
+
+        const options = {
+            position: 'topleft',
+            drawMarker:    type === 'Marker',
+            drawPolyline:  type === 'Polyline',
+            drawPolygon:   type === 'Polygon',
+            drawRectangle: type === 'Rectangle',
+            drawCircle:    type === 'Circle',
+            drawCircleMarker: false,
+            drawText:      false,
+            editMode:      true,
+            dragMode:      false,
+            cutPolygon:    false,
+            removalMode:   false,
+        };
+
+        map.pm.addControls(options);
+    }
+    rebuildToolbar();
+
+    /* ─── 5. Listen to Geoman create events ────────── */
+    map.on('pm:create', function (e) {
+        // Remove previous layer (only 1 allowed)
+        removeCurrentLayer();
+        drawnLayer = e.layer;
+
+        const type = shapeSelect.value;
+        let coords;
+
+        if (type === 'Marker') {
+            const latlng = e.layer.getLatLng();
+            coords = [latlng.lat, latlng.lng];
+
+        } else if (type === 'Circle') {
+            const latlng = e.layer.getLatLng();
+            const r      = e.layer.getRadius();
+            coords = [latlng.lat, latlng.lng];
+            // Auto-fill radius field
+            radiusInput.value = Math.round(r);
+
+        } else if (type === 'Polyline') {
+            coords = e.layer.getLatLngs().map(p => [p.lat, p.lng]);
+
+        } else if (type === 'Polygon' || type === 'Rectangle') {
+            // getLatLngs returns array of rings; take outer ring
+            const ring = e.layer.getLatLngs()[0];
+            coords = ring.map(p => [p.lat, p.lng]);
+
+        } else {
+            coords = [];
         }
 
-        shapeSelect.addEventListener('change', toggleRadius);
-        toggleRadius(); // Initial check
+        setCoord(JSON.stringify(coords));
+
+        // Listen to edit on this layer
+        e.layer.on('pm:edit', function () {
+            let updated;
+            if (type === 'Marker') {
+                const latlng = e.layer.getLatLng();
+                updated = [latlng.lat, latlng.lng];
+            } else if (type === 'Circle') {
+                const latlng = e.layer.getLatLng();
+                updated = [latlng.lat, latlng.lng];
+                radiusInput.value = Math.round(e.layer.getRadius());
+            } else if (type === 'Polyline') {
+                updated = e.layer.getLatLngs().map(p => [p.lat, p.lng]);
+            } else {
+                const ring = e.layer.getLatLngs()[0];
+                updated = ring.map(p => [p.lat, p.lng]);
+            }
+            setCoord(JSON.stringify(updated));
+        });
     });
+
+    /* ─── 6. Clear button ───────────────────────────── */
+    clearBtn.addEventListener('click', function () {
+        removeCurrentLayer();
+        clearCoord();
+        if (shapeSelect.value === 'Circle') radiusInput.value = '';
+    });
+
+    /* ─── 7. Validate before submit (also serializes eco_rules) ── */
+    document.querySelector('form').addEventListener('submit', function (e) {
+        // Serialize eco_rules before anything else (rules[] is in outer scope via window)
+        var hiddenEcoRules = document.getElementById('eco-rules-input');
+        if (hiddenEcoRules && window.__ecoRules) {
+            hiddenEcoRules.value = JSON.stringify(window.__ecoRules);
+        }
+
+        if (!coordInput.value.trim()) {
+            e.preventDefault();
+            alert('! Harap gambar lokasi di peta terlebih dahulu.');
+            document.getElementById('coord-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+
+});
 </script>
-@endsection
+
+{{-- ─── Eco Rules Builder ─────────────────────────────── --}}
+<script>
+(function () {
+    /* State */
+    let rules = [];
+
+    /* Elements */
+    const listEl    = document.getElementById('eco-rules-list');
+    const emptyEl   = document.getElementById('rules-empty');
+    const badgeEl   = document.getElementById('rules-count-badge');
+    const textInput = document.getElementById('rule-text-input');
+    const typeSelect= document.getElementById('rule-type-select');
+    const addBtn    = document.getElementById('add-rule-btn');
+    const hiddenIn  = document.getElementById('eco-rules-input');
+
+    /* Label map */
+    const labels = {
+        prohibited: { text: 'Dilarang',  cls: 'bg-red-50 text-red-600 border-red-200'   },
+        allowed:    { text: 'Diizinkan', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    };
+
+    /* ── Sync rules to global so map validator can serialize them ── */
+    function syncGlobal() {
+        window.__ecoRules = rules;
+    }
+    syncGlobal(); // init
+
+    /* ── Render list ──────────────────────────────────── */
+    function render() {
+        listEl.innerHTML = '';
+        emptyEl.classList.toggle('hidden', rules.length > 0);
+
+        badgeEl.textContent = rules.length + ' aturan';
+        badgeEl.classList.toggle('hidden', rules.length === 0);
+
+        rules.forEach(function (rule, idx) {
+            const meta = labels[rule.type] || labels.prohibited;
+            const row  = document.createElement('div');
+            row.className = 'flex items-center gap-2 p-3 rounded-xl border ' + meta.cls + ' group transition-all';
+            row.innerHTML =
+                '<span class="flex-1 text-sm font-medium">' + escHtml(rule.text) + '</span>' +
+                '<span class="text-xs font-semibold px-2 py-0.5 rounded-full border ' + meta.cls + '">' + meta.text + '</span>' +
+                '<button type="button" data-idx="' + idx + '" ' +
+                    'class="remove-rule-btn ml-1 text-slate-300 hover:text-red-500 transition text-lg leading-none font-bold" ' +
+                    'title="Hapus aturan ini">&times;</button>';
+            listEl.appendChild(row);
+        });
+
+        /* Attach remove listeners */
+        listEl.querySelectorAll('.remove-rule-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                rules.splice(parseInt(this.dataset.idx), 1);
+                syncGlobal();
+                render();
+            });
+        });
+    }
+
+    /* ── Add rule ─────────────────────────────────────── */
+    addBtn.addEventListener('click', function () {
+        const text = textInput.value.trim();
+        if (!text) {
+            textInput.focus();
+            textInput.classList.add('border-red-400', 'ring-2', 'ring-red-100');
+            setTimeout(function () {
+                textInput.classList.remove('border-red-400', 'ring-2', 'ring-red-100');
+            }, 1500);
+            return;
+        }
+        rules.push({ text: text, type: typeSelect.value });
+        syncGlobal();
+        textInput.value = '';
+        textInput.focus();
+        render();
+    });
+
+    /* Allow Enter key on text input to add */
+    textInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); }
+    });
+
+    /* ── Hydrate from old() on validation failure ─────── */
+    (function hydrate() {
+        const raw = hiddenIn.value.trim();
+        if (!raw) return;
+        try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) { rules = parsed; syncGlobal(); render(); }
+        } catch (err) { /* ignore */ }
+    })();
+
+    /* ── Helper: escape HTML ──────────────────────────── */
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+})();
+</script>
+@endpush
