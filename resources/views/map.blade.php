@@ -108,14 +108,14 @@
         );
 
         // 4. Kontrol Layer
-        // const landLayer = L.layerGroup().addTo(map);
+        const landLayer = L.layerGroup().addTo(map);
         // const seaLayer = L.layerGroup().addTo(map);
 
         const baseMaps    = { "Peta Standar": streetMap, "Peta Topografi (Gunung/Hutan)": topoMap };
         const overlayMaps = { 
             "Layer Cuaca & Curah Hujan": rainLayer, 
-            "Layer Kualitas Udara (AQI)": aqiLayer
-            // "Area Daratan": landLayer,
+            "Layer Kualitas Udara (AQI)": aqiLayer,
+            "Area Daratan": landLayer,
             // "Area Lautan / ZEE": seaLayer
         };
         L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
@@ -129,20 +129,20 @@
             })
             .catch(err => console.error('Gagal mengambil data cuaca:', err));
 
-        // // Tambahan Layer GeoJSON Daratan & Lautan
-        // fetch('/geojson/indonesia-land.geojson')
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         L.geoJSON(data, {
-        //             style: {
-        //                 color: "#22c55e", // Warna garis (Hijau)
-        //                 weight: 2,
-        //                 fillColor: "#4ade80", // Warna isi
-        //                 fillOpacity: 0.4
-        //             }
-        //         }).addTo(landLayer);
-        //     })
-        //     .catch(err => console.error('Gagal meload indonesia-land.geojson:', err));
+        // Tambahan Layer GeoJSON Daratan & Lautan
+        fetch('/geojson/indonesia-land.geojson')
+             .then(response => response.json())
+             .then(data => {
+                 L.geoJSON(data, {
+                     style: {
+                         color: "#22c55e", // Warna garis (Hijau)
+                         weight: 2,
+                         fillColor: "#4ade80", // Warna isi
+                         fillOpacity: 0.4
+                     }
+                 }).addTo(landLayer);
+             })
+             .catch(err => console.error('Gagal meload indonesia-land.geojson:', err));
 
         // fetch('/geojson/indonesia-sea.geojson')
         //     .then(response => response.json())
