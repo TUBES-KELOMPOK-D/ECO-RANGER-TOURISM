@@ -267,7 +267,6 @@
             {{-- Wrap content in a clickable area for detail view --}}
             <div class="cursor-pointer group relative" onclick="openDetailModal({{ $event->id }})">
                 {{-- Event Image --}}
-<<<<<<< ert-45-pbi-25-manajemen-event-admin
                 <div class="relative overflow-hidden rounded-t-3xl">
                     @if($event->image_path)
                         <img src="{{ asset('storage/' . $event->image_path) }}"
@@ -280,20 +279,6 @@
                     <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg border border-amber-200 flex items-center gap-1.5 z-10 group-hover:-translate-y-0.5 transition-all">
                         <span class="text-amber-500 text-sm">🌟</span>
                         <span class="text-xs font-black text-amber-700 tracking-wide">+50 Poin</span>
-=======
-                <div class="relative">
-                    @if($event->image_path)
-                        <img src="{{ asset('storage/' . $event->image_path) }}"
-                             alt="{{ $event->name }}" class="event-img" />
-                    @else
-                        <div class="event-img-placeholder group-hover:scale-105 transition-transform">🌿</div>
-                    @endif
-                    
-                    {{-- Reward Badge (Gamification) --}}
-                    <div class="absolute top-3 right-3 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-lg border border-amber-300/50 flex items-center gap-1.5 z-10 transform group-hover:scale-105 transition-transform">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                        +50 Eco Points
->>>>>>> main
                     </div>
                 </div>
 
