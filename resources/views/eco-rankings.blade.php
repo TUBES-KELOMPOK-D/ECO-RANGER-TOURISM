@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-gray-50 min-h-screen">
+<div class="bg-slate-50 min-h-screen">
     <!-- GREEN HEADER WITH PODIUM -->
-    <div class="bg-gradient-to-b from-emerald-700 to-emerald-600 rounded-b-3xl shadow-lg py-16" style="background: linear-gradient(to bottom, #098352, #10A96E);">
+    <div class="bg-gradient-to-b from-emerald-700 to-emerald-600 rounded-b-3xl shadow-lg py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl font-bold text-white text-center mb-12">Eco-Rankings 🏆</h1>
             
@@ -18,12 +18,12 @@
                                 {{ strtoupper(substr($rank2->name, 0, 2)) }}
                             </div>
                         </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg" style="background: linear-gradient(to top, #10A96E, #1FD571);">
+                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg bg-gradient-to-t from-emerald-500 to-emerald-400">
                             <div class="text-center">
                                 <p class="text-5xl font-black text-white">2</p>
                             </div>
                         </div>
-                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl" style="background-color: #10A96E;">{{ $rank2->name }}</p>
+                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl bg-emerald-500">{{ $rank2->name }}</p>
                     @endif
                 </div>
 
@@ -39,12 +39,12 @@
                                 {{ strtoupper(substr($rank1->name, 0, 2)) }}
                             </div>
                         </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-2xl" style="background: linear-gradient(to top, #098352, #10A96E);">
+                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-2xl bg-gradient-to-t from-emerald-700 to-emerald-500">
                             <div class="text-center">
                                 <p class="text-7xl font-black text-white">1</p>
                             </div>
                         </div>
-                        <p class="text-white text-sm font-black mt-2 w-full py-2 px-2 rounded-b-2xl" style="background-color: #098352;">{{ $rank1->name }}</p>
+                        <p class="text-white text-sm font-black mt-2 w-full py-2 px-2 rounded-b-2xl bg-emerald-700">{{ $rank1->name }}</p>
                     @endif
                 </div>
 
@@ -57,12 +57,12 @@
                                 {{ strtoupper(substr($rank3->name, 0, 2)) }}
                             </div>
                         </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg" style="background: linear-gradient(to top, #10A96E, #1FD571);">
+                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg bg-gradient-to-t from-emerald-500 to-emerald-400">
                             <div class="text-center">
                                 <p class="text-4xl font-black text-white">3</p>
                             </div>
                         </div>
-                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl" style="background-color: #10A96E;">{{ $rank3->name }}</p>
+                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl bg-emerald-500">{{ $rank3->name }}</p>
                     @endif
                 </div>
             </div>
@@ -93,7 +93,7 @@
 
         <!-- PAPAN PERINGKAT -->
         <div class="bg-white rounded-2xl shadow-md overflow-hidden mb-8">
-            <div class="p-6 border-b" style="background: linear-gradient(to right, rgba(16, 169, 110, 0.1), rgba(31, 213, 113, 0.1));">
+            <div class="p-6 border-b bg-gradient-to-r from-emerald-50 to-emerald-100/50">
                 <h2 class="text-2xl font-bold text-gray-900">Papan Peringkat</h2>
             </div>
             
@@ -101,7 +101,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
-                            <tr class="border-b-2" style="border-color: #10A96E; background-color: #f9fafb;">
+                            <tr class="border-b-2 border-emerald-500 bg-gray-50">
                                 <th class="text-left py-4 px-6 text-sm font-semibold text-gray-700 w-16">Rank</th>
                                 <th class="text-left py-4 px-6 text-sm font-semibold text-gray-700">Nama</th>
                                 <th class="text-left py-4 px-6 text-sm font-semibold text-gray-700">Level</th>
@@ -110,8 +110,8 @@
                         </thead>
                         <tbody>
                             @foreach($leaderboard as $index => $user)
-                                <tr class="border-b hover:bg-opacity-50 transition" style="border-color: rgba(16, 169, 110, 0.2); background-color: transparent;" onmouseover="this.style.backgroundColor = 'rgba(16, 169, 110, 0.05)'" onmouseout="this.style.backgroundColor = 'transparent'">
-                                    <td class="py-4 px-6 font-bold" style="color: #10A96E;">
+                                <tr class="border-b hover:bg-emerald-50/50 transition" style="border-color: rgba(16, 169, 110, 0.2);">
+                                    <td class="py-4 px-6 font-bold text-emerald-600">
                                         @if($index + 1 == 1) 🥇
                                         @elseif($index + 1 == 2) 🥈
                                         @elseif($index + 1 == 3) 🥉
@@ -121,13 +121,13 @@
                                     <td class="py-4 px-6 font-medium text-gray-900">{{ $user->name }}</td>
                                     <td class="py-4 px-6">
                                         <span class="px-3 py-1 rounded-full text-xs font-semibold 
-                                            @if($user->level == 'Eco-Ranger') text-white
+                                            @if($user->level == 'Eco-Ranger') bg-emerald-500 text-white
                                             @elseif($user->level == 'Eco-Warrior') bg-blue-100 text-blue-700
-                                            @else bg-gray-100 text-gray-600 @endif" style="@if($user->level == 'Eco-Ranger') background-color: #10A96E; @endif">
+                                            @else bg-gray-100 text-gray-600 @endif">
                                             {{ $user->level }}
                                         </span>
                                     </td>
-                                    <td class="py-4 px-6 text-right font-bold" style="color: #10A96E;">{{ number_format($user->total_points) }}</td>
+                                    <td class="py-4 px-6 text-right font-bold text-emerald-600">{{ number_format($user->total_points) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -142,25 +142,25 @@
         <div class="bg-white rounded-2xl shadow-md p-6 mb-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Aturan Poin</h2>
             <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                <div class="flex justify-between items-center p-4 rounded-lg border" style="background-color: rgba(16, 169, 110, 0.05); border-color: #10A96E;">
+                <div class="flex justify-between items-center p-4 rounded-lg border bg-emerald-50/50 border-emerald-200">
                     <span class="text-sm font-medium text-gray-800">📋 Lapor Isu</span>
-                    <span class="font-bold" style="color: #10A96E;">+10</span>
+                    <span class="font-bold text-emerald-600">+10</span>
                 </div>
-                <div class="flex justify-between items-center p-4 rounded-lg border" style="background-color: rgba(16, 169, 110, 0.05); border-color: #10A96E;">
+                <div class="flex justify-between items-center p-4 rounded-lg border bg-emerald-50/50 border-emerald-200">
                     <span class="text-sm font-medium text-gray-800">🤝 Ikut Aksi</span>
-                    <span class="font-bold" style="color: #10A96E;">+50</span>
+                    <span class="font-bold text-emerald-600">+50</span>
                 </div>
-                <div class="flex justify-between items-center p-4 rounded-lg border" style="background-color: rgba(16, 169, 110, 0.05); border-color: #10A96E;">
+                <div class="flex justify-between items-center p-4 rounded-lg border bg-emerald-50/50 border-emerald-200">
                     <span class="text-sm font-medium text-gray-800">✓ Verifikasi</span>
-                    <span class="font-bold" style="color: #10A96E;">+5</span>
+                    <span class="font-bold text-emerald-600">+5</span>
                 </div>
-                <div class="flex justify-between items-center p-4 rounded-lg border" style="background-color: rgba(16, 169, 110, 0.05); border-color: #10A96E;">
+                <div class="flex justify-between items-center p-4 rounded-lg border bg-emerald-50/50 border-emerald-200">
                     <span class="text-sm font-medium text-gray-800">💬 Forum</span>
-                    <span class="font-bold" style="color: #10A96E;">+15</span>
+                    <span class="font-bold text-emerald-600">+15</span>
                 </div>
-                <div class="flex justify-between items-center p-4 rounded-lg border" style="background-color: rgba(16, 169, 110, 0.05); border-color: #10A96E;">
+                <div class="flex justify-between items-center p-4 rounded-lg border bg-emerald-50/50 border-emerald-200">
                     <span class="text-sm font-medium text-gray-800">📸 Bagikan</span>
-                    <span class="font-bold" style="color: #10A96E;">+20</span>
+                    <span class="font-bold text-emerald-600">+20</span>
                 </div>
             </div>
         </div>
@@ -172,14 +172,14 @@
             @if(Auth::check() && count($badges) > 0)
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     @foreach($badges as $badge)
-                        <div class="p-4 bg-gray-50 rounded-lg border" style="border-color: #10A96E;">
+                        <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="text-2xl">{{ $badge['icon'] }}</span>
                                 <p class="font-semibold text-sm text-gray-900">{{ $badge['name'] }}</p>
                             </div>
                             <p class="text-xs text-gray-600 mb-3">{{ $badge['target'] }}</p>
                             <div class="w-full bg-gray-300 rounded-full h-2 overflow-hidden mb-2">
-                                <div class="h-full transition-all" style="width: {{ $badge['progress'] }}%; background-color: #10A96E;"></div>
+                                <div class="h-full transition-all bg-emerald-500" style="width: {{ $badge['progress'] }}%;"></div>
                             </div>
                             <p class="text-xs font-bold text-gray-700 text-center">{{ (int)$badge['current'] }}/{{ $badge['max'] }}</p>
                         </div>
@@ -194,7 +194,7 @@
 
         <!-- POSISI USER SAAT INI (Paling Bawah) -->
         @if(Auth::check())
-            <div class="rounded-2xl shadow-md p-8 text-white text-center" style="background: linear-gradient(to right, #098352, #10A96E);">
+            <div class="rounded-2xl shadow-md p-8 text-white text-center bg-gradient-to-r from-emerald-700 to-emerald-500">
                 <p class="text-sm opacity-90 font-semibold">POSISI ANDA SAAT INI</p>
                 <p class="text-5xl font-bold mt-4">Rank #{{ $currentUserRank ?? '?' }}</p>
                 <p class="text-lg mt-3">{{ number_format($currentUserPoints ?? 0) }} poin</p>
@@ -203,7 +203,7 @@
         @else
             <div class="rounded-2xl shadow-md p-8 text-white text-center bg-gray-600">
                 <p class="text-sm opacity-90 font-semibold">Silakan login untuk melihat posisi Anda</p>
-                <a href="{{ route('login') }}" class="mt-4 inline-block px-8 py-3 bg-white rounded-lg font-semibold hover:bg-gray-100 transition" style="color: #10A96E;">
+                <a href="{{ route('login') }}" class="mt-4 inline-block px-8 py-3 bg-white rounded-lg font-semibold hover:bg-gray-100 transition text-emerald-600">
                     Login
                 </a>
             </div>
@@ -211,7 +211,5 @@
     </div>
 </div>
 
-<style>
-    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-</style>
+
 @endsection

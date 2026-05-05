@@ -43,12 +43,16 @@
                             <td class="px-6 py-4">{{ count($kuis->questions ?? []) }}</td>
                             <td class="px-6 py-4">{{ optional($kuis->updated_at)->format('Y-m-d H:i') }}</td>
                             <td class="px-6 py-4">
-                                <div class="flex justify-end gap-2">
-                                    <a href="{{ route('admin.academy.quizzes.edit', $kuis) }}" class="rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100">Edit</a>
-                                    <form action="{{ route('admin.academy.quizzes.destroy', $kuis) }}" method="POST" onsubmit="return confirm('Hapus kuis ini?');">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('admin.academy.quizzes.edit', $kuis) }}" class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors" title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                    </a>
+                                    <form action="{{ route('admin.academy.quizzes.destroy', $kuis) }}" method="POST" onsubmit="return confirm('Hapus kuis ini?');" class="inline-block">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="rounded-lg bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-100">Hapus</button>
+                                        <button type="submit" class="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                        </button>
                                     </form>
                                 </div>
                             </td>

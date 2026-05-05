@@ -3,7 +3,7 @@
 @section('content')
 <div class="bg-gray-50 min-h-screen pb-12">
     <!-- GREEN HEADER WITH PODIUM -->
-    <div class="bg-gradient-to-b from-emerald-700 to-emerald-600 rounded-b-3xl shadow-lg py-16" style="background: linear-gradient(to bottom, #098352, #10A96E);">
+    <div class="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-b-3xl shadow-lg py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl font-bold text-white text-center mb-12">Eco-Rankings</h1>
             
@@ -18,12 +18,12 @@
                                 {{ strtoupper(substr($rank2->name ?? '', 0, 2)) }}
                             </div>
                         </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg mx-2" style="background: linear-gradient(to top, #10A96E, #1FD571);">
+                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg mx-2 bg-gradient-to-t from-emerald-600 to-emerald-400">
                             <div class="text-center">
                                 <p class="text-5xl font-black text-white">2</p>
                             </div>
                         </div>
-                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl mx-2" style="background-color: #10A96E;">{{ $rank2->name ?? '' }}</p>
+                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-600">{{ $rank2->name ?? '' }}</p>
                     @endif
                 </div>
 
@@ -39,12 +39,12 @@
                                 {{ strtoupper(substr($rank1->name ?? '', 0, 2)) }}
                             </div>
                         </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-2xl mx-2" style="background: linear-gradient(to top, #098352, #10A96E);">
+                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-2xl mx-2 bg-gradient-to-t from-emerald-700 to-emerald-500">
                             <div class="text-center">
                                 <p class="text-7xl font-black text-white">1</p>
                             </div>
                         </div>
-                        <p class="text-white text-sm font-black mt-2 w-full py-2 px-2 rounded-b-2xl mx-2" style="background-color: #098352;">{{ $rank1->name ?? '' }}</p>
+                        <p class="text-white text-sm font-black mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-700">{{ $rank1->name ?? '' }}</p>
                     @endif
                 </div>
 
@@ -57,12 +57,12 @@
                                 {{ strtoupper(substr($rank3->name ?? '', 0, 2)) }}
                             </div>
                         </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg mx-2" style="background: linear-gradient(to top, #10A96E, #1FD571);">
+                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg mx-2 bg-gradient-to-t from-emerald-600 to-emerald-400">
                             <div class="text-center">
                                 <p class="text-4xl font-black text-white">3</p>
                             </div>
                         </div>
-                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl mx-2" style="background-color: #10A96E;">{{ $rank3->name ?? '' }}</p>
+                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-600">{{ $rank3->name ?? '' }}</p>
                     @endif
                 </div>
             </div>
