@@ -3,6 +3,7 @@
 @section('title', 'Aksi Event - Eco Ranger Tourism')
 
 @push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
     /* ── Animations ── */
     @keyframes fadeInUp {
@@ -433,9 +434,14 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Lokasi</label>
-                    <input type="text" name="location" placeholder="contoh: Pantai Kuta, Bali"
+                    <input type="text" id="add-location" name="location" placeholder="contoh: Pantai Kuta, Bali"
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Lokasi di Peta</label>
+                <div id="map-add" class="w-full h-48 rounded-xl border border-slate-200" style="z-index: 10;"></div>
+                <p class="text-[10px] text-slate-400 mt-1">*Klik pada peta untuk mendapatkan alamat otomatis.</p>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
@@ -499,6 +505,13 @@
                     <input type="text" id="edit-location" name="location"
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Lokasi di Peta</label>
+                <div id="map-edit" class="w-full h-48 rounded-xl border border-slate-200" style="z-index: 10;"></div>
+                <p id="map-edit-loading" class="text-xs text-slate-400 mt-1 hidden">Mencari lokasi pada peta...</p>
+                <p id="map-edit-error" class="text-xs text-rose-500 mt-1 hidden">Peta tidak dapat ditemukan untuk lokasi ini.</p>
+                <p class="text-[10px] text-slate-400 mt-1">*Klik pada peta untuk mengubah alamat.</p>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
@@ -617,6 +630,13 @@
                 </div>
             </div>
 
+            <div class="mb-4">
+                <p class="text-xs font-bold text-slate-800 mb-2">Peta Lokasi</p>
+                <div id="map-detail" class="w-full h-40 rounded-xl border border-slate-200" style="z-index: 10;"></div>
+                <p id="map-detail-loading" class="text-xs text-slate-400 mt-1 hidden">Mencari lokasi pada peta...</p>
+                <p id="map-detail-error" class="text-xs text-rose-500 mt-1 hidden">Peta tidak dapat ditemukan untuk lokasi ini.</p>
+            </div>
+
             <div>
                 <p class="text-xs font-bold text-slate-800 mb-2">Penyelenggara</p>
                 <div class="flex items-center gap-2 mb-4">
@@ -680,11 +700,142 @@ const currentUserIsAdmin = @json($isAdmin);
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
+// ── Maps ───────────────────────────────────────────────────────
+let addMap, addMarker;
+let editMap, editMarker;
+let detailMap, detailMarker;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initMaps();
+});
+
+function initMaps() {
+    // Add map
+    if (document.getElementById('map-add')) {
+        addMap = L.map('map-add').setView([-0.789275, 113.921327], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(addMap);
+        
+        addMap.on('click', function(e) {
+            let lat = e.latlng.lat;
+            let lng = e.latlng.lng;
+            if (addMarker) {
+                addMarker.setLatLng(e.latlng);
+            } else {
+                addMarker = L.marker(e.latlng).addTo(addMap);
+            }
+            reverseGeocode(lat, lng, 'add-location');
+        });
+    }
+
+    // Edit map
+    if (document.getElementById('map-edit')) {
+        editMap = L.map('map-edit').setView([-0.789275, 113.921327], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(editMap);
+        
+        editMap.on('click', function(e) {
+            let lat = e.latlng.lat;
+            let lng = e.latlng.lng;
+            if (editMarker) {
+                editMarker.setLatLng(e.latlng);
+            } else {
+                editMarker = L.marker(e.latlng).addTo(editMap);
+            }
+            reverseGeocode(lat, lng, 'edit-location');
+        });
+    }
+
+    // Detail map
+    if (document.getElementById('map-detail')) {
+        detailMap = L.map('map-detail').setView([-0.789275, 113.921327], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(detailMap);
+    }
+}
+
+function reverseGeocode(lat, lng, inputId) {
+    const inputEl = document.getElementById(inputId);
+    inputEl.value = 'Mencari alamat...';
+    
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.display_name) {
+                inputEl.value = data.display_name;
+            } else {
+                inputEl.value = lat + ', ' + lng;
+            }
+        })
+        .catch(() => {
+            inputEl.value = lat + ', ' + lng;
+        });
+}
+
+function geocodeAddress(address, mapInstance, isDetail = false) {
+    let loadingEl = document.getElementById(isDetail ? 'map-detail-loading' : 'map-edit-loading');
+    let errorEl = document.getElementById(isDetail ? 'map-detail-error' : 'map-edit-error');
+    
+    if (loadingEl) loadingEl.classList.remove('hidden');
+    if (errorEl) errorEl.classList.add('hidden');
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (data && data.length > 0) {
+                let lat = data[0].lat;
+                let lon = data[0].lon;
+                mapInstance.setView([lat, lon], 14);
+                
+                if (isDetail) {
+                    if (detailMarker) detailMarker.setLatLng([lat, lon]);
+                    else detailMarker = L.marker([lat, lon]).addTo(mapInstance);
+                } else {
+                    if (editMarker) editMarker.setLatLng([lat, lon]);
+                    else editMarker = L.marker([lat, lon]).addTo(mapInstance);
+                }
+            } else {
+                if (errorEl) errorEl.classList.remove('hidden');
+                mapInstance.setView([-0.789275, 113.921327], 4);
+                if (isDetail && detailMarker) detailMarker.remove();
+                if (!isDetail && editMarker) editMarker.remove();
+            }
+        })
+        .catch(() => {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (errorEl) errorEl.classList.remove('hidden');
+        });
+}
+
 // ── Modal Helpers ──────────────────────────────────────────────
 function openModal(id) {
     document.getElementById(id).classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // Fix map sizing inside hidden modals
+    setTimeout(() => {
+        if (id === 'modal-add-event' && typeof addMap !== 'undefined') {
+            addMap.invalidateSize();
+        } else if (id === 'modal-edit-event' && typeof editMap !== 'undefined') {
+            editMap.invalidateSize();
+            let loc = document.getElementById('edit-location').value;
+            if (loc) {
+                geocodeAddress(loc, editMap, false);
+            }
+        } else if (id === 'modal-detail-event' && typeof detailMap !== 'undefined') {
+            detailMap.invalidateSize();
+            let loc = document.getElementById('detail-location').textContent;
+            if (loc) {
+                geocodeAddress(loc, detailMap, true);
+            }
+        }
+    }, 100);
 }
 function closeModal(id) {
     document.getElementById(id).classList.remove('active');
