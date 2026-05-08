@@ -305,7 +305,7 @@
                         </div>
                         <div class="flex items-center gap-2 text-xs text-slate-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            <span class="truncate">{{ $event->location ?? 'Lokasi belum ditentukan' }}</span>
+                            <span class="truncate">{{ str_replace('::', ', ', explode('|MAP|', (string)($event->location ?? 'Lokasi belum ditentukan'))[0]) }}</span>
                         </div>
                         <div class="flex items-center gap-2 text-xs text-slate-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -419,7 +419,7 @@
             </button>
         </div>
 
-        <form method="POST" action="{{ route('aksi.store') }}" enctype="multipart/form-data" class="space-y-4">
+        <form id="form-add-event" method="POST" action="{{ route('aksi.store') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Event <span class="text-rose-500">*</span></label>
@@ -433,20 +433,21 @@
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Lokasi</label>
-                    <input type="text" id="add-location" name="location" placeholder="contoh: Pantai Kuta, Bali"
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
+                    <input type="text" name="organizer" placeholder="contoh: Tim Eco Ranger"
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Lokasi di Peta</label>
                 <div id="map-add" class="w-full h-48 rounded-xl border border-slate-200" style="z-index: 10;"></div>
-                <p class="text-[10px] text-slate-400 mt-1">*Klik pada peta untuk mendapatkan alamat otomatis.</p>
+                <input type="text" id="add-map-address" readonly placeholder="Alamat otomatis dari peta akan muncul di sini" class="w-full mt-2 border border-slate-200 bg-slate-50 rounded-xl px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed">
+                <input type="hidden" id="add-location-hidden" name="location">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
-                <input type="text" name="organizer" placeholder="contoh: Tim Eco Ranger"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Detail Lokasi Tambahan (Bisa diketik)</label>
+                <textarea id="add-detail-address" rows="2" placeholder="contoh: Patokan sebelah minimarket..."
+                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition resize-none"></textarea>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Deskripsi</label>
@@ -501,22 +502,23 @@
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Lokasi</label>
-                    <input type="text" id="edit-location" name="location"
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
+                    <input type="text" id="edit-organizer" name="organizer"
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Lokasi di Peta</label>
                 <div id="map-edit" class="w-full h-48 rounded-xl border border-slate-200" style="z-index: 10;"></div>
+                <input type="text" id="edit-map-address" readonly placeholder="Alamat otomatis dari peta" class="w-full mt-2 border border-slate-200 bg-slate-50 rounded-xl px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed">
+                <input type="hidden" id="edit-location-hidden" name="location">
                 <p id="map-edit-loading" class="text-xs text-slate-400 mt-1 hidden">Mencari lokasi pada peta...</p>
                 <p id="map-edit-error" class="text-xs text-rose-500 mt-1 hidden">Peta tidak dapat ditemukan untuk lokasi ini.</p>
-                <p class="text-[10px] text-slate-400 mt-1">*Klik pada peta untuk mengubah alamat.</p>
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
-                <input type="text" id="edit-organizer" name="organizer"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Detail Lokasi Tambahan (Bisa diketik)</label>
+                <textarea id="edit-detail-address" rows="2" placeholder="Ketik detail patokan alamat di sini"
+                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition resize-none"></textarea>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Deskripsi</label>
@@ -727,7 +729,7 @@ function initMaps() {
             } else {
                 addMarker = L.marker(e.latlng).addTo(addMap);
             }
-            reverseGeocode(lat, lng, 'add-location');
+            reverseGeocode(lat, lng, 'add-map-address');
         });
     }
 
@@ -746,7 +748,7 @@ function initMaps() {
             } else {
                 editMarker = L.marker(e.latlng).addTo(editMap);
             }
-            reverseGeocode(lat, lng, 'edit-location');
+            reverseGeocode(lat, lng, 'edit-map-address');
         });
     }
 
@@ -814,6 +816,30 @@ function geocodeAddress(address, mapInstance, isDetail = false) {
 }
 
 // ── Modal Helpers ──────────────────────────────────────────────
+function showMapPin(address, coords, mapInstance, isDetail = false) {
+    if (coords) {
+        let loadingEl = document.getElementById(isDetail ? 'map-detail-loading' : 'map-edit-loading');
+        let errorEl = document.getElementById(isDetail ? 'map-detail-error' : 'map-edit-error');
+        if (loadingEl) loadingEl.classList.add('hidden');
+        if (errorEl) errorEl.classList.add('hidden');
+        
+        let parts = coords.split(',');
+        let lat = parseFloat(parts[0]);
+        let lon = parseFloat(parts[1]);
+        mapInstance.setView([lat, lon], 14);
+        
+        if (isDetail) {
+            if (detailMarker) detailMarker.setLatLng([lat, lon]);
+            else detailMarker = L.marker([lat, lon]).addTo(mapInstance);
+        } else {
+            if (editMarker) editMarker.setLatLng([lat, lon]);
+            else editMarker = L.marker([lat, lon]).addTo(mapInstance);
+        }
+    } else {
+        geocodeAddress(address, mapInstance, isDetail);
+    }
+}
+
 function openModal(id) {
     document.getElementById(id).classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -824,15 +850,16 @@ function openModal(id) {
             addMap.invalidateSize();
         } else if (id === 'modal-edit-event' && typeof editMap !== 'undefined') {
             editMap.invalidateSize();
-            let loc = document.getElementById('edit-location').value;
-            if (loc) {
-                geocodeAddress(loc, editMap, false);
+            let mapInput = document.getElementById('edit-map-address');
+            if (mapInput.value) {
+                showMapPin(mapInput.value, mapInput.dataset.latlng, editMap, false);
             }
         } else if (id === 'modal-detail-event' && typeof detailMap !== 'undefined') {
             detailMap.invalidateSize();
-            let loc = document.getElementById('detail-location').textContent;
-            if (loc) {
-                geocodeAddress(loc, detailMap, true);
+            let locText = document.getElementById('detail-location').textContent;
+            let coords = document.getElementById('detail-location').dataset.latlng;
+            if (locText) {
+                showMapPin(locText, coords, detailMap, true);
             }
         }
     }, 100);
@@ -845,14 +872,53 @@ function closeOnBackdrop(e, id) {
     if (e.target === e.currentTarget) closeModal(id);
 }
 
+// Intercept forms to append coordinates
+document.getElementById('form-add-event')?.addEventListener('submit', function(e) {
+    let mapAddr = document.getElementById('add-map-address').value;
+    let detailAddr = document.getElementById('add-detail-address').value;
+    let hiddenLoc = document.getElementById('add-location-hidden');
+    
+    let combined = mapAddr;
+    if (detailAddr.trim() !== '') combined += '::' + detailAddr.trim();
+    if (addMarker) {
+        let latlng = addMarker.getLatLng();
+        combined += '|MAP|' + latlng.lat + ',' + latlng.lng;
+    }
+    hiddenLoc.value = combined;
+});
+
+document.getElementById('form-edit-event')?.addEventListener('submit', function(e) {
+    let mapAddr = document.getElementById('edit-map-address').value;
+    let detailAddr = document.getElementById('edit-detail-address').value;
+    let hiddenLoc = document.getElementById('edit-location-hidden');
+    let mapInput = document.getElementById('edit-map-address');
+    
+    let combined = mapAddr;
+    if (detailAddr.trim() !== '') combined += '::' + detailAddr.trim();
+    if (editMarker) {
+        let latlng = editMarker.getLatLng();
+        combined += '|MAP|' + latlng.lat + ',' + latlng.lng;
+    } else if (mapInput.dataset.latlng) {
+        combined += '|MAP|' + mapInput.dataset.latlng;
+    }
+    hiddenLoc.value = combined;
+});
+
 // ── User/Admin: Buka Detail Event ──────────────────────────────
 function openDetailModal(id) {
     const eventObj = eventsData.find(e => e.id === id);
     if (!eventObj) return;
 
+    let parts = (eventObj.location || '').split('|MAP|');
+    let addressOnly = parts[0];
+    let coordsOnly = parts.length > 1 ? parts[1] : '';
+    
+    let displayAddress = addressOnly.replace('::', ', ');
+
     document.getElementById('detail-name').textContent = eventObj.name;
     document.getElementById('detail-date').textContent = eventObj.event_date;
-    document.getElementById('detail-location').textContent = eventObj.location;
+    document.getElementById('detail-location').textContent = displayAddress;
+    document.getElementById('detail-location').dataset.latlng = coordsOnly;
     document.getElementById('detail-organizer').textContent = eventObj.organizer;
     document.getElementById('detail-organizer-small').textContent = eventObj.organizer;
     
@@ -911,11 +977,23 @@ function openDetailModal(id) {
 }
 
 // ── Admin: Edit Event ──────────────────────────────────────────
-function openEditModal(id, name, description, date, location, organizer) {
+function openEditModal(id, name, description, date, locationRaw, organizer) {
+    let parts = (locationRaw || '').split('|MAP|');
+    let addressOnly = parts[0];
+    let coordsOnly = parts.length > 1 ? parts[1] : '';
+    
+    let addrParts = addressOnly.split('::');
+    let mapAddr = addrParts[0] || '';
+    let detailAddr = addrParts.length > 1 ? addrParts[1] : '';
+
     document.getElementById('edit-name').value        = name;
     document.getElementById('edit-description').value = description;
     document.getElementById('edit-date').value        = date;
-    document.getElementById('edit-location').value    = location;
+    
+    document.getElementById('edit-map-address').value = mapAddr;
+    document.getElementById('edit-detail-address').value = detailAddr;
+    document.getElementById('edit-map-address').dataset.latlng = coordsOnly;
+    
     document.getElementById('edit-organizer').value   = organizer;
     document.getElementById('form-edit-event').action = '/admin/aksi/' + id + '/update';
     openModal('modal-edit-event');
