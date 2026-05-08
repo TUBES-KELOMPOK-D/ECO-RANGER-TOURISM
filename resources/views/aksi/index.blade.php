@@ -189,7 +189,7 @@
                 </button>
             </div>
             <div class="flex items-center gap-2 text-sm font-semibold text-slate-500">
-                <span class="px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">👑 Mode Admin</span>
+                <span class="px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold"> Mode Admin</span>
                 <span>{{ $events->count() }} Event Terdaftar</span>
             </div>
 
@@ -272,7 +272,7 @@
                     
                     {{-- Gamification Badge: Points/Reward Indicator --}}
                     <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg border border-amber-200 flex items-center gap-1.5 z-10 group-hover:-translate-y-0.5 transition-all">
-                        <span class="text-amber-500 text-sm">🌟</span>
+                        <span class="text-amber-500 text-sm"></span>
                         <span class="text-xs font-black text-amber-700 tracking-wide">+50 Poin</span>
                     </div>
                 </div>
