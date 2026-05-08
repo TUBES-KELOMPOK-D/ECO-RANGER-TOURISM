@@ -79,7 +79,7 @@
         <div id="chat-scroll" class="chat-scroll px-5 py-4 space-y-4 bg-slate-50/50">
             @if($messages->isEmpty())
                 <div class="flex flex-col items-center justify-center h-full py-12 text-center">
-                    <div class="text-4xl mb-3">💬</div>
+                    <div class="text-4xl mb-3"></div>
                     <p class="text-sm font-bold text-slate-600">Belum ada pesan</p>
                     <p class="text-xs text-slate-400 mt-1">Jadilah yang pertama mengirim pesan di grup ini!</p>
                 </div>
