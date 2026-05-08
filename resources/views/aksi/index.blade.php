@@ -713,13 +713,33 @@ document.addEventListener('DOMContentLoaded', function() {
     initMaps();
 });
 
+function getBaseLayers() {
+    return {
+        "Peta Jalan": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }),
+        "Satelit (Label)": L.layerGroup([
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' }),
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}')
+        ])
+    };
+}
+
 function initMaps() {
+    const indoBounds = L.latLngBounds(
+        L.latLng(-15.0, 90.0),
+        L.latLng(10.0, 145.0)
+    );
+    const mapOptions = {
+        maxBounds: indoBounds,
+        maxBoundsViscosity: 1.0,
+        minZoom: 4
+    };
+
     // Add map
     if (document.getElementById('map-add')) {
-        addMap = L.map('map-add').setView([-0.789275, 113.921327], 4);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(addMap);
+        addMap = L.map('map-add', mapOptions).setView([-0.789275, 113.921327], 4);
+        let layersAdd = getBaseLayers();
+        layersAdd["Peta Jalan"].addTo(addMap);
+        L.control.layers(layersAdd).addTo(addMap);
         
         addMap.on('click', function(e) {
             let lat = e.latlng.lat;
@@ -735,10 +755,10 @@ function initMaps() {
 
     // Edit map
     if (document.getElementById('map-edit')) {
-        editMap = L.map('map-edit').setView([-0.789275, 113.921327], 4);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(editMap);
+        editMap = L.map('map-edit', mapOptions).setView([-0.789275, 113.921327], 4);
+        let layersEdit = getBaseLayers();
+        layersEdit["Peta Jalan"].addTo(editMap);
+        L.control.layers(layersEdit).addTo(editMap);
         
         editMap.on('click', function(e) {
             let lat = e.latlng.lat;
@@ -754,10 +774,10 @@ function initMaps() {
 
     // Detail map
     if (document.getElementById('map-detail')) {
-        detailMap = L.map('map-detail').setView([-0.789275, 113.921327], 4);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(detailMap);
+        detailMap = L.map('map-detail', mapOptions).setView([-0.789275, 113.921327], 4);
+        let layersDetail = getBaseLayers();
+        layersDetail["Peta Jalan"].addTo(detailMap);
+        L.control.layers(layersDetail).addTo(detailMap);
     }
 }
 
