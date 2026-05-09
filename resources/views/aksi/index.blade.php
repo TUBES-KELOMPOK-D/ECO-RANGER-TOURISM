@@ -3,6 +3,7 @@
 @section('title', 'Aksi Event - Eco Ranger Tourism')
 
 @push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
     /* ── Animations ── */
     @keyframes fadeInUp {
@@ -189,7 +190,7 @@
                 </button>
             </div>
             <div class="flex items-center gap-2 text-sm font-semibold text-slate-500">
-                <span class="px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">👑 Mode Admin</span>
+                <span class="px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold"> Mode Admin</span>
                 <span>{{ $events->count() }} Event Terdaftar</span>
             </div>
 
@@ -272,7 +273,7 @@
                     
                     {{-- Gamification Badge: Points/Reward Indicator --}}
                     <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg border border-amber-200 flex items-center gap-1.5 z-10 group-hover:-translate-y-0.5 transition-all">
-                        <span class="text-amber-500 text-sm">🌟</span>
+                        <span class="text-amber-500 text-sm"></span>
                         <span class="text-xs font-black text-amber-700 tracking-wide">+50 Poin</span>
                     </div>
                 </div>
@@ -304,7 +305,7 @@
                         </div>
                         <div class="flex items-center gap-2 text-xs text-slate-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            <span class="truncate">{{ $event->location ?? 'Lokasi belum ditentukan' }}</span>
+                            <span class="truncate">{{ str_replace('::', ', ', explode('|MAP|', (string)($event->location ?? 'Lokasi belum ditentukan'))[0]) }}</span>
                         </div>
                         <div class="flex items-center gap-2 text-xs text-slate-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -418,7 +419,7 @@
             </button>
         </div>
 
-        <form method="POST" action="{{ route('aksi.store') }}" enctype="multipart/form-data" class="space-y-4">
+        <form id="form-add-event" method="POST" action="{{ route('aksi.store') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Event <span class="text-rose-500">*</span></label>
@@ -432,15 +433,21 @@
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Lokasi</label>
-                    <input type="text" name="location" placeholder="contoh: Pantai Kuta, Bali"
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
+                    <input type="text" name="organizer" placeholder="contoh: Tim Eco Ranger"
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
-                <input type="text" name="organizer" placeholder="contoh: Tim Eco Ranger"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Lokasi di Peta</label>
+                <div id="map-add" class="w-full h-48 rounded-xl border border-slate-200" style="z-index: 10;"></div>
+                <input type="text" id="add-map-address" readonly placeholder="Alamat otomatis dari peta akan muncul di sini" class="w-full mt-2 border border-slate-200 bg-slate-50 rounded-xl px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed">
+                <input type="hidden" id="add-location-hidden" name="location">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Detail Lokasi Tambahan (Bisa diketik)</label>
+                <textarea id="add-detail-address" rows="2" placeholder="contoh: Patokan sebelah minimarket..."
+                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition resize-none"></textarea>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Deskripsi</label>
@@ -495,15 +502,23 @@
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Lokasi</label>
-                    <input type="text" id="edit-location" name="location"
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
+                    <input type="text" id="edit-organizer" name="organizer"
                         class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
                 </div>
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">Penyelenggara</label>
-                <input type="text" id="edit-organizer" name="organizer"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition">
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Lokasi di Peta</label>
+                <div id="map-edit" class="w-full h-48 rounded-xl border border-slate-200" style="z-index: 10;"></div>
+                <input type="text" id="edit-map-address" readonly placeholder="Alamat otomatis dari peta" class="w-full mt-2 border border-slate-200 bg-slate-50 rounded-xl px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed">
+                <input type="hidden" id="edit-location-hidden" name="location">
+                <p id="map-edit-loading" class="text-xs text-slate-400 mt-1 hidden">Mencari lokasi pada peta...</p>
+                <p id="map-edit-error" class="text-xs text-rose-500 mt-1 hidden">Peta tidak dapat ditemukan untuk lokasi ini.</p>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Detail Lokasi Tambahan (Bisa diketik)</label>
+                <textarea id="edit-detail-address" rows="2" placeholder="Ketik detail patokan alamat di sini"
+                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-emerald-500 transition resize-none"></textarea>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Deskripsi</label>
@@ -617,6 +632,13 @@
                 </div>
             </div>
 
+            <div class="mb-4">
+                <p class="text-xs font-bold text-slate-800 mb-2">Peta Lokasi</p>
+                <div id="map-detail" class="w-full h-40 rounded-xl border border-slate-200" style="z-index: 10;"></div>
+                <p id="map-detail-loading" class="text-xs text-slate-400 mt-1 hidden">Mencari lokasi pada peta...</p>
+                <p id="map-detail-error" class="text-xs text-rose-500 mt-1 hidden">Peta tidak dapat ditemukan untuk lokasi ini.</p>
+            </div>
+
             <div>
                 <p class="text-xs font-bold text-slate-800 mb-2">Penyelenggara</p>
                 <div class="flex items-center gap-2 mb-4">
@@ -680,11 +702,187 @@ const currentUserIsAdmin = @json($isAdmin);
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
+// ── Maps ───────────────────────────────────────────────────────
+let addMap, addMarker;
+let editMap, editMarker;
+let detailMap, detailMarker;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initMaps();
+});
+
+function getBaseLayers() {
+    return {
+        "Peta Jalan": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }),
+        "Satelit (Label)": L.layerGroup([
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' }),
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}')
+        ])
+    };
+}
+
+function initMaps() {
+    const indoBounds = L.latLngBounds(
+        L.latLng(-15.0, 90.0),
+        L.latLng(10.0, 145.0)
+    );
+    const mapOptions = {
+        maxBounds: indoBounds,
+        maxBoundsViscosity: 1.0,
+        minZoom: 4
+    };
+
+    // Add map
+    if (document.getElementById('map-add')) {
+        addMap = L.map('map-add', mapOptions).setView([-0.789275, 113.921327], 4);
+        let layersAdd = getBaseLayers();
+        layersAdd["Peta Jalan"].addTo(addMap);
+        L.control.layers(layersAdd).addTo(addMap);
+        
+        addMap.on('click', function(e) {
+            let lat = e.latlng.lat;
+            let lng = e.latlng.lng;
+            if (addMarker) {
+                addMarker.setLatLng(e.latlng);
+            } else {
+                addMarker = L.marker(e.latlng).addTo(addMap);
+            }
+            reverseGeocode(lat, lng, 'add-map-address');
+        });
+    }
+
+    // Edit map
+    if (document.getElementById('map-edit')) {
+        editMap = L.map('map-edit', mapOptions).setView([-0.789275, 113.921327], 4);
+        let layersEdit = getBaseLayers();
+        layersEdit["Peta Jalan"].addTo(editMap);
+        L.control.layers(layersEdit).addTo(editMap);
+        
+        editMap.on('click', function(e) {
+            let lat = e.latlng.lat;
+            let lng = e.latlng.lng;
+            if (editMarker) {
+                editMarker.setLatLng(e.latlng);
+            } else {
+                editMarker = L.marker(e.latlng).addTo(editMap);
+            }
+            reverseGeocode(lat, lng, 'edit-map-address');
+        });
+    }
+
+    // Detail map
+    if (document.getElementById('map-detail')) {
+        detailMap = L.map('map-detail', mapOptions).setView([-0.789275, 113.921327], 4);
+        let layersDetail = getBaseLayers();
+        layersDetail["Peta Jalan"].addTo(detailMap);
+        L.control.layers(layersDetail).addTo(detailMap);
+    }
+}
+
+function reverseGeocode(lat, lng, inputId) {
+    const inputEl = document.getElementById(inputId);
+    inputEl.value = 'Mencari alamat...';
+    
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.display_name) {
+                inputEl.value = data.display_name;
+            } else {
+                inputEl.value = lat + ', ' + lng;
+            }
+        })
+        .catch(() => {
+            inputEl.value = lat + ', ' + lng;
+        });
+}
+
+function geocodeAddress(address, mapInstance, isDetail = false) {
+    let loadingEl = document.getElementById(isDetail ? 'map-detail-loading' : 'map-edit-loading');
+    let errorEl = document.getElementById(isDetail ? 'map-detail-error' : 'map-edit-error');
+    
+    if (loadingEl) loadingEl.classList.remove('hidden');
+    if (errorEl) errorEl.classList.add('hidden');
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (data && data.length > 0) {
+                let lat = data[0].lat;
+                let lon = data[0].lon;
+                mapInstance.setView([lat, lon], 14);
+                
+                if (isDetail) {
+                    if (detailMarker) detailMarker.setLatLng([lat, lon]);
+                    else detailMarker = L.marker([lat, lon]).addTo(mapInstance);
+                } else {
+                    if (editMarker) editMarker.setLatLng([lat, lon]);
+                    else editMarker = L.marker([lat, lon]).addTo(mapInstance);
+                }
+            } else {
+                if (errorEl) errorEl.classList.remove('hidden');
+                mapInstance.setView([-0.789275, 113.921327], 4);
+                if (isDetail && detailMarker) detailMarker.remove();
+                if (!isDetail && editMarker) editMarker.remove();
+            }
+        })
+        .catch(() => {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (errorEl) errorEl.classList.remove('hidden');
+        });
+}
+
 // ── Modal Helpers ──────────────────────────────────────────────
+function showMapPin(address, coords, mapInstance, isDetail = false) {
+    if (coords) {
+        let loadingEl = document.getElementById(isDetail ? 'map-detail-loading' : 'map-edit-loading');
+        let errorEl = document.getElementById(isDetail ? 'map-detail-error' : 'map-edit-error');
+        if (loadingEl) loadingEl.classList.add('hidden');
+        if (errorEl) errorEl.classList.add('hidden');
+        
+        let parts = coords.split(',');
+        let lat = parseFloat(parts[0]);
+        let lon = parseFloat(parts[1]);
+        mapInstance.setView([lat, lon], 14);
+        
+        if (isDetail) {
+            if (detailMarker) detailMarker.setLatLng([lat, lon]);
+            else detailMarker = L.marker([lat, lon]).addTo(mapInstance);
+        } else {
+            if (editMarker) editMarker.setLatLng([lat, lon]);
+            else editMarker = L.marker([lat, lon]).addTo(mapInstance);
+        }
+    } else {
+        geocodeAddress(address, mapInstance, isDetail);
+    }
+}
+
 function openModal(id) {
     document.getElementById(id).classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // Fix map sizing inside hidden modals
+    setTimeout(() => {
+        if (id === 'modal-add-event' && typeof addMap !== 'undefined') {
+            addMap.invalidateSize();
+        } else if (id === 'modal-edit-event' && typeof editMap !== 'undefined') {
+            editMap.invalidateSize();
+            let mapInput = document.getElementById('edit-map-address');
+            if (mapInput.value) {
+                showMapPin(mapInput.value, mapInput.dataset.latlng, editMap, false);
+            }
+        } else if (id === 'modal-detail-event' && typeof detailMap !== 'undefined') {
+            detailMap.invalidateSize();
+            let locText = document.getElementById('detail-location').textContent;
+            let coords = document.getElementById('detail-location').dataset.latlng;
+            if (locText) {
+                showMapPin(locText, coords, detailMap, true);
+            }
+        }
+    }, 100);
 }
 function closeModal(id) {
     document.getElementById(id).classList.remove('active');
@@ -694,14 +892,53 @@ function closeOnBackdrop(e, id) {
     if (e.target === e.currentTarget) closeModal(id);
 }
 
+// Intercept forms to append coordinates
+document.getElementById('form-add-event')?.addEventListener('submit', function(e) {
+    let mapAddr = document.getElementById('add-map-address').value;
+    let detailAddr = document.getElementById('add-detail-address').value;
+    let hiddenLoc = document.getElementById('add-location-hidden');
+    
+    let combined = mapAddr;
+    if (detailAddr.trim() !== '') combined += '::' + detailAddr.trim();
+    if (addMarker) {
+        let latlng = addMarker.getLatLng();
+        combined += '|MAP|' + latlng.lat + ',' + latlng.lng;
+    }
+    hiddenLoc.value = combined;
+});
+
+document.getElementById('form-edit-event')?.addEventListener('submit', function(e) {
+    let mapAddr = document.getElementById('edit-map-address').value;
+    let detailAddr = document.getElementById('edit-detail-address').value;
+    let hiddenLoc = document.getElementById('edit-location-hidden');
+    let mapInput = document.getElementById('edit-map-address');
+    
+    let combined = mapAddr;
+    if (detailAddr.trim() !== '') combined += '::' + detailAddr.trim();
+    if (editMarker) {
+        let latlng = editMarker.getLatLng();
+        combined += '|MAP|' + latlng.lat + ',' + latlng.lng;
+    } else if (mapInput.dataset.latlng) {
+        combined += '|MAP|' + mapInput.dataset.latlng;
+    }
+    hiddenLoc.value = combined;
+});
+
 // ── User/Admin: Buka Detail Event ──────────────────────────────
 function openDetailModal(id) {
     const eventObj = eventsData.find(e => e.id === id);
     if (!eventObj) return;
 
+    let parts = (eventObj.location || '').split('|MAP|');
+    let addressOnly = parts[0];
+    let coordsOnly = parts.length > 1 ? parts[1] : '';
+    
+    let displayAddress = addressOnly.replace('::', ', ');
+
     document.getElementById('detail-name').textContent = eventObj.name;
     document.getElementById('detail-date').textContent = eventObj.event_date;
-    document.getElementById('detail-location').textContent = eventObj.location;
+    document.getElementById('detail-location').textContent = displayAddress;
+    document.getElementById('detail-location').dataset.latlng = coordsOnly;
     document.getElementById('detail-organizer').textContent = eventObj.organizer;
     document.getElementById('detail-organizer-small').textContent = eventObj.organizer;
     
@@ -760,11 +997,23 @@ function openDetailModal(id) {
 }
 
 // ── Admin: Edit Event ──────────────────────────────────────────
-function openEditModal(id, name, description, date, location, organizer) {
+function openEditModal(id, name, description, date, locationRaw, organizer) {
+    let parts = (locationRaw || '').split('|MAP|');
+    let addressOnly = parts[0];
+    let coordsOnly = parts.length > 1 ? parts[1] : '';
+    
+    let addrParts = addressOnly.split('::');
+    let mapAddr = addrParts[0] || '';
+    let detailAddr = addrParts.length > 1 ? addrParts[1] : '';
+
     document.getElementById('edit-name').value        = name;
     document.getElementById('edit-description').value = description;
     document.getElementById('edit-date').value        = date;
-    document.getElementById('edit-location').value    = location;
+    
+    document.getElementById('edit-map-address').value = mapAddr;
+    document.getElementById('edit-detail-address').value = detailAddr;
+    document.getElementById('edit-map-address').dataset.latlng = coordsOnly;
+    
     document.getElementById('edit-organizer').value   = organizer;
     document.getElementById('form-edit-event').action = '/admin/aksi/' + id + '/update';
     openModal('modal-edit-event');
