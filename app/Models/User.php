@@ -61,14 +61,6 @@ class User extends Authenticatable
         return $this->belongsToMany(Event::class, 'participant_events', 'user_id', 'event_id');
     }
     /**
-     * Get user's achievements
-     */
-    public function achievements()
-    {
-        return $this->hasMany(UserAchievement::class);
-    }
-
-    /**
      * Get user's actions (community participation)
      */
     public function actions()

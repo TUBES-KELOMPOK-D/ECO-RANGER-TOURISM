@@ -226,7 +226,6 @@ class EventController extends Controller
 
         if ($pointsToDeduct > 0) {
             $user->addEcoPoints(-$pointsToDeduct);
-            RankingService::updateUserAchievements($user);
         }
         return redirect()->route('aksi.index')->with('success', 'Berhasil membatalkan keikutsertaan dari event "' . $event->name . '"!');
     }

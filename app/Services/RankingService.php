@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\UserAchievement;
 use App\Models\PointLedger;
 use Illuminate\Support\Carbon;
 
@@ -19,52 +18,6 @@ class RankingService
         'forum_discussion' => 15,       // Diskusi forum
         'share_content' => 20,          // Bagikan konten
         'quiz' => 20,                   // Lulus kuis akademi
-    ];
-
-    /**
-     * Achievement definitions
-     */
-    public const ACHIEVEMENTS = [
-        'plastic_hunter' => [
-            'name' => 'Plastic Hunter',
-            'key' => 'plastic_hunter',
-            'description' => 'Lapor 10 tumpukan sampah plastik',
-            'icon' => '💪',
-            'target' => 10,
-            'type' => 'reports',
-        ],
-        'tree_hugger' => [
-            'name' => 'Tree Hugger',
-            'key' => 'tree_hugger',
-            'description' => 'Ikut 5 aksi tanam pohon',
-            'icon' => '🌳',
-            'target' => 5,
-            'type' => 'tree_actions',
-        ],
-        'green_warrior' => [
-            'name' => 'Green Warrior',
-            'key' => 'green_warrior',
-            'description' => 'Ikut 5 aksi komunitas lingkungan',
-            'icon' => '🌱',
-            'target' => 5,
-            'type' => 'actions',
-        ],
-        'earth_guardian' => [
-            'name' => 'Earth Guardian',
-            'key' => 'earth_guardian',
-            'description' => 'Verifikasi 20 laporan lingkungan',
-            'icon' => '🌍',
-            'target' => 20,
-            'type' => 'verifications',
-        ],
-        'eco_hero' => [
-            'name' => 'Eco-Hero',
-            'key' => 'eco_hero',
-            'description' => 'Raih 3000 poin total',
-            'icon' => '⭐',
-            'target' => 3000,
-            'type' => 'points',
-        ],
     ];
 
     /**
@@ -128,90 +81,6 @@ class RankingService
         }
 
         return $user;
-    }
-
-    /**
-     * Initialize user achievements
-     */
-    public static function initializeUserAchievements(User $user)
-    {
-        foreach (self::ACHIEVEMENTS as $key => $achievement) {
-            UserAchievement::firstOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'achievement_key' => $achievement['key'],
-                ],
-                [
-                    'achievement_name' => $achievement['name'],
-                    'description' => $achievement['description'],
-                    'icon' => $achievement['icon'],
-                    'target' => $achievement['target'],
-                    'current' => 0,
-                ]
-            );
-        }
-    }
-
-    /**
-     * Update user achievements based on their activity
-     */
-    public static function updateUserAchievements(User $user)
-    {
-        $achievements = self::ACHIEVEMENTS;
-
-        foreach ($achievements as $key => $achievement) {
-            $userAchievement = UserAchievement::where('user_id', $user->id)
-                ->where('achievement_key', $achievement['key'])
-                ->first();
-
-            if (!$userAchievement) {
-                $userAchievement = UserAchievement::create([
-                    'user_id' => $user->id,
-                    'achievement_key' => $achievement['key'],
-                    'achievement_name' => $achievement['name'],
-                    'description' => $achievement['description'],
-                    'icon' => $achievement['icon'],
-                    'target' => $achievement['target'],
-                    'current' => 0,
-                ]);
-            }
-
-            // Calculate current progress based on type
-            $current = self::calculateAchievementProgress($user, $achievement['type']);
-
-            // Update progress
-            $userAchievement->current = $current;
-            
-            // Check if completed
-            if ($current >= $achievement['target'] && !$userAchievement->is_completed) {
-                $userAchievement->is_completed = true;
-                $userAchievement->completed_at = now();
-            }
-
-            $userAchievement->save();
-        }
-    }
-
-    /**
-     * Calculate achievement progress
-     */
-    public static function calculateAchievementProgress(User $user, $type)
-    {
-        switch ($type) {
-            case 'reports':
-                return $user->reports()->count();
-            case 'actions':
-                return $user->actions()->where('status', 'completed')->count();
-            case 'tree_actions':
-                return $user->actions()->where('action_name', 'like', '%tanam%')->where('status', 'completed')->count();
-            case 'verifications':
-                // Count verified reports by this user (assumes report verification exists)
-                return 0; // Implement based on your verification system
-            case 'points':
-                return $user->eco_points ?? 0;
-            default:
-                return 0;
-        }
     }
 
     /**
