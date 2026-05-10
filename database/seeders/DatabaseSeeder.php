@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             GreenAcademySeeder::class,
             MarkerDetailSeeder::class,
+            VoucherSeeder::class,
         ]);
         // $this->call(DestinasiSeeder::class);
     }

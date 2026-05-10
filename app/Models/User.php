@@ -154,7 +154,7 @@ class User extends Authenticatable
      */
     public function addEcoPoints($points, $description = null)
     {
-        $this->eco_points = ($this->eco_points ?? 0) + $points;
+        $this->eco_points = max(0, ($this->eco_points ?? 0) + $points);
         $this->eco_level = $this->calculateEcoLevel();
         $this->save();
 
@@ -222,5 +222,13 @@ class User extends Authenticatable
             ->orderBy('user_badges.achieved_at', 'desc')
             ->take(5)
             ->get();
+    }
+    /**
+     * Get the vouchers claimed by the user.
+     */
+    public function vouchers()
+    {
+        return $this->belongsToMany(Voucher::class, 'user_vouchers')
+            ->withPivot('status', 'redeemed_at');
     }
 }

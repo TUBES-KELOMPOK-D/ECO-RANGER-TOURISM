@@ -12,14 +12,14 @@ class ProfileController extends Controller
         $user = auth()->user();
         $pointService = app(\App\Services\LeaderboardService::class);
         $totalPoints = $pointService->calculateUserPoints($user);
-        $nextLevel = [
-            'label' => $pointService->getLevel($totalPoints + 1), // Ini hanya fallback sementara, logika next level ditangani LeaderboardService
-            'current' => 0,
-            'required' => 500,
-            'remaining' => 500 - $totalPoints
-        ];
         
-        $progress = min(100, ($totalPoints / 500) * 100);
+        $badgeService = app(\App\Services\BadgeCheckerService::class);
+        // Ensure badges are up to date
+        $badgeService->checkAndAwardBadges($user);
+        $badges = $badgeService->getAllBadgesWithProgress($user)->take(5);
+
+        $nextLevel = $this->nextLevelInfo($totalPoints);
+        $progress = min(100, ($totalPoints / $nextLevel['required']) * 100);
 
         $latestReport = $user->ecoReports()
             ->orderByDesc('report_date')
@@ -38,12 +38,16 @@ class ProfileController extends Controller
             ->orderByDesc('event_date')
             ->get();
 
-        return view('Profile.index', compact('user', 'nextLevel', 'progress', 'ecoReports', 'latestReport', 'reportCount', 'totalPoints', 'participatedEvents'));
+        // Ambil voucher milik user
+        $userVouchers = $user->vouchers()
+            ->get();
+
+        return view('profile.index', compact('user', 'nextLevel', 'progress', 'ecoReports', 'latestReport', 'reportCount', 'totalPoints', 'participatedEvents', 'badges', 'userVouchers'));
     }
 
     public function settings()
     {
-        return view('Profile.settings', ['user' => auth()->user()]);
+        return view('profile.settings', ['user' => auth()->user()]);
     }
 
     public function update(Request $request)
