@@ -58,6 +58,7 @@
                             <th class="px-6 py-4">Informasi Lokasi</th>
                             <th class="px-6 py-4">Bukti</th>
                             <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4">Komentar</th>
                             <th class="px-6 py-4 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -81,6 +82,9 @@
                             </td>
                             <td class="px-6 py-5">
                                 <span class="inline-flex rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] {{ $report->status === 'menunggu' ? 'bg-yellow-100 text-yellow-700' : ($report->status === 'diverifikasi' ? 'bg-sky-100 text-sky-700' : ($report->status === 'diterima' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) }}">{{ strtoupper($report->status) }}</span>
+                            </td>
+                            <td class="px-6 py-5 text-slate-700">
+                                {{ $report->admin_comment ? \Illuminate\Support\Str::limit($report->admin_comment, 50) : '-' }}
                             </td>
                             <td class="px-6 py-5">
                                 <div class="flex items-center justify-center gap-2">
@@ -108,7 +112,8 @@
                 </table>
             </div>
         @else
-            <div class="mt-8 grid gap-5 xl:grid-cols-3 lg:grid-cols-2">
+            <div class="mt-8 pb-6 pl-6">
+                <div class="grid gap-5 xl:grid-cols-3 lg:grid-cols-2">
                 @forelse($reports as $report)
                     @php
                         $reportAuthor = 'Anonim';
@@ -126,9 +131,9 @@
                             <p class="mt-3 text-sm leading-6 text-slate-600">{{ \Illuminate\Support\Str::limit($report->description, 120, '...') }}</p>
                         </div>
 
-                        <div class="space-y-3 text-sm text-slate-600">
+                        <div class="mt-6 space-y-3 text-sm text-slate-600">
                             <p><span class="font-semibold text-slate-900">Oleh:</span> {{ $reportAuthor }}</p>
-                            <p><span class="font-semibold text-slate-900">Status:</span> <span class="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] {{ $report->status === 'menunggu' ? 'bg-yellow-100 text-yellow-700' : ($report->status === 'diverifikasi' ? 'bg-sky-100 text-sky-700' : ($report->status === 'diterima' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) }}">{{ strtoupper($report->status) }}</span></p>
+                            <p class="flex items-center gap-3"><span class="font-semibold text-slate-900">Status:</span> <span class="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] {{ $report->status === 'menunggu' ? 'bg-yellow-100 text-yellow-700' : ($report->status === 'diverifikasi' ? 'bg-sky-100 text-sky-700' : ($report->status === 'diterima' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) }}">{{ strtoupper($report->status) }}</span></p>
                             <p><span class="font-semibold text-slate-900">Dikirim:</span> {{ $report->report_date?->format('d M Y') ?? $report->created_at->format('d M Y') }}</p>
                         </div>
 
@@ -142,6 +147,7 @@
                         Belum ada laporan. Buat laporan baru untuk membantu lingkungan.
                     </div>
                 @endforelse
+                </div>
             </div>
         @endif
     </div>

@@ -70,6 +70,7 @@ class ReportController extends Controller
 
         $data = $request->validate([
             'status' => 'required|in:menunggu,diverifikasi,diterima,ditolak',
+            'admin_comment' => 'nullable|string|max:1000',
         ]);
 
         $oldStatus = $report->status;

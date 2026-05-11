@@ -84,6 +84,17 @@
                         <p><span class="font-semibold text-slate-900">Kategori</span>: {{ $report->category }}</p>
                     </div>
                 </div>
+
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <h2 class="text-xl font-semibold text-slate-900">Komentar Admin</h2>
+                    <div class="mt-4 text-slate-700">
+                        @if($report->admin_comment)
+                            <p>{!! nl2br(e($report->admin_comment)) !!}</p>
+                        @else
+                            <p class="text-sm text-slate-500">Belum ada komentar dari admin.</p>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>

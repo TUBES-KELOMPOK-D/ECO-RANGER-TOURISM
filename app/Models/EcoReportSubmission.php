@@ -22,6 +22,7 @@ class EcoReportSubmission extends Model
         'location',
         'photo_path',
         'status',
+        'admin_comment',
         'report_date',
     ];
 
