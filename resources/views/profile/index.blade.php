@@ -155,8 +155,91 @@
                 </div>
             @endif
         </div>
-        
 
+        <div class="rounded-3xl bg-white p-8 shadow-soft border border-slate-200">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Lencana & Pencapaian</h2>
+                    <p class="mt-2 text-sm text-slate-500">Badge yang berhasil kamu kumpulkan dari aktivitasmu.</p>
+                </div>
+                <a href="{{ route('badges.index') }}" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline">Lihat Semua Lencana &rarr;</a>
+            </div>
+
+            @if(count($badges) > 0)
+                <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+                    @foreach($badges as $badge)
+                        <div class="group relative flex flex-col items-center justify-center rounded-3xl border border-slate-100 bg-slate-50 p-6 text-center transition-all hover:border-emerald-200 hover:bg-white hover:shadow-md">
+                            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-3xl shadow-sm transition-transform group-hover:scale-110 {{ $badge->is_achieved ? '' : 'grayscale opacity-40' }}">
+                                {{ $badge->icon }}
+                            </div>
+                            <h3 class="mt-4 text-sm font-bold text-slate-900 line-clamp-1">{{ $badge->name }}</h3>
+                            
+                            <div class="mt-3 w-full">
+                                <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                                    <div class="h-full bg-emerald-500 transition-all duration-1000" style="width: {{ $badge->progress_percentage }}%"></div>
+                                </div>
+                                <p class="mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{{ (int)$badge->current_progress }}/{{ $badge->target }}</p>
+                            </div>
+                            
+                            @if($badge->is_achieved)
+                                <div class="absolute -right-1 -top-1 rounded-full bg-emerald-500 p-1.5 text-white shadow-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="mt-8 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+                    Belum ada lencana yang tersedia.
+                </div>
+            @endif
+        </div>
+
+        {{-- Voucher Saya Section --}}
+        <div class="rounded-3xl bg-white p-8 shadow-soft border border-slate-200">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Voucher & Reward</h2>
+                    <p class="mt-2 text-sm text-slate-500">Gunakan voucher yang telah kamu klaim untuk menikmati benefit.</p>
+                </div>
+                <a href="{{ route('vouchers.index') }}" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline">Klaim Voucher Baru &rarr;</a>
+            </div>
+
+            @if(count($userVouchers) > 0)
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach($userVouchers as $uv)
+                        <div class="group relative flex items-center gap-4 rounded-3xl border border-slate-100 bg-slate-50 p-4 transition-all hover:border-emerald-200 hover:bg-white hover:shadow-md overflow-hidden">
+                            <!-- Ticket Cutout Effect -->
+                            <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border-r border-slate-100 rounded-full z-10"></div>
+                            <div class="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border-l border-slate-100 rounded-full z-10"></div>
+                            
+                            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-2xl text-emerald-600 shadow-sm flex-shrink-0">
+                                🎫
+                            </div>
+                            <div class="flex-1 min-width-0">
+                                <h3 class="text-sm font-bold text-slate-900 truncate">{{ $uv->name }}</h3>
+                                <p class="text-[10px] font-medium text-slate-500 mt-1">Status: 
+                                    <span class="{{ $uv->pivot->status === 'digunakan' ? 'text-slate-400' : 'text-emerald-600 font-bold' }}">
+                                        {{ ucfirst($uv->pivot->status) }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <a href="{{ route('vouchers.index') }}" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-bold hover:bg-slate-800 transition-colors">
+                                    {{ $uv->pivot->status === 'digunakan' ? 'Detail' : 'Gunakan' }}
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="mt-8 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+                    Kamu belum memiliki voucher. 
+                    <a href="{{ route('vouchers.index') }}" class="text-emerald-600 font-bold hover:underline">Klaim voucher pertamamu sekarang!</a>
+                </div>
+            @endif
+        </div>
     </div>
 
     {{-- Daftar Laporan Eco Reporter (Read-Only) --}}

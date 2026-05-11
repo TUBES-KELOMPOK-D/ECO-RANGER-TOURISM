@@ -74,8 +74,13 @@ class LeaderboardService
      */
     public function getTopThree(): array
     {
-        $leaderboard = $this->getLeaderboard(100); // ambil banyak dulu
-        $topThree = collect($leaderboard->items())->take(3)->values()->toArray();
+        $leaderboard = $this->getLeaderboard(100); 
+        // Hanya user dengan poin > 0
+        $topThree = collect($leaderboard->items())
+            ->filter(fn($item) => $item->total_points > 0)
+            ->take(3)
+            ->values()
+            ->toArray();
         
         // Kosongkan jika kurang dari 3
         while (count($topThree) < 3) {
@@ -90,6 +95,8 @@ class LeaderboardService
      */
     public function getUserRank(User $user): ?int
     {
+        if ($user->eco_points <= 0) return null;
+
         $leaderboard = $this->getLeaderboard(1000);
         foreach ($leaderboard->items() as $item) {
             if ($item->id === $user->id) {
@@ -104,6 +111,8 @@ class LeaderboardService
      */
     public function getUserPosition(User $user): ?object
     {
+        if ($user->eco_points <= 0) return null;
+
         $leaderboard = $this->getLeaderboard(1000);
         foreach ($leaderboard->items() as $item) {
             if ($item->id === $user->id) {

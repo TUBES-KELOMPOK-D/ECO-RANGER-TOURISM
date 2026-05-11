@@ -3,43 +3,46 @@
 @section('content')
 <div class="container mx-auto px-4 py-8 max-w-7xl relative">
     <!-- Header Section -->
-    <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-2xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
-        <div class="relative z-10">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div>
-                    <h1 class="text-3xl font-bold mb-2 font-inter">Voucher Eksklusif Wisata</h1>
-                    <p class="text-emerald-100 font-inter">Klaim voucher menarik khusus untuk Top 3 Leaderboard Eco Ranger!</p>
+<div class="bg-gradient-to-r from-emerald-800 to-emerald-600 text-white py-16 px-4 sm:px-6 rounded-3xl shadow-lg mb-12">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 backdrop-blur-md mb-4">
+                    Voucher Reward
+                </span>
+                <div class="flex items-center gap-4 mb-2">
+                    <a href="{{ route('leaderboard') }}" class="group flex items-center justify-center w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full transition-all border border-white/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white group-hover:-translate-x-0.5 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+                    </a>
+                    <h1 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
+                        Voucher <span class="text-emerald-300">Eksklusif</span>
+                    </h1>
                 </div>
-                <a href="{{ route('leaderboard') }}" class="inline-flex items-center gap-2 px-6 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-xl font-bold transition-all border border-white/30 shadow-sm self-start md:self-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                    Kembali ke Peringkat
-                </a>
+                <p class="mt-3 text-emerald-100 text-base max-w-lg">
+                    Klaim voucher menarik khusus untuk Top 3 Leaderboard Eco Ranger!
+                </p>
             </div>
-            
-            <div class="flex items-center gap-4 bg-white/20 backdrop-blur-sm rounded-xl p-4 inline-flex border border-white/10">
-                <div class="text-3xl font-bold">
+
+            <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-[2rem] p-6 border border-white/20">
+                <div class="text-4xl font-black">
                     @if($userRank && $userRank <= 3)
-                        <span class="text-yellow-300">Rank #{{ $userRank }}</span>
+                        <span class="text-emerald-300">#{{ $userRank }}</span>
                     @else
-                        <span class="text-white/80">#{{ $userRank ?? '?' }}</span>
+                        <span class="text-white/60">#{{ $userRank ?? '?' }}</span>
                     @endif
                 </div>
-                <div class="h-10 w-px bg-white/30"></div>
-                <div class="text-sm text-emerald-50 font-medium max-w-[200px]">
+                <div class="h-12 w-px bg-white/20 mx-2"></div>
+                <div class="text-xs text-emerald-50 font-black uppercase tracking-widest max-w-[200px] leading-relaxed">
                     @if($userRank && $userRank <= 3)
-                        Selamat! Anda berhak mengklaim voucher khusus peringkat {{ $userRank }}.
+                        Selamat! Anda berhak mengklaim voucher peringkat {{ $userRank }}.
                     @else
-                        Masuk 3 besar papan peringkat untuk mendapatkan akses voucher eksklusif!
+                        Masuk 3 besar untuk mendapatkan akses voucher eksklusif!
                     @endif
                 </div>
             </div>
-        </div>
-        
-        <!-- Decorative SVG background -->
-        <div class="absolute right-0 top-0 opacity-5 transform translate-x-1/4 -translate-y-1/4">
-            <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
         </div>
     </div>
+</div>
 
     @if(session('success'))
         <div class="mb-6 p-4 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm flex items-center gap-3 font-bold animate-pulse">
@@ -68,10 +71,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($vouchers as $voucher)
             @php
-                $isEligible = $userRank && $userRank == $voucher->id;
+                $isRankEligible = $userRank && $userRank == $voucher->id;
+                $isPointsEligible = auth()->user()->eco_points >= $voucher->poin_required;
+                $isEligible = $isRankEligible && $isPointsEligible;
                 $hasClaimed = isset($userVouchers[$voucher->id]);
             @endphp
-            <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-500 flex flex-col h-full group {{ !$isEligible && !$hasClaimed ? 'opacity-60 grayscale-[50%]' : '' }}">
+            <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-500 flex flex-col h-full group {{ !$isRankEligible && !$hasClaimed ? 'opacity-60 grayscale-[50%]' : '' }}">
                 
                 <div class="h-48 bg-slate-50 flex items-center justify-center relative overflow-hidden">
                     @if($voucher->image_path)
@@ -103,9 +108,9 @@
                     
                     <div class="flex items-center justify-between mt-auto pt-6 border-t border-slate-50">
                         <div class="flex flex-col">
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Khusus</span>
-                            <span class="text-lg font-black text-emerald-600">
-                                Rank #{{ $voucher->id }}
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Target Rank & Poin</span>
+                            <span class="text-base font-black text-emerald-600">
+                                Rank #{{ $voucher->id }} & {{ number_format($voucher->poin_required, 0, ',', '.') }} Pts
                             </span>
                         </div>
                         
@@ -118,7 +123,11 @@
                             @elseif(!$isEligible)
                                 <button disabled class="px-6 py-3 rounded-2xl bg-slate-100 text-slate-400 font-bold text-xs cursor-not-allowed border border-slate-200 flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                    Terkunci
+                                    @if(!$isRankEligible)
+                                        Rank #{{ $voucher->id }}
+                                    @else
+                                        {{ number_format($voucher->poin_required - auth()->user()->eco_points, 0, ',', '.') }} Pts Lagi
+                                    @endif
                                 </button>
                             @else
                                 <form action="{{ route('vouchers.claim', $voucher->id) }}" method="POST">

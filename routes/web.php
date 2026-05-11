@@ -5,7 +5,6 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EventController;
-use App\Http\Controllers\RankingController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\GreenAcademyController;
 use App\Http\Controllers\Admin\AcademyAdminController;
@@ -92,9 +91,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/{event}/chat/{message}/react', [EventController::class, 'react'])->name('aksi.chat.react');
     });
 
-    // --Achievements--
-    Route::get('/pencapaian/{user}', [RankingController::class, 'achievements'])->name('pencapaian.index');
-    Route::get('/api/user/pencapaian/{user}', [RankingController::class, 'getUserAchievementsJson'])->name('user.pencapaian.json');
 
     // -- Badges (PBI-18) --
     Route::get('/badges', [\App\Http\Controllers\BadgeController::class, 'index'])->name('badges.index');

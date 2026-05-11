@@ -67,16 +67,16 @@ class LeaderboardController extends Controller
         $rewards = [];
         if ($vouchers->count() >= 3) {
             $rewards = [
-                1 => ['title' => 'Juara 1', 'reward' => $vouchers[0]->name],
-                2 => ['title' => 'Juara 2', 'reward' => $vouchers[1]->name],
-                3 => ['title' => 'Juara 3', 'reward' => $vouchers[2]->name],
+                1 => ['title' => 'Juara 1', 'reward' => $vouchers[0]->name, 'min_points' => $vouchers[0]->poin_required],
+                2 => ['title' => 'Juara 2', 'reward' => $vouchers[1]->name, 'min_points' => $vouchers[1]->poin_required],
+                3 => ['title' => 'Juara 3', 'reward' => $vouchers[2]->name, 'min_points' => $vouchers[2]->poin_required],
             ];
         } else {
             // Fallback default jika tabel belum diisi penuh
             $rewards = [
-                1 => ['title' => 'Juara 1', 'reward' => 'Voucher Wisata Rp 500.000'],
-                2 => ['title' => 'Juara 2', 'reward' => 'Voucher Wisata Rp 250.000'],
-                3 => ['title' => 'Juara 3', 'reward' => 'Voucher Wisata Rp 100.000'],
+                1 => ['title' => 'Juara 1', 'reward' => 'Voucher Wisata Rp 500.000', 'min_points' => 1500],
+                2 => ['title' => 'Juara 2', 'reward' => 'Voucher Wisata Rp 250.000', 'min_points' => 1000],
+                3 => ['title' => 'Juara 3', 'reward' => 'Voucher Wisata Rp 100.000', 'min_points' => 500],
             ];
         }
         
@@ -184,7 +184,7 @@ class LeaderboardController extends Controller
             'target_column' => 'required|string|max:255',
             'target_condition' => 'required|string|max:255',
             'points_reward' => 'required|integer|min:0',
-            'level' => 'required|integer|min:1',
+            'level' => 'required|string|max:255',
         ]);
 
         \App\Models\Badge::create($validated);
@@ -199,7 +199,7 @@ class LeaderboardController extends Controller
             'category' => 'required|string|max:255',
             'target' => 'required|integer|min:1',
             'points_reward' => 'required|integer|min:0',
-            'level' => 'required|integer|min:1',
+            'level' => 'required|string|max:255',
         ]);
 
         $badge->update($validated);

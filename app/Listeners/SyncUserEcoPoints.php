@@ -29,7 +29,7 @@ class SyncUserEcoPoints
         
         if ($user) {
             $totalPoints = $this->pointService->calculateTotalPoints($user);
-            $user->eco_points = $totalPoints;
+            $user->eco_points = max(0, $totalPoints);
             $user->saveQuietly(); // save tanpa triggering event lagi
         }
     }

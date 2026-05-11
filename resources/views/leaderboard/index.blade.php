@@ -3,71 +3,89 @@
 @section('content')
 <div class="bg-gray-50 min-h-screen pb-12">
     <!-- GREEN HEADER WITH PODIUM -->
-    <div class="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-b-3xl shadow-lg py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl font-bold text-white text-center mb-12">Eco-Rankings</h1>
-            
-            <!-- PODIUM SECTION -->
-            <div class="flex flex-col md:flex-row justify-center items-end gap-8 md:gap-6 h-96 md:h-80 w-full max-w-4xl mx-auto">
-                <!-- Rank #2 (Left) - Height 60% -->
-                @php $rank2 = $topThree[1] ?? null; @endphp
-                <div class="flex-1 text-center flex flex-col items-center h-3/5 w-full">
-                    @if($rank2)
-                        <div class="mb-3 flex justify-center">
-                            <div class="w-14 h-14 bg-gradient-to-b from-gray-300 to-gray-400 rounded-2xl flex items-center justify-center text-white text-lg font-bold shadow-lg border-2 border-white">
-                                {{ strtoupper(substr($rank2->name ?? '', 0, 2)) }}
-                            </div>
-                        </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg mx-2 bg-gradient-to-t from-emerald-600 to-emerald-400">
-                            <div class="text-center">
-                                <p class="text-5xl font-black text-white">2</p>
-                            </div>
-                        </div>
-                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-600">{{ $rank2->name ?? '' }}</p>
-                    @endif
-                </div>
+<div class="bg-gradient-to-r from-emerald-800 to-emerald-600 text-white py-16 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 backdrop-blur-md mb-4">
+                    Halaman Peringkat
+                </span>
+                <h1 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
+                    Eco <span class="text-emerald-300">Rankings</span>
+                </h1>
+                <p class="mt-3 text-emerald-100 text-base max-w-lg">
+                    Daftar kontributor terbaik dalam menjaga kelestarian lingkungan bersama Eco Ranger.
+                </p>
+            </div>
 
-                <!-- Rank #1 (Center) - Height 100% TALLEST -->
-                @php $rank1 = $topThree[0] ?? null; @endphp
-                <div class="flex-1 text-center flex flex-col items-center h-full mb-4 w-full cursor-pointer z-10" onclick="window.location.href='/profile/{{ $rank1->id ?? '' }}'">
-                    @if($rank1)
-                        <div class="mb-4 animate-bounce text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-lg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </div>
-                        <div class="mb-4 flex justify-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-3xl flex items-center justify-center text-white text-2xl font-black shadow-xl border-4 border-white transform scale-110">
-                                {{ strtoupper(substr($rank1->name ?? '', 0, 2)) }}
-                            </div>
-                        </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-2xl mx-2 bg-gradient-to-t from-emerald-700 to-emerald-500">
-                            <div class="text-center">
-                                <p class="text-7xl font-black text-white">1</p>
-                            </div>
-                        </div>
-                        <p class="text-white text-sm font-black mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-700">{{ $rank1->name ?? '' }}</p>
-                    @endif
-                </div>
-
-                <!-- Rank #3 (Right) - Height 40% SHORTEST -->
-                @php $rank3 = $topThree[2] ?? null; @endphp
-                <div class="flex-1 text-center flex flex-col items-center h-2/5 w-full">
-                    @if($rank3)
-                        <div class="mb-2 flex justify-center">
-                            <div class="w-12 h-12 bg-gradient-to-b from-orange-300 to-orange-500 rounded-2xl flex items-center justify-center text-white text-base font-bold shadow-lg border-2 border-white">
-                                {{ strtoupper(substr($rank3->name ?? '', 0, 2)) }}
-                            </div>
-                        </div>
-                        <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg mx-2 bg-gradient-to-t from-emerald-600 to-emerald-400">
-                            <div class="text-center">
-                                <p class="text-4xl font-black text-white">3</p>
-                            </div>
-                        </div>
-                        <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-600">{{ $rank3->name ?? '' }}</p>
-                    @endif
+            <div class="flex flex-wrap gap-3">
+                <div class="flex items-center gap-2 bg-white/10 backdrop-blur rounded-2xl px-4 py-3">
+                    <span class="text-2xl font-black text-white">{{ $leaderboard->total() }}</span>
+                    <span class="text-xs text-emerald-200 font-semibold">User<br>Terdaftar</span>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
+    <!-- PODIUM SECTION -->
+    <div class="flex flex-col md:flex-row justify-center items-end gap-8 md:gap-6 h-96 md:h-80 w-full max-w-4xl mx-auto">
+        <!-- Rank #2 (Left) - Height 60% -->
+        @php $rank2 = $topThree[1] ?? null; @endphp
+        <div class="flex-1 text-center flex flex-col items-center h-3/5 w-full">
+            @if($rank2)
+                <div class="mb-3 flex justify-center">
+                    <div class="w-14 h-14 bg-gradient-to-b from-gray-300 to-gray-400 rounded-2xl flex items-center justify-center text-white text-lg font-bold shadow-lg border-2 border-white">
+                        {{ strtoupper(substr($rank2->name ?? '', 0, 2)) }}
+                    </div>
+                </div>
+                <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg mx-2 bg-gradient-to-t from-emerald-600 to-emerald-400">
+                    <div class="text-center">
+                        <p class="text-5xl font-black text-white">2</p>
+                    </div>
+                </div>
+                <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-600">{{ $rank2->name ?? '' }}</p>
+            @endif
+        </div>
+
+        <!-- Rank #1 (Center) - Height 100% TALLEST -->
+        @php $rank1 = $topThree[0] ?? null; @endphp
+        <div class="flex-1 text-center flex flex-col items-center h-full mb-4 w-full cursor-pointer z-10" onclick="window.location.href='/profile/{{ $rank1->id ?? '' }}'">
+            @if($rank1)
+                <div class="mb-4 flex justify-center pt-8">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-3xl flex items-center justify-center text-white text-2xl font-black shadow-xl border-4 border-white transform scale-110">
+                        {{ strtoupper(substr($rank1->name ?? '', 0, 2)) }}
+                    </div>
+                </div>
+                <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-2xl mx-2 bg-gradient-to-t from-emerald-700 to-emerald-500">
+                    <div class="text-center">
+                        <p class="text-7xl font-black text-white">1</p>
+                    </div>
+                </div>
+                <p class="text-white text-sm font-black mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-700">{{ $rank1->name ?? '' }}</p>
+            @endif
+        </div>
+
+        <!-- Rank #3 (Right) - Height 40% SHORTEST -->
+        @php $rank3 = $topThree[2] ?? null; @endphp
+        <div class="flex-1 text-center flex flex-col items-center h-2/5 w-full">
+            @if($rank3)
+                <div class="mb-2 flex justify-center">
+                    <div class="w-12 h-12 bg-gradient-to-b from-orange-300 to-orange-500 rounded-2xl flex items-center justify-center text-white text-base font-bold shadow-lg border-2 border-white">
+                        {{ strtoupper(substr($rank3->name ?? '', 0, 2)) }}
+                    </div>
+                </div>
+                <div class="w-full flex-1 rounded-t-3xl flex items-center justify-center relative border-4 border-white shadow-lg mx-2 bg-gradient-to-t from-emerald-600 to-emerald-400">
+                    <div class="text-center">
+                        <p class="text-4xl font-black text-white">3</p>
+                    </div>
+                </div>
+                <p class="text-white text-sm font-bold mt-2 w-full py-2 px-2 rounded-b-2xl mx-2 bg-emerald-600">{{ $rank3->name ?? '' }}</p>
+            @endif
+        </div>
+    </div>
+</div>
 
     <!-- MAIN CONTENT -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-8">
@@ -83,7 +101,7 @@
         <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
             <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                 <div class="flex items-center gap-4">
-                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h2 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
                         Reward Voucher
                     </h2>
                     @if(auth()->check() && auth()->user()->role === 'admin')
@@ -99,15 +117,16 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 @foreach($rewards as $rank => $reward)
-                <div class="bg-gradient-to-r @if($rank == 1) from-yellow-50 to-yellow-100 border-yellow-300 @elseif($rank == 2) from-gray-100 to-gray-200 border-gray-400 @else from-orange-50 to-orange-100 border-orange-300 @endif rounded-xl p-4 border">
-                    <p class="font-bold text-sm @if($rank == 1) text-yellow-700 @elseif($rank == 2) text-gray-700 @else text-orange-700 @endif flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-                        {{ $reward['title'] }}
-                    </p>
-                    <p class="text-sm font-semibold text-gray-700 mt-2 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
-                        {{ $reward['reward'] }}
-                    </p>
+                <div class="bg-gradient-to-r @if($rank == 1) from-amber-50 to-amber-100 border-amber-200 @elseif($rank == 2) from-slate-50 to-slate-100 border-slate-200 @else from-orange-50 to-orange-100 border-orange-200 @endif rounded-2xl p-5 border relative overflow-hidden h-full">
+                    <div class="relative z-10">
+                        <p class="font-black @if($rank == 1) text-amber-700 @elseif($rank == 2) text-slate-700 @else text-orange-700 @endif text-[10px] tracking-widest uppercase mb-1">
+                            Peringkat {{ $rank }}
+                        </p>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Target: {{ number_format($reward['min_points'], 0, ',', '.') }} Poin</p>
+                        <p class="text-sm text-slate-900 font-bold flex items-center gap-2">
+                            {{ $reward['reward'] }}
+                        </p>
+                    </div>
                 </div>
                 @endforeach
             </div>
@@ -119,8 +138,8 @@
                 <input type="text" 
                        name="search" 
                        value="{{ request('search') }}"
-                       placeholder="Cari nama atau level pengguna..." 
-                       class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-700 bg-slate-50">
+                       placeholder="Cari nama pengguna..." 
+                       class="flex-1 px-5 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-bold text-slate-700 bg-white shadow-sm">
                 <button type="submit" class="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-bold shadow-md shadow-emerald-500/20 active:translate-y-0.5 flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     Cari
@@ -138,7 +157,7 @@
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
             <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h2 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
                         Papan Peringkat
                     </h2>
                     @if(auth()->check() && auth()->user()->role === 'admin')
@@ -174,13 +193,13 @@
                                 <tr class="hover:bg-emerald-50/50 transition-colors group">
                                     <td class="py-4 px-6 text-center">
                                         @if($user->rank == 1) 
-                                            <span class="font-bold text-yellow-600 bg-yellow-100 px-3 py-1 rounded-lg border border-yellow-200">#1</span>
+                                            <span class="font-black text-amber-700 bg-amber-100 px-4 py-1.5 rounded-xl border border-amber-200 text-xs uppercase tracking-widest">#1</span>
                                         @elseif($user->rank == 2) 
-                                            <span class="font-bold text-slate-600 bg-slate-200 px-3 py-1 rounded-lg border border-slate-300">#2</span>
+                                            <span class="font-black text-slate-700 bg-slate-200 px-4 py-1.5 rounded-xl border border-slate-300 text-xs uppercase tracking-widest">#2</span>
                                         @elseif($user->rank == 3) 
-                                            <span class="font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded-lg border border-orange-200">#3</span>
+                                            <span class="font-black text-orange-700 bg-orange-100 px-4 py-1.5 rounded-xl border border-orange-200 text-xs uppercase tracking-widest">#3</span>
                                         @else 
-                                            <span class="font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">#{{ $user->rank }}</span>
+                                            <span class="font-black text-slate-500 bg-slate-100 px-4 py-1.5 rounded-xl text-xs uppercase tracking-widest">#{{ $user->rank }}</span>
                                         @endif
                                     </td>
                                     <td class="py-4 px-6">
@@ -207,7 +226,7 @@
                                     </td>
                                     <td class="py-4 px-6 text-right">
                                         <div class="inline-flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100/50">
-                                            <span class="font-black text-emerald-600 tracking-tight">{{ number_format($user->total_points) }}</span>
+                                            <span class="font-black text-emerald-600 tracking-tight">{{ number_format($user->total_points, 0, ',', '.') }}</span>
                                             <span class="text-xs font-bold text-emerald-400">PTS</span>
                                         </div>
                                     </td>
@@ -249,7 +268,7 @@
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-4">
-                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h2 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
                         Aturan Poin
                     </h2>
                     @if(auth()->check() && auth()->user()->role === 'admin')
@@ -280,11 +299,11 @@
             </div>
         </div>
         
-        <!-- LENCANA & PENCAPAIAN -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
+        <!-- LENCANA & PENCAPAIAN (Transparent) -->
+        <div class="space-y-6">
             <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-4">
-                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h2 class="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
                         Lencana & Pencapaian
                     </h2>
                     @if(auth()->check() && auth()->user()->role === 'admin')
@@ -301,15 +320,17 @@
             @if(Auth::check() && count($badges) > 0)
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     @foreach($badges as $badge)
-                        <div class="p-5 bg-[#0f172a] rounded-xl border border-slate-700 shadow-md relative overflow-hidden group hover:border-emerald-500 transition-colors flex flex-col justify-between h-40">
-                            <div class="absolute right-0 bottom-0 opacity-5 transform translate-x-4 translate-y-4 group-hover:scale-110 transition-transform">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-                            </div>
+                        <div class="p-6 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl relative overflow-hidden group hover:border-emerald-500 transition-all flex flex-col justify-between h-48">
                             <div class="relative z-10 flex-grow">
-                                <h3 class="font-bold text-white text-base mb-1 flex items-center gap-2 line-clamp-1">
-                                    {{ $badge->name }}
-                                </h3>
-                                <p class="text-[10px] text-slate-400 mb-2 line-clamp-2">{{ $badge->description }}</p>
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
+                                        {{ $badge->name }}
+                                    </h3>
+                                    @if($badge->progress_percentage >= 100)
+                                        <span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                                    @endif
+                                </div>
+                                <p class="text-[10px] text-slate-400 mb-4 leading-relaxed line-clamp-2 uppercase tracking-wide font-bold">{{ $badge->description }}</p>
                             </div>
                             <div class="relative z-10 mt-auto">
                                 <div class="w-full bg-slate-800 rounded-full h-2 mb-2 overflow-hidden border border-slate-700">
@@ -329,26 +350,21 @@
                     Belum ada lencana yang tersedia atau silakan Login untuk melihat progress pencapaian Anda
                 </div>
             @endif
-        </div>
+        </div> <!-- End of Lencana section -->
         
         <!-- POSISI USER SAAT INI (Paling Bawah) -->
         @auth
             @if(auth()->user()->role !== 'admin')
-            <div class="rounded-3xl shadow-lg p-10 text-white text-center relative overflow-hidden" style="background: linear-gradient(135deg, #098352 0%, #10A96E 100%);">
-                <!-- Decorative Elements -->
-                <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-5 mix-blend-overlay"></div>
-                <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-white opacity-10 mix-blend-overlay"></div>
-                
+            <div class="rounded-3xl shadow-xl p-6 text-white text-center relative overflow-hidden" style="background: linear-gradient(135deg, #065f46 0%, #059669 100%);">
                 <div class="relative z-10">
-                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-100 mb-4">Posisi Anda Saat Ini</p>
-                    <div class="inline-flex items-end justify-center gap-3 bg-white/10 px-8 py-4 rounded-3xl backdrop-blur-sm border border-white/20 shadow-inner">
-                        <span class="text-3xl font-medium text-emerald-50">Rank</span>
-                        <span class="text-6xl font-black text-white leading-none">#{{ $userPosition ?? '?' }}</span>
+                    <p class="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-100 mb-3">Posisi Anda Saat Ini</p>
+                    <div class="inline-flex items-end justify-center gap-3 bg-white/5 px-6 py-3 rounded-2xl backdrop-blur-xl border border-white/10 shadow-2xl">
+                        <span class="text-lg font-bold text-emerald-100 uppercase tracking-widest mb-0.5">Rank</span>
+                        <span class="text-4xl font-black text-white leading-none tracking-tighter">#{{ $userPosition ?? '?' }}</span>
                     </div>
-                    <p class="text-xl font-medium mt-6 text-emerald-50"><strong class="font-bold text-white">{{ number_format($userPoints ?? 0) }}</strong> total poin Eco</p>
-                    <p class="text-sm font-bold text-emerald-100 mt-6 bg-black/10 inline-flex items-center gap-2 px-4 py-2 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        Terus berkontribusi untuk naik peringkat!
+                    <p class="text-lg font-bold mt-4 text-emerald-50"><strong class="font-black text-white text-xl">{{ number_format($userPoints ?? 0, 0, ',', '.') }}</strong> total poin Eco</p>
+                    <p class="text-[8px] font-black text-emerald-100 mt-4 bg-black/20 inline-flex items-center gap-2 px-3 py-1.5 rounded-full uppercase tracking-widest">
+                        Terus berkontribusi untuk naik peringkat
                     </p>
                 </div>
             </div>

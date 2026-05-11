@@ -143,9 +143,7 @@ class EventController extends Controller
                 ->first();
 
             if ($ledger) {
-                $user->eco_points = max(0, ($user->eco_points ?? 0) - $ledger->points);
-                $user->eco_level = $user->calculateEcoLevel();
-                $user->save();
+                $user->addEcoPoints(-$ledger->points, 'Penghapusan poin event (ID: ' . $event->id . ')');
                 
                 $ledger->delete();
             }
@@ -206,9 +204,7 @@ class EventController extends Controller
             ->first();
 
         if ($ledger) {
-            $user->eco_points = max(0, ($user->eco_points ?? 0) - $ledger->points);
-            $user->eco_level = $user->calculateEcoLevel();
-            $user->save();
+            $user->addEcoPoints(-$ledger->points, 'Batal ikut event (ID: ' . $event->id . ')');
             
             $ledger->delete();
         }
@@ -230,7 +226,6 @@ class EventController extends Controller
 
         if ($pointsToDeduct > 0) {
             $user->addEcoPoints(-$pointsToDeduct);
-            RankingService::updateUserAchievements($user);
         }
         return redirect()->route('aksi.index')->with('success', 'Berhasil membatalkan keikutsertaan dari event "' . $event->name . '"!');
     }

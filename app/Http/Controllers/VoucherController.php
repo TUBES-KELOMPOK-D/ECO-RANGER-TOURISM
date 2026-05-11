@@ -29,6 +29,10 @@ class VoucherController extends Controller
         
         $userRank = $leaderboardService->getUserRank($user);
 
+        if (!$userRank || $user->eco_points <= 0) {
+            return back()->with('error', 'Anda belum memiliki poin yang cukup atau tidak masuk dalam peringkat untuk mengklaim voucher.');
+        }
+
         // Validasi Rank vs Voucher
         if ($voucher->id == 1 && $userRank !== 1) {
             return back()->with('error', 'Voucher senilai Rp 500.000 ini hanya khusus untuk Rank 1.');
@@ -50,12 +54,8 @@ class VoucherController extends Controller
         }
 
         if ($user->eco_points < $voucher->poin_required) {
-            return back()->with('error', 'Poin Anda tidak mencukupi untuk mengklaim voucher ini.');
+            return back()->with('error', 'Poin Anda belum mencapai target minimum ' . number_format($voucher->poin_required, 0, ',', '.') . ' poin untuk mengklaim voucher ini.');
         }
-
-        // Jika butuh dikurangi:
-        // $user->eco_points -= $voucher->poin_required;
-        // $user->save();
 
         UserVoucher::create([
             'user_id' => $user->id,

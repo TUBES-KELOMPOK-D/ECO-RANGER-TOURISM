@@ -16,7 +16,7 @@
                     @if(!auth()->check() || auth()->user()->role !== 'admin')
                         <a href="/laporan" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('laporan') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Laporan</a>
                     @endif
-                    <a href="/peringkat" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->is('peringkat') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Peringkat</a>
+                    <a href="/leaderboard" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ (request()->is('leaderboard*') || request()->is('vouchers*') || request()->is('badges*')) ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Peringkat</a>
                     <a href="{{ route('academy.index') }}" class="px-4 py-2 rounded-xl text-sm font-bold transition-all decoration-transparent {{ request()->routeIs('academy.*') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50' }}">Akademi</a>
                     <div class="h-6 w-px bg-slate-200 mx-2"></div>
                     
@@ -99,7 +99,7 @@
                         Laporan
                     </a>
                 @endif
-                <a href="/peringkat" class="flex items-center gap-4 w-full p-4 rounded-2xl transition-all font-bold decoration-transparent {{ request()->is('peringkat') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50' }}">
+                <a href="/leaderboard" class="flex items-center gap-4 w-full p-4 rounded-2xl transition-all font-bold decoration-transparent {{ (request()->is('leaderboard*') || request()->is('vouchers*') || request()->is('badges*')) ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50' }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                     Peringkat
                 </a>
