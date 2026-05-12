@@ -70,7 +70,7 @@
             <div class="text-xs text-slate-500 text-center">Terus tingkatkan kontribusi Anda untuk mendukung keberlanjutan lingkungan.</div>
             <div class="flex justify-between w-full mt-4 text-center">
                 <div class="flex-1">
-                    <div class="text-lg font-bold text-toscagreen">120</div>
+                    <div class="text-lg font-bold text-toscagreen">{{ number_format($totalPoints) }}</div>
                     <div class="text-xs text-slate-500">Poin Eco</div>
                 </div>
                 <div class="flex-1">
@@ -78,7 +78,7 @@
                     <div class="text-xs text-slate-500">Level Saat Ini</div>
                 </div>
                 <div class="flex-1">
-                    <div class="text-lg font-bold text-toscagreen">8</div>
+                    <div class="text-lg font-bold text-toscagreen">{{ $participatedEventsCount }}</div>
                     <div class="text-xs text-slate-500">Aksi Selesai</div>
                 </div>
             </div>
