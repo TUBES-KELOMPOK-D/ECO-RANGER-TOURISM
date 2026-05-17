@@ -34,22 +34,31 @@
                     <label class="block text-xs font-semibold mb-1">Foto Profil</label>
                     <div class="flex items-center gap-4">
                         <div class="relative h-16 w-16 rounded-full border-2 border-emerald-200 bg-emerald-50 flex items-center justify-center text-2xl font-bold text-toscagreen">
+                            <img id="profileImagePreview" src="@if($user->photo){{ asset('storage/'.$user->photo) }}@endif" class="h-full w-full object-cover rounded-full @if(!$user->photo) hidden @endif" />
+                            <span id="profileInitialsPreview" class="@if($user->photo) hidden @endif">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="photoInput" class="flex items-center gap-2 cursor-pointer rounded-lg bg-toscagreen px-4 py-2 text-white text-sm font-semibold shadow hover:bg-emerald-700 transition">
+                                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-5 h-5'><path stroke-linecap='round' stroke-linejoin='round' d='M12 17v-6m0 0V7m0 4h4m-4 0H8'/></svg> Pilih Foto
+                                <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden" />
+                            </label>
                             @if($user->photo)
-                                <img src="{{ asset('storage/'.$user->photo) }}" class="h-full w-full object-cover rounded-full" />
-                            @else
-                                {{ strtoupper(substr($user->name, 0, 2)) }}
+                                <button type="submit" form="deletePhotoForm" id="deletePhotoBtn" class="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-white text-sm font-semibold shadow hover:bg-red-700 transition" onclick="return confirm('Hapus foto profil?');">
+                                    <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-5 h-5'><path stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12'/></svg> Hapus Foto
+                                </button>
                             @endif
                         </div>
-                        <label for="photoInput" class="flex items-center gap-2 cursor-pointer rounded-lg bg-toscagreen px-4 py-2 text-white text-sm font-semibold shadow hover:bg-emerald-700 transition">
-                            <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-5 h-5'><path stroke-linecap='round' stroke-linejoin='round' d='M12 17v-6m0 0V7m0 4h4m-4 0H8'/></svg> Pilih Foto
-                            <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden" />
-                        </label>
                     </div>
                 </div>
                 <div class="flex justify-end pt-4 border-t border-slate-100">
                     <button type="submit" class="rounded-lg bg-toscagreen px-6 py-2 text-white font-semibold text-sm shadow hover:bg-emerald-700 transition">Simpan Perubahan</button>
                 </div>
             </form>
+            @if($user->photo)
+            <form id="deletePhotoForm" action="{{ route('profile.photo.delete') }}" method="POST" class="hidden">
+                @csrf
+            </form>
+            @endif
         </div>
         <!-- Kanan: Preview Card -->
         <div class="bg-emerald-50 rounded-2xl shadow p-8 flex flex-col items-center gap-4">
@@ -57,11 +66,8 @@
                 <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-5 h-5'><path stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118A7.5 7.5 0 0112 15.75a7.5 7.5 0 017.5 4.368'/></svg> Preview Profil
             </div>
             <div class="h-20 w-20 rounded-full border-2 border-emerald-400 bg-white flex items-center justify-center text-3xl font-bold text-toscagreen mb-2">
-                @if($user->photo)
-                    <img src="{{ asset('storage/'.$user->photo) }}" class="h-full w-full object-cover rounded-full" />
-                @else
-                    {{ strtoupper(substr($user->name, 0, 2)) }}
-                @endif
+                <img id="profileImagePreviewRight" src="@if($user->photo){{ asset('storage/'.$user->photo) }}@endif" class="h-full w-full object-cover rounded-full @if(!$user->photo) hidden @endif" />
+                <span id="profileInitialsPreviewRight" class="@if($user->photo) hidden @endif">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
             </div>
             <div class="text-lg font-bold text-slate-900">{{ $user->name }}</div>
             <div class="flex items-center gap-2">
@@ -115,8 +121,10 @@
     const closeGuide = document.getElementById('closeGuide');
     const closeGuideFooter = document.getElementById('closeGuideFooter');
     const photoInput = document.getElementById('photoInput');
-    const previewImage = document.getElementById('previewImage');
-    const previewInitials = document.getElementById('previewInitials');
+    const profileImagePreview = document.getElementById('profileImagePreview');
+    const profileInitialsPreview = document.getElementById('profileInitialsPreview');
+    const profileImagePreviewRight = document.getElementById('profileImagePreviewRight');
+    const profileInitialsPreviewRight = document.getElementById('profileInitialsPreviewRight');
 
     guideButton?.addEventListener('click', () => guideModal.classList.remove('hidden'));
     closeGuide?.addEventListener('click', () => guideModal.classList.add('hidden'));
@@ -127,12 +135,19 @@
         if (!file) return;
         const reader = new FileReader();
         reader.onload = e => {
-            if (previewImage) {
-                previewImage.src = e.target.result;
-                previewImage.classList.remove('hidden');
+            if (profileImagePreview) {
+                profileImagePreview.src = e.target.result;
+                profileImagePreview.classList.remove('hidden');
             }
-            if (previewInitials) {
-                previewInitials.classList.add('hidden');
+            if (profileInitialsPreview) {
+                profileInitialsPreview.classList.add('hidden');
+            }
+            if (profileImagePreviewRight) {
+                profileImagePreviewRight.src = e.target.result;
+                profileImagePreviewRight.classList.remove('hidden');
+            }
+            if (profileInitialsPreviewRight) {
+                profileInitialsPreviewRight.classList.add('hidden');
             }
         };
         reader.readAsDataURL(file);
