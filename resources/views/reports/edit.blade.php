@@ -72,6 +72,12 @@
                         @error('status')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Komentar Admin</label>
+                        <textarea name="admin_comment" rows="4" class="w-full rounded-3xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" placeholder="Tambahkan komentar yang akan terlihat oleh pelapor">{{ old('admin_comment', $report->admin_comment) }}</textarea>
+                        @error('admin_comment')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </div>
+
                     <div class="flex gap-3">
                         <button type="submit" class="flex-1 rounded-3xl bg-emerald-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition">
                             Update Status
