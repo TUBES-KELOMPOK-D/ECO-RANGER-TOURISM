@@ -3,75 +3,93 @@
 @section('title', 'Pengaturan Profil - GreenTour')
 
 @section('content')
-<div class="mt-6 mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-    <div class="rounded-3xl bg-white p-8 shadow-soft border border-slate-200">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Pengaturan Profil</h1>
-                <p class="mt-2 text-sm text-slate-500">Kelola profil dan foto Anda.</p>
-            </div>
-            <a href="{{ route('profile.index') }}" class="rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">Kembali ke Profil</a>
-        </div>
 
-        @if(session('success'))
-            <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900">
-                {{ session('success') }}
+<div class="mx-auto max-w-5xl py-8 px-2">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Pengaturan Profil</h1>
+        <a href="{{ route('profile.index') }}" class="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Kembali ke Profil</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Kiri: Form Card -->
+        <div class="bg-white rounded-2xl shadow p-8 flex flex-col gap-6">
+            <div class="mb-2 flex items-center gap-2 text-emerald-700 font-semibold">
+                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-5 h-5'><path stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118A7.5 7.5 0 0112 15.75a7.5 7.5 0 017.5 4.368'/></svg> Informasi Profil
             </div>
-        @endif
-
-        <div class="mt-8 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-            <div class="space-y-8">
-                <form action="{{ route('profile.settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                    @csrf
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div class="space-y-3">
-                            <label class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Nama Lengkap</label>
-                            <input type="text" name="name" value="{{ old('name', $user->name) }}" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-slate-900 shadow-sm outline-none focus:border-toscagreen focus:ring-2 focus:ring-toscagreen/10" placeholder="Andi Saputra" />
-                            @error('name')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div class="space-y-3">
-                            <label class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Level Eco</label>
-                            <div class="rounded-3xl border border-emerald-100 bg-slate-50 px-4 py-4 text-slate-900">
-                                <div class="flex items-center justify-between gap-4">
-                                    <span>{{ $user->eco_level }}</span>
-                                    <button type="button" id="guideButton" class="text-sm font-semibold text-toscagreen hover:text-[#1f3f30]">Lihat Panduan</button>
-                                </div>
-                            </div>
-                        </div>
+            <form action="{{ route('profile.settings.update') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-5">
+                @csrf
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Nama Lengkap</label>
+                    <input type="text" name="name" value="{{ old('name', $user->name) }}" class="w-full rounded-lg border border-slate-200 px-4 py-2 text-slate-900 focus:ring-emerald-200 focus:border-emerald-400" />
+                    <span class="text-xs text-slate-400">Nama ini akan ditampilkan di profil Anda.</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Level Eco</label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" value="{{ $user->eco_level }}" readonly class="w-full rounded-lg border border-slate-200 px-4 py-2 bg-slate-50 text-slate-900" />
+                        <button type="button" id="guideButton" class="text-xs font-semibold text-toscagreen hover:underline">Lihat Panduan</button>
                     </div>
-
-                    <div class="space-y-4">
-                        <label class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Foto Profil</label>
-                        <div class="flex items-center gap-4">
-                            <div id="profilePreview" class="relative h-28 w-28 overflow-hidden rounded-[2rem] border-2 border-toscagreen bg-emerald-50 text-4xl font-black uppercase text-toscagreen shadow-md">
-                                <img id="previewImage" src="{{ $user->photo ? asset('storage/'.$user->photo) : '' }}" alt="Foto Profil" class="h-full w-full object-cover {{ $user->photo ? '' : 'hidden' }}" />
-                                <div id="previewInitials" class="flex h-full w-full items-center justify-center {{ $user->photo ? 'hidden' : '' }}">{{ strtoupper(substr($user->name, 0, 2)) }}</div>
-                            </div>
-                            <div>
-                                <label for="photoInput" class="cursor-pointer rounded-3xl bg-toscagreen px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-[#244f3f]">Pilih Foto</label>
+                    <span class="text-xs text-slate-400">Level ini menunjukkan kontribusi Anda terhadap lingkungan.</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Foto Profil</label>
+                    <div class="flex items-center gap-4">
+                        <div class="relative h-16 w-16 rounded-full border-2 border-emerald-200 bg-emerald-50 flex items-center justify-center text-2xl font-bold text-toscagreen">
+                            <img id="profileImagePreview" src="@if($user->photo){{ asset('storage/'.$user->photo) }}@endif" class="h-full w-full object-cover rounded-full @if(!$user->photo) hidden @endif" />
+                            <span id="profileInitialsPreview" class="@if($user->photo) hidden @endif">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="photoInput" class="flex items-center gap-2 cursor-pointer rounded-lg bg-toscagreen px-4 py-2 text-white text-sm font-semibold shadow hover:bg-emerald-700 transition">
+                                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-5 h-5'><path stroke-linecap='round' stroke-linejoin='round' d='M12 17v-6m0 0V7m0 4h4m-4 0H8'/></svg> Pilih Foto
                                 <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden" />
-                                <p class="mt-3 text-sm text-slate-500">Upload foto baru untuk profil Anda.</p>
-                            </div>
+                            </label>
+                            @if($user->photo)
+                                <button type="submit" form="deletePhotoForm" id="deletePhotoBtn" class="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-white text-sm font-semibold shadow hover:bg-red-700 transition" onclick="return confirm('Hapus foto profil?');">
+                                    <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-5 h-5'><path stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12'/></svg> Hapus Foto
+                                </button>
+                            @endif
                         </div>
                     </div>
-
-                    <button type="submit" class="w-full rounded-3xl bg-[#2d6a4f] px-6 py-4 text-base font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-[#244f3f]">Simpan Perubahan</button>
-                </form>
-                @if($user->photo)
-                    <form action="{{ route('profile.photo.delete') }}" method="POST" class="mt-4">
-                        @csrf
-                        <button type="submit" class="w-full rounded-3xl border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 transition hover:bg-slate-50">Hapus Foto Profil</button>
-                    </form>
-                @endif
+                </div>
+                <div class="flex justify-end pt-4 border-t border-slate-100">
+                    <button type="submit" class="rounded-lg bg-toscagreen px-6 py-2 text-white font-semibold text-sm shadow hover:bg-emerald-700 transition">Simpan Perubahan</button>
+                </div>
+            </form>
+            @if($user->photo)
+            <form id="deletePhotoForm" action="{{ route('profile.photo.delete') }}" method="POST" class="hidden">
+                @csrf
+            </form>
+            @endif
+        </div>
+        <!-- Kanan: Preview Card -->
+        <div class="bg-emerald-50 rounded-2xl shadow p-8 flex flex-col items-center gap-4">
+            <div class="mb-2 flex items-center gap-2 text-emerald-700 font-semibold">
+                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-5 h-5'><path stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118A7.5 7.5 0 0112 15.75a7.5 7.5 0 017.5 4.368'/></svg> Preview Profil
             </div>
-
-            <div class="space-y-6">
-                @if($user->role === 'admin')
-                    <div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-slate-900">
-                        <p class="font-semibold text-emerald-800">Akun admin terdeteksi.</p>
-                        <p class="mt-2 text-sm text-slate-600">Anda memiliki akses admin. Marker hanya dapat ditambahkan lewat halaman admin.</p>
-                    </div>
-                @endif
+            <div class="h-20 w-20 rounded-full border-2 border-emerald-400 bg-white flex items-center justify-center text-3xl font-bold text-toscagreen mb-2">
+                <img id="profileImagePreviewRight" src="@if($user->photo){{ asset('storage/'.$user->photo) }}@endif" class="h-full w-full object-cover rounded-full @if(!$user->photo) hidden @endif" />
+                <span id="profileInitialsPreviewRight" class="@if($user->photo) hidden @endif">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+            </div>
+            <div class="text-lg font-bold text-slate-900">{{ $user->name }}</div>
+            <div class="flex items-center gap-2">
+                <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-toscagreen">{{ $user->eco_level }}</span>
+            </div>
+            <div class="text-xs text-slate-500 text-center">Terus tingkatkan kontribusi Anda untuk mendukung keberlanjutan lingkungan.</div>
+            <div class="flex justify-between w-full mt-4 text-center">
+                <div class="flex-1">
+                    <div class="text-lg font-bold text-toscagreen">{{ number_format($totalPoints) }}</div>
+                    <div class="text-xs text-slate-500">Poin Eco</div>
+                </div>
+                <div class="flex-1">
+                    <div class="text-lg font-bold text-toscagreen">{{ $user->eco_level }}</div>
+                    <div class="text-xs text-slate-500">Level Saat Ini</div>
+                </div>
+                <div class="flex-1">
+                    <div class="text-lg font-bold text-toscagreen">{{ $participatedEventsCount }}</div>
+                    <div class="text-xs text-slate-500">Aksi Selesai</div>
+                </div>
+            </div>
+            <div class="mt-4 w-full bg-white rounded-lg p-3 text-xs text-slate-600 border border-emerald-100">
+                <b>Tips:</b> Lengkapi profil Anda untuk pengalaman terbaik dan rekomendasi personal.
             </div>
         </div>
     </div>
@@ -103,8 +121,10 @@
     const closeGuide = document.getElementById('closeGuide');
     const closeGuideFooter = document.getElementById('closeGuideFooter');
     const photoInput = document.getElementById('photoInput');
-    const previewImage = document.getElementById('previewImage');
-    const previewInitials = document.getElementById('previewInitials');
+    const profileImagePreview = document.getElementById('profileImagePreview');
+    const profileInitialsPreview = document.getElementById('profileInitialsPreview');
+    const profileImagePreviewRight = document.getElementById('profileImagePreviewRight');
+    const profileInitialsPreviewRight = document.getElementById('profileInitialsPreviewRight');
 
     guideButton?.addEventListener('click', () => guideModal.classList.remove('hidden'));
     closeGuide?.addEventListener('click', () => guideModal.classList.add('hidden'));
@@ -115,12 +135,19 @@
         if (!file) return;
         const reader = new FileReader();
         reader.onload = e => {
-            if (previewImage) {
-                previewImage.src = e.target.result;
-                previewImage.classList.remove('hidden');
+            if (profileImagePreview) {
+                profileImagePreview.src = e.target.result;
+                profileImagePreview.classList.remove('hidden');
             }
-            if (previewInitials) {
-                previewInitials.classList.add('hidden');
+            if (profileInitialsPreview) {
+                profileInitialsPreview.classList.add('hidden');
+            }
+            if (profileImagePreviewRight) {
+                profileImagePreviewRight.src = e.target.result;
+                profileImagePreviewRight.classList.remove('hidden');
+            }
+            if (profileInitialsPreviewRight) {
+                profileInitialsPreviewRight.classList.add('hidden');
             }
         };
         reader.readAsDataURL(file);

@@ -47,7 +47,15 @@ class ProfileController extends Controller
 
     public function settings()
     {
-        return view('profile.settings', ['user' => auth()->user()]);
+        $user = auth()->user();
+        $pointService = app(\App\Services\LeaderboardService::class);
+        $totalPoints = $pointService->calculateUserPoints($user);
+        $participatedEventsCount = $user->participatedEvents()->count();
+        return view('profile.settings', [
+            'user' => $user,
+            'totalPoints' => $totalPoints,
+            'participatedEventsCount' => $participatedEventsCount,
+        ]);
     }
 
     public function update(Request $request)
