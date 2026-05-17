@@ -50,7 +50,6 @@
                                 <a href="{{ route('markers.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Marker</a>
                                 <a href="/reports" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Laporan</a>
                                 <a href="{{ route('admin.academy.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Edukasi & Kuis</a>
-                                <a href="{{ route('admin.reports.index') }}" class="block px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Kelola Laporan</a>
                             @endif
                             
                             <a href="/profile/settings" class="block px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Pengaturan</a>
