@@ -4,6 +4,15 @@
 
 @push('styles')
 <style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fadeinup { animation: fadeInUp 0.5s ease both; }
+    .animate-delay-100 { animation-delay: 0.1s; }
+    .badge-month { background: rgba(255,255,255,0.18); backdrop-filter: blur(8px); }
+
     .academy-card {
         transition: all 0.24s ease;
     }
@@ -30,6 +39,39 @@
 @endpush
 
 @section('content')
+<div class="bg-gradient-to-r from-emerald-800 to-emerald-600 text-white py-16 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between animate-fadeinup">
+            <div>
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest badge-month mb-4">
+                    Halaman Akademi
+                </span>
+                <h1 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
+                    Green <span class="text-emerald-300">Academy</span>
+                </h1>
+                <p class="mt-3 text-emerald-100 text-base max-w-lg">
+                    Pelajari materi edukasi lingkungan dan tingkatkan pemahamanmu tentang pariwisata berkelanjutan.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3 animate-fadeinup animate-delay-100">
+                <div class="flex items-center gap-2 bg-white/10 backdrop-blur rounded-2xl px-4 py-3">
+                    <span class="text-2xl font-black text-white">{{ $totalModules }}</span>
+                    <span class="text-xs text-emerald-200 font-semibold">Materi<br>Tersedia</span>
+                </div>
+                @auth
+                    @if(auth()->user()->role !== 'admin')
+                    <div class="flex items-center gap-2 bg-white/10 backdrop-blur rounded-2xl px-4 py-3">
+                        <span class="text-2xl font-black text-emerald-300">{{ $completedModules }}</span>
+                        <span class="text-xs text-emerald-200 font-semibold">Modul<br>Selesai</span>
+                    </div>
+                    @endif
+                @endauth
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
     <div class="flex flex-col gap-8">
         @if(session('success') || session('error') || session('info'))
@@ -72,14 +114,7 @@
         @endguest
 
         <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-soft">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-3xl font-extrabold text-slate-900">Akademi</h1>
-                    <p class="mt-2 text-sm text-slate-500">Jelajahi modul Green Academy dan bangun kebiasaan yang lebih ramah lingkungan.</p>
-                </div>
-            </div>
-
-            <div class="mt-8">
+            <div>
                 <div class="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-xl md:p-8">
                     <div class="relative z-10">
                         <h3 class="text-lg font-black">Progress Belajar</h3>
