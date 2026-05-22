@@ -19,6 +19,18 @@
         <div>
             <h1 class="text-2xl font-black text-slate-900">Edit Marker</h1>
             <p class="text-sm text-slate-500">ID: #{{ $marker->id }} — {{ $marker->shape_type }}</p>
+            @php
+                $isWisataEdit = ($marker->category === 'Destinasi Wisata') || ($marker->shape_type === 'Marker' && $marker->category !== 'Kondisi Lingkungan');
+            @endphp
+            @if($isWisataEdit)
+                <span class="inline-flex items-center gap-1 mt-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                    📍 Destinasi Wisata
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1 mt-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                    🌿 Kondisi Lingkungan
+                </span>
+            @endif
         </div>
     </div>
 
@@ -91,7 +103,8 @@
             </div>
         </div>
 
-        {{-- Eco Detail Card --}}
+        {{-- Eco Detail Card — hanya untuk Destinasi Wisata --}}
+        @if($isWisataEdit)
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 class="text-lg font-bold text-slate-800 mb-5">Detail Eco-Health</h2>
 
@@ -130,14 +143,17 @@
                 </div>
             </div>
         </div>
+        @endif
 
-        {{-- Eco Rules Card --}}
+        {{-- Eco Rules Card — hanya untuk Destinasi Wisata --}}
+        @if($isWisataEdit)
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 class="text-lg font-bold text-slate-800 mb-2">Aturan Wisata Hijau</h2>
             <p class="text-xs text-slate-400 mb-4">Format JSON. Contoh: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">[{"text":"Dilarang buang sampah","type":"allowed"}]</code></p>
             <textarea name="eco_rules" rows="5"
                 class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm font-mono resize-none" placeholder='[{"text":"Aturan...","type":"allowed"}]'>{{ old('eco_rules', $marker->eco_rules ? json_encode($marker->eco_rules, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : '') }}</textarea>
         </div>
+        @endif
 
         {{-- Coordinate Info (read-only) --}}
         <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6">

@@ -63,7 +63,8 @@ class MapController extends Controller
         }
 
         $marker = new Marker();
-        $marker->shape_type = $request->input('shape_type', 'Marker');
+        $shapeType = $request->input('shape_type', 'Marker');
+        $marker->shape_type = $shapeType;
         $marker->status = $request->input('status', 'green');
         $marker->title = $request->input('title');
         $marker->location_name = $request->input('location_name');
@@ -72,6 +73,13 @@ class MapController extends Controller
         $marker->radius = $request->input('radius');
         $marker->user_id = auth()->id();
         $marker->map_layer_id = null;
+
+        // Auto-set category berdasarkan shape_type jika belum diisi manual
+        if ($request->filled('category')) {
+            $marker->category = $request->input('category');
+        } else {
+            $marker->category = ($shapeType === 'Marker') ? 'Destinasi Wisata' : 'Kondisi Lingkungan';
+        }
 
         if ($imagePath) {
             $marker->image_path = $imagePath;
@@ -155,6 +163,11 @@ class MapController extends Controller
         }
         if ($request->filled('category')) {
             $marker->category = $request->input('category');
+        } else {
+            // Auto-derive category dari shape_type jika belum punya nilai
+            if (empty($marker->category)) {
+                $marker->category = ($marker->shape_type === 'Marker') ? 'Destinasi Wisata' : 'Kondisi Lingkungan';
+            }
         }
 
         // Parse eco_rules from textarea (JSON string)

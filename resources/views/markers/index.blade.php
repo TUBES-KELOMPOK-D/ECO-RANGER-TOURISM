@@ -22,6 +22,22 @@
         </a>
     </div>
 
+    {{-- Filter Tabs --}}
+    <div class="flex gap-2 mb-4" id="type-filter-tabs">
+        <button onclick="filterByType('all')" id="tab-all"
+            class="type-tab active-tab px-4 py-2 rounded-xl text-sm font-bold border-2 border-emerald-500 bg-emerald-50 text-emerald-700 transition-all">
+            Semua
+        </button>
+        <button onclick="filterByType('wisata')" id="tab-wisata"
+            class="type-tab px-4 py-2 rounded-xl text-sm font-bold border-2 border-slate-200 bg-slate-50 text-slate-600 transition-all">
+            📍 Destinasi Wisata
+        </button>
+        <button onclick="filterByType('lingkungan')" id="tab-lingkungan"
+            class="type-tab px-4 py-2 rounded-xl text-sm font-bold border-2 border-slate-200 bg-slate-50 text-slate-600 transition-all">
+            🌿 Kondisi Lingkungan
+        </button>
+    </div>
+
     {{-- Success Message --}}
     @if(session('success'))
     <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-2xl mb-6 font-semibold text-sm flex items-center gap-3">
@@ -38,6 +54,7 @@
                     <tr>
                         <th class="px-6 py-4">ID</th>
                         <th class="px-6 py-4">Informasi Lokasi</th>
+                        <th class="px-6 py-4">Tipe</th>
                         <th class="px-6 py-4">Bentuk</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4 text-center">Aksi</th>
@@ -45,11 +62,25 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($markers as $marker)
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    @php
+                        $isWisataRow = ($marker->category === 'Destinasi Wisata') || ($marker->shape_type === 'Marker' && $marker->category !== 'Kondisi Lingkungan');
+                    @endphp
+                    <tr class="hover:bg-slate-50 transition-colors marker-row" data-type="{{ $isWisataRow ? 'wisata' : 'lingkungan' }}">
                         <td class="px-6 py-4 font-mono text-slate-400">#{{ $marker->id }}</td>
                         <td class="px-6 py-4">
                             <div class="font-bold text-slate-800 mb-0.5">{{ $marker->title ?? 'Tanpa Judul' }}</div>
                             <div class="text-xs text-slate-500">{{ $marker->location_name ?? 'Lokasi tidak disebutkan' }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            @if($isWisataRow)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                                    📍 Wisata
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                                    🌿 Lingkungan
+                                </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
@@ -107,4 +138,30 @@
         @endif
     </div>
 </div>
+
+<script>
+function filterByType(type) {
+    const rows = document.querySelectorAll('.marker-row');
+    const tabs = document.querySelectorAll('.type-tab');
+
+    tabs.forEach(tab => {
+        tab.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'active-tab');
+        tab.classList.add('border-slate-200', 'bg-slate-50', 'text-slate-600');
+    });
+
+    const activeTab = document.getElementById('tab-' + type);
+    if (activeTab) {
+        activeTab.classList.remove('border-slate-200', 'bg-slate-50', 'text-slate-600');
+        activeTab.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'active-tab');
+    }
+
+    rows.forEach(row => {
+        if (type === 'all' || row.dataset.type === type) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
 @endsection

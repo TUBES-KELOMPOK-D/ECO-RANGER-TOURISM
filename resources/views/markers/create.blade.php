@@ -37,6 +37,28 @@
     <form action="{{ route('markers.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
+        {{-- Tipe Entri Selector --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-bold text-slate-800 mb-1">Tipe Entri</h2>
+            <p class="text-xs text-slate-400 mb-4">Pilih tujuan marker — menentukan tampilan dan form yang tersedia.</p>
+            <div class="grid grid-cols-2 gap-3" id="entry-type-picker">
+                <button type="button" id="btn-wisata" onclick="setEntryType('wisata')"
+                    class="entry-type-btn active-entry flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 transition-all">
+                    <span class="text-2xl">📍</span>
+                    <span class="text-sm font-bold text-emerald-700">Destinasi Wisata</span>
+                    <span class="text-xs text-emerald-600 text-center">Pinpoint lokasi wisata alam</span>
+                </button>
+                <button type="button" id="btn-lingkungan" onclick="setEntryType('lingkungan')"
+                    class="entry-type-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 bg-slate-50 transition-all">
+                    <span class="text-2xl">🌿</span>
+                    <span class="text-sm font-bold text-slate-600">Kondisi Lingkungan</span>
+                    <span class="text-xs text-slate-500 text-center">Area/garis kondisi ekologi</span>
+                </button>
+            </div>
+            {{-- Hidden field untuk category --}}
+            <input type="hidden" name="category" id="category-input" value="Destinasi Wisata">
+        </div>
+
         {{-- Basic Info Card --}}
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 class="text-lg font-bold text-slate-800 mb-5">Informasi Dasar</h2>
@@ -94,15 +116,15 @@
             <p class="text-xs text-slate-400 mb-5">Gambar bentuk di peta untuk mengisi koordinat secara otomatis.</p>
 
             <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Bentuk (Shape Type)</label>
                         <select name="shape_type" id="shape_type" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm">
-                            <option value="Marker" {{ old('shape_type') === 'Marker' ? 'selected' : '' }}>Marker (Titik)</option>
-                            <option value="Polygon" {{ old('shape_type') === 'Polygon' ? 'selected' : '' }}>Polygon (Area Bebas)</option>
-                            <option value="Rectangle" {{ old('shape_type') === 'Rectangle' ? 'selected' : '' }}>Rectangle (Area Kotak)</option>
-                            <option value="Circle" {{ old('shape_type') === 'Circle' ? 'selected' : '' }}>Circle (Lingkaran)</option>
-                            <option value="Polyline" {{ old('shape_type') === 'Polyline' ? 'selected' : '' }}>Polyline (Garis)</option>
+                            <option value="Marker" {{ old('shape_type') === 'Marker' ? 'selected' : '' }}>📍 Marker (Titik)</option>
+                            <option value="Polygon" {{ old('shape_type') === 'Polygon' ? 'selected' : '' }} class="env-shape-option">🔷 Polygon (Area Bebas)</option>
+                            <option value="Rectangle" {{ old('shape_type') === 'Rectangle' ? 'selected' : '' }} class="env-shape-option">⬛ Rectangle (Area Kotak)</option>
+                            <option value="Circle" {{ old('shape_type') === 'Circle' ? 'selected' : '' }} class="env-shape-option">🔵 Circle (Lingkaran)</option>
+                            <option value="Polyline" {{ old('shape_type') === 'Polyline' ? 'selected' : '' }} class="env-shape-option">〰️ Polyline (Garis)</option>
                         </select>
                     </div>
                     <div>
@@ -142,9 +164,10 @@
             </div>
         </div>
 
-        {{-- Eco Detail Card --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        {{-- Eco Detail Card — hanya untuk Destinasi Wisata --}}
+        <div id="eco-detail-section" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 class="text-lg font-bold text-slate-800 mb-5">Detail Eco-Health</h2>
+            <p class="text-xs text-slate-400 -mt-3 mb-4">Khusus untuk marker Destinasi Wisata.</p>
 
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
@@ -182,8 +205,8 @@
             </div>
         </div>
 
-        {{-- Eco Rules Card --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        {{-- Eco Rules Card — hanya untuk Destinasi Wisata --}}
+        <div id="eco-rules-section" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Aturan Wisata Hijau</h2>
@@ -244,10 +267,76 @@
 
     /* Custom Geoman toolbar style */
     .leaflet-pm-toolbar .leaflet-pm-icon-marker { filter: hue-rotate(130deg); }
+
+    /* Entry type button active state */
+    .active-entry {
+        border-color: #059669 !important;
+        background-color: #f0fdf4 !important;
+    }
+    .active-entry span.text-sm { color: #065f46 !important; }
 </style>
 @endpush
 
 @push('scripts')
+<script>
+/* ─── Entry Type Toggle ────────────────────────────────── */
+function setEntryType(type) {
+    const categoryInput  = document.getElementById('category-input');
+    const shapeSelect    = document.getElementById('shape_type');
+    const ecoDetail      = document.getElementById('eco-detail-section');
+    const ecoRules       = document.getElementById('eco-rules-section');
+    const btnWisata      = document.getElementById('btn-wisata');
+    const btnLingkungan  = document.getElementById('btn-lingkungan');
+
+    if (type === 'wisata') {
+        // Aktifkan Destinasi Wisata
+        categoryInput.value = 'Destinasi Wisata';
+        btnWisata.classList.add('active-entry');
+        btnWisata.classList.remove('border-slate-200', 'bg-slate-50');
+        btnWisata.classList.add('border-emerald-500', 'bg-emerald-50');
+        btnLingkungan.classList.remove('active-entry', 'border-emerald-500', 'bg-emerald-50');
+        btnLingkungan.classList.add('border-slate-200', 'bg-slate-50');
+
+        // Kunci shape ke Marker
+        shapeSelect.value = 'Marker';
+        for (let opt of shapeSelect.options) {
+            if (opt.classList.contains('env-shape-option')) {
+                opt.disabled = true;
+                opt.style.display = 'none';
+            }
+        }
+
+        // Tampilkan eco-health sections
+        ecoDetail.style.display = '';
+        ecoRules.style.display  = '';
+
+    } else {
+        // Aktifkan Kondisi Lingkungan
+        categoryInput.value = 'Kondisi Lingkungan';
+        btnLingkungan.classList.add('active-entry');
+        btnLingkungan.classList.remove('border-slate-200', 'bg-slate-50');
+        btnLingkungan.classList.add('border-emerald-500', 'bg-emerald-50');
+        btnWisata.classList.remove('active-entry', 'border-emerald-500', 'bg-emerald-50');
+        btnWisata.classList.add('border-slate-200', 'bg-slate-50');
+
+        // Semua shape tersedia, pilih Polygon sebagai default
+        for (let opt of shapeSelect.options) {
+            opt.disabled = false;
+            opt.style.display = '';
+        }
+        shapeSelect.value = 'Polygon';
+        shapeSelect.dispatchEvent(new Event('change'));
+
+        // Sembunyikan eco-health sections
+        ecoDetail.style.display = 'none';
+        ecoRules.style.display  = 'none';
+    }
+
+    // Rebuild toolbar peta sesuai shape baru
+    if (typeof rebuildToolbar === 'function') rebuildToolbar();
+}
+</script>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.16.0/dist/leaflet-geoman.min.js"></script>
 <script>
