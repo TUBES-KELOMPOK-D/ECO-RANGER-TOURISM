@@ -39,16 +39,22 @@
                 <img src="{{ asset('storage/' . $event->image_path) }}" alt="{{ $event->name }}"
                      class="w-14 h-14 rounded-2xl object-cover border-2 border-white/30 flex-shrink-0">
             @else
-                <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl flex-shrink-0">🌿</div>
+                <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                </div>
             @endif
             <div class="min-w-0">
                 <h1 class="text-lg font-extrabold text-white leading-snug truncate">{{ $event->name }}</h1>
                 <div class="flex flex-wrap items-center gap-3 mt-1">
-                    <span class="text-xs text-emerald-100 font-semibold">
-                        📅 {{ $event->event_date?->isoFormat('D MMMM YYYY') }}
+                    <span class="text-xs text-emerald-100 font-semibold flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        {{ $event->event_date?->isoFormat('D MMMM YYYY') }}
                     </span>
                     @if($event->location)
-                    <span class="text-xs text-emerald-100 font-semibold">📍 {{ $event->location }}</span>
+                    <span class="text-xs text-emerald-100 font-semibold flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        {{ $event->location }}
+                    </span>
                     @endif
                     <span class="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full font-bold">
                         {{ $event->participants_count ?? $event->participants->count() }} Peserta
@@ -61,7 +67,8 @@
     {{-- Flash --}}
     @if(session('success'))
     <div class="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-emerald-800 text-sm font-semibold mb-4">
-        ✅ {{ session('success') }}
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        {{ session('success') }}
     </div>
     @endif
 

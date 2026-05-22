@@ -45,7 +45,7 @@
                     <span id="filterDot" class="hidden"></span>
                 </button>
                 <div id="filterDropdown" class="hidden">
-                    <p>Status</p>
+                    <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Status</p>
                     <ul id="statusFilterList">
                         <li data-value="all" class="active">Semua Status</li>
                         <li data-value="green" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Sangat Terjaga</li>
@@ -53,7 +53,7 @@
                         <li data-value="red" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Perlu Perhatian</li>
                     </ul>
                     <hr style="border:none; border-top:1px solid #e2e8f0; margin:10px 0;">
-                    <p>Tipe</p>
+                    <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Tipe</p>
                     <ul id="typeFilterList">
                         <li data-value="all" class="active">Semua Tipe</li>
                         <li data-value="wisata" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Destinasi Wisata</li>

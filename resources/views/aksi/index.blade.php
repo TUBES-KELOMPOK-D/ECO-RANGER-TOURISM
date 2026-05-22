@@ -133,18 +133,18 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 mt-6">
     @if(session('success'))
     <div class="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4 text-emerald-800 text-sm font-semibold shadow-sm mb-4">
-        <span class="text-lg">✅</span> {{ session('success') }}
+        <span class="text-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></span> {{ session('success') }}
     </div>
     @endif
     @if(session('error'))
     <div class="flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 px-5 py-4 text-rose-800 text-sm font-semibold shadow-sm mb-4">
-        <span class="text-lg">⚠️</span> {{ session('error') }}
+        <span class="text-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> {{ session('error') }}
     </div>
     @endif
     @if($errors->any())
     <div class="flex flex-col gap-2 rounded-2xl bg-rose-50 border border-rose-200 px-5 py-4 text-rose-800 text-sm font-semibold shadow-sm mb-4">
         <div class="flex items-center gap-2">
-            <span class="text-lg">⚠️</span> <span>Terdapat kesalahan input:</span>
+            <span class="text-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> <span>Terdapat kesalahan input:</span>
         </div>
         <ul class="list-disc list-inside ml-7">
             @foreach($errors->all() as $error)
@@ -268,7 +268,9 @@
                         <img src="{{ asset('storage/' . $event->image_path) }}"
                              alt="{{ $event->name }}" class="event-img group-hover:scale-105 transition-transform duration-500" />
                     @else
-                        <div class="event-img-placeholder group-hover:scale-105 transition-transform duration-500">🌿</div>
+                        <div class="event-img-placeholder group-hover:scale-105 transition-transform duration-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                        </div>
                     @endif
                     
                     {{-- Gamification Badge: Points/Reward Indicator --}}
@@ -601,7 +603,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
             <img id="detail-image" src="" alt="" class="w-full h-full object-cover hidden">
-            <div id="detail-placeholder" class="text-5xl hidden">🌿</div>
+            <div id="detail-placeholder" class="text-5xl hidden"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
         </div>
         <div class="p-6">
             <div class="flex items-start justify-between gap-4 mb-4">
