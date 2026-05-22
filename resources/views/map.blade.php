@@ -45,12 +45,19 @@
                     <span id="filterDot" class="hidden"></span>
                 </button>
                 <div id="filterDropdown" class="hidden">
-                    <p>Filter Status</p>
-                    <ul>
-                        <li data-value="all" class="active">Semua</li>
-                        <li data-value="green">🟢 Sangat Terjaga</li>
-                        <li data-value="yellow">🟡 Terjaga</li>
-                        <li data-value="red">🔴 Perlu Perhatian</li>
+                    <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Status</p>
+                    <ul id="statusFilterList">
+                        <li data-value="all" class="active">Semua Status</li>
+                        <li data-value="green" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Sangat Terjaga</li>
+                        <li data-value="yellow" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Terjaga</li>
+                        <li data-value="red" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Perlu Perhatian</li>
+                    </ul>
+                    <hr style="border:none; border-top:1px solid #e2e8f0; margin:10px 0;">
+                    <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Tipe</p>
+                    <ul id="typeFilterList">
+                        <li data-value="all" class="active">Semua Tipe</li>
+                        <li data-value="wisata" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Destinasi Wisata</li>
+                        <li data-value="lingkungan" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Kondisi Lingkungan</li>
                     </ul>
                 </div>
             </div>
@@ -181,30 +188,79 @@
         // 6. Render Markers dari Database
         let searchableFeatures = [];
 
-        function buildPopupWithWeather(lat, lng, layerObj, item, color) {
+        // --- Helper: tentukan apakah ini wisata atau kondisi lingkungan ---
+        function isWisata(item) {
+            if (item.category === 'Destinasi Wisata') return true;
+            if (item.category === 'Kondisi Lingkungan') return false;
+            // fallback berdasarkan shape_type
+            return item.shape_type === 'Marker';
+        }
+
+        // --- Popup untuk Destinasi Wisata (Pinpoint) ---
+        function buildPinpointPopup(lat, lng, layerObj, item, color) {
+            const scoreHtml = item.eco_health_score
+                ? `<div style="display:flex;align-items:center;gap:6px;margin:6px 0 8px;">
+                    <span style="font-size:18px;font-weight:900;color:#065f46;">${parseFloat(item.eco_health_score).toFixed(1)}</span>
+                    <span style="font-size:10px;color:#059669;font-weight:700;letter-spacing:0.5px;">ECO SCORE</span>
+                  </div>`
+                : '';
+
+            const buildHTML = (weatherLine) => `
+                <div style="padding:10px 12px;min-width:200px;max-width:260px;">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:800;letter-spacing:0.8px;background:#d1fae5;color:#065f46;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> DESTINASI WISATA</span>
+                    </div>
+                    <h3 style="margin:0 0 3px 0;font-size:14px;font-weight:800;color:#1e293b;line-height:1.3;">${item.title || '(Tanpa Judul)'}</h3>
+                    ${item.location_name ? `<p style="margin:0 0 6px;font-size:11px;color:#10b981;font-weight:600;display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${item.location_name}</p>` : ''}
+                    ${scoreHtml}
+                    <p style="margin:0 0 8px;font-size:11px;color:#64748b;line-height:1.5;">${(item.description||'').substring(0,120)}${(item.description||'').length>120?'…':''}</p>
+                    ${weatherLine ? `<div style="padding:6px 8px;border-radius:8px;background:#f0f9ff;font-size:11px;color:#0ea5e9;font-weight:600;margin-bottom:8px;">${weatherLine}</div>` : ''}
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        ${isAdmin ? `<a href="/admin/markers/${item.id}/edit" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;background:#059669;color:#fff;text-decoration:none;">Edit</a>` : ''}
+                        <a href="/markers/${item.id}" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;background:#1e293b;color:#fff;text-decoration:none;">Lihat Detail</a>
+                        <span style="padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;background:${color};color:#fff;">${(item.status||'green').toUpperCase()}</span>
+                    </div>
+                </div>`;
+
             fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
                 .then(r => r.json())
                 .then(data => {
                     const temp = data.current_weather.temperature;
                     const wind = data.current_weather.windspeed;
-                    layerObj.bindPopup(popupHTML(item, color, `Suhu: ${temp}°C | Angin: ${wind} km/j`));
+                    layerObj.bindPopup(buildHTML(`<span style="display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg> ${temp}°C &nbsp;|&nbsp; <svg style="margin:left:4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg> ${wind} km/j</span>`), { minWidth: 220, maxWidth: 280 });
                 })
-                .catch(() => {
-                    layerObj.bindPopup(popupHTML(item, color, null));
-                });
+                .catch(() => layerObj.bindPopup(buildHTML(null), { minWidth: 220, maxWidth: 280 }));
         }
 
-        function popupHTML(item, color, weatherLine) {
-            return `
-                <div style="padding:8px; min-width:180px;">
-                    <h3 style="margin:0 0 4px 0; font-size:14px; font-weight:800; color:#1e293b;">${item.title || '(Tanpa Judul)'}</h3>
-                    <p style="margin:0 0 8px 0; font-size:11px; color:#64748b;">${item.description || ''}</p>
-                    ${weatherLine ? `<div style="padding-top:8px; border-top:1px solid #e2e8f0; font-size:11px; color:#0ea5e9; font-weight:bold;">${weatherLine}</div>` : ''}
-                    ${isAdmin ? `<a href="/admin/markers/${item.id}/edit" style="display:inline-block; margin-top:6px; margin-right:4px; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; background:#059669; color:#fff; text-decoration:none;">Edit</a>` : ''}
-                    <a href="/markers/${item.id}" style="display:inline-block; margin-top:6px; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; background:#1e293b; color:#fff; text-decoration:none;">Detail Info</a>
-                    <span style="display:inline-block; margin-top:6px; padding:2px 8px; border-radius:9999px; font-size:10px; font-weight:700; background:${color}; color:#fff;">${item.status.toUpperCase()}</span>
+        // --- Popup untuk Kondisi Lingkungan (Shape) ---
+        function buildEnvPopup(lat, lng, layerObj, item, color, shapeLabel) {
+            const buildHTML = (weatherLine) => `
+                <div style="padding:10px 12px;min-width:200px;max-width:260px;">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:800;letter-spacing:0.8px;background:#dbeafe;color:#1d4ed8;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> KONDISI LINGKUNGAN</span>
+                        <span style="font-size:9px;font-weight:700;color:#94a3b8;">${shapeLabel}</span>
+                    </div>
+                    <h3 style="margin:0 0 3px 0;font-size:14px;font-weight:800;color:#1e293b;line-height:1.3;">${item.title || '(Tanpa Judul)'}</h3>
+                    ${item.location_name ? `<p style="margin:0 0 6px;font-size:11px;color:#64748b;font-weight:600;display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${item.location_name}</p>` : ''}
+                    <p style="margin:0 0 8px;font-size:11px;color:#64748b;line-height:1.5;">${(item.description||'').substring(0,120)}${(item.description||'').length>120?'…':''}</p>
+                    ${weatherLine ? `<div style="padding:6px 8px;border-radius:8px;background:#f0f9ff;font-size:11px;color:#0ea5e9;font-weight:600;margin-bottom:8px;">${weatherLine}</div>` : ''}
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                        <span style="padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;background:${color};color:#fff;">${(item.status||'green').toUpperCase()}</span>
+                        ${isAdmin ? `<a href="/admin/markers/${item.id}/edit" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;background:#059669;color:#fff;text-decoration:none;">Edit</a>` : ''}
+                    </div>
                 </div>`;
+
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+                .then(r => r.json())
+                .then(data => {
+                    const temp = data.current_weather.temperature;
+                    const wind = data.current_weather.windspeed;
+                    layerObj.bindPopup(buildHTML(`<span style="display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg> ${temp}°C &nbsp;|&nbsp; <svg style="margin:left:4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg> ${wind} km/j</span>`), { minWidth: 220, maxWidth: 280 });
+                })
+                .catch(() => layerObj.bindPopup(buildHTML(null), { minWidth: 220, maxWidth: 280 }));
         }
+
+        const shapeLabels = { Polygon: 'Area', Rectangle: 'Area Kotak', Circle: 'Lingkaran', Line: 'Garis', Polyline: 'Garis' };
 
         savedMarkers.forEach(item => {
             let coordinates;
@@ -221,10 +277,12 @@
             if (item.status === 'yellow') color = '#f59e0b';
             if (item.status === 'red')    color = '#ef4444';
 
-            const shapeType = item.shape_type;
+            const shapeType  = item.shape_type;
+            const itemIsWisata = isWisata(item);
             let layer;
 
             if (shapeType === 'Marker') {
+                // Pinpoint — Destinasi Wisata
                 const customIcon = L.divIcon({
                     className: '',
                     html: `<div class="custom-marker-wrapper"><div class="custom-marker" style="background-color:${color};"></div></div>`,
@@ -232,26 +290,44 @@
                     iconAnchor: [17, 38],
                 });
                 layer = L.marker([coordinates[0], coordinates[1]], { icon: customIcon }).addTo(map);
-                buildPopupWithWeather(coordinates[0], coordinates[1], layer, item, color);
+                buildPinpointPopup(coordinates[0], coordinates[1], layer, item, color);
 
             } else if (shapeType === 'Circle') {
+                // Lingkaran — Kondisi Lingkungan
                 layer = L.circle([coordinates[0], coordinates[1]], {
                     radius: item.radius || 500,
-                    color, fillColor: color, fillOpacity: 0.25, weight: 2
+                    color,
+                    fillColor: color,
+                    fillOpacity: 0.20,
+                    weight: 2.5,
+                    dashArray: '6 4'
                 }).addTo(map);
-                buildPopupWithWeather(coordinates[0], coordinates[1], layer, item, color);
+                buildEnvPopup(coordinates[0], coordinates[1], layer, item, color, 'Lingkaran');
 
             } else if (shapeType === 'Polygon' || shapeType === 'Rectangle') {
+                // Area — Kondisi Lingkungan
                 const latlngs = coordinates.map(c => [c[0], c[1]]);
-                layer = L.polygon(latlngs, { color, fillColor: color, fillOpacity: 0.25, weight: 2 }).addTo(map);
+                layer = L.polygon(latlngs, {
+                    color,
+                    fillColor: color,
+                    fillOpacity: 0.18,
+                    weight: 2.5,
+                    dashArray: '6 4'
+                }).addTo(map);
                 const center = layer.getBounds().getCenter();
-                buildPopupWithWeather(center.lat, center.lng, layer, item, color);
+                buildEnvPopup(center.lat, center.lng, layer, item, color, shapeLabels[shapeType] || 'Area');
 
             } else if (shapeType === 'Line' || shapeType === 'Polyline') {
+                // Garis — Kondisi Lingkungan
                 const latlngs = coordinates.map(c => [c[0], c[1]]);
-                layer = L.polyline(latlngs, { color, weight: 3 }).addTo(map);
+                layer = L.polyline(latlngs, {
+                    color,
+                    weight: 4,
+                    dashArray: '10 6',
+                    opacity: 0.85
+                }).addTo(map);
                 const midIdx = Math.floor(latlngs.length / 2);
-                buildPopupWithWeather(latlngs[midIdx][0], latlngs[midIdx][1], layer, item, color);
+                buildEnvPopup(latlngs[midIdx][0], latlngs[midIdx][1], layer, item, color, 'Garis');
             }
 
             if (layer) {
@@ -261,6 +337,7 @@
                     description: item.description || '',
                     status:      item.status || 'green',
                     type:        shapeType,
+                    subtype:     itemIsWisata ? 'wisata' : 'lingkungan',
                     center:      shapeType === 'Marker' ? [coordinates[0], coordinates[1]] : layer.getBounds().getCenter()
                 });
             }
@@ -434,46 +511,57 @@
             }
         });
 
-        // 7. Filter Berdasarkan Status
+        // 7. Filter Berdasarkan Status & Tipe
         const filterToggleBtn  = document.getElementById('filterToggleBtn');
         const filterDropdown   = document.getElementById('filterDropdown');
         const filterDot        = document.getElementById('filterDot');
-        const filterItems      = filterDropdown.querySelectorAll('li');
-        let   activeFilter     = 'all';
+        const statusFilterItems = document.querySelectorAll('#statusFilterList li');
+        const typeFilterItems   = document.querySelectorAll('#typeFilterList li');
+        let   activeStatusFilter = 'all';
+        let   activeTypeFilter   = 'all';
+
+        function applyFilters() {
+            searchableFeatures.forEach(feature => {
+                const statusMatch = activeStatusFilter === 'all' || feature.status === activeStatusFilter;
+                const typeMatch   = activeTypeFilter   === 'all' || feature.subtype === activeTypeFilter;
+
+                if (statusMatch && typeMatch) {
+                    if (!map.hasLayer(feature.layer)) feature.layer.addTo(map);
+                } else {
+                    if (map.hasLayer(feature.layer)) map.removeLayer(feature.layer);
+                }
+            });
+
+            // Dot indicator: aktif jika salah satu filter bukan 'all'
+            if (activeStatusFilter !== 'all' || activeTypeFilter !== 'all') {
+                filterDot.classList.remove('hidden');
+            } else {
+                filterDot.classList.add('hidden');
+            }
+        }
 
         filterToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             filterDropdown.classList.toggle('hidden');
-            // Close search results if open
             searchResults.classList.add('hidden');
         });
 
-        filterItems.forEach(item => {
+        statusFilterItems.forEach(item => {
             item.addEventListener('click', () => {
-                filterItems.forEach(i => i.classList.remove('active'));
+                statusFilterItems.forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
-                activeFilter = item.getAttribute('data-value');
+                activeStatusFilter = item.getAttribute('data-value');
+                applyFilters();
+                filterDropdown.classList.add('hidden');
+            });
+        });
 
-                // Show/hide dot indicator
-                if (activeFilter !== 'all') {
-                    filterDot.classList.remove('hidden');
-                } else {
-                    filterDot.classList.add('hidden');
-                }
-
-                // Apply filter on searchableFeatures
-                searchableFeatures.forEach(feature => {
-                    if (activeFilter === 'all' || feature.status === activeFilter) {
-                        if (!map.hasLayer(feature.layer)) {
-                            feature.layer.addTo(map);
-                        }
-                    } else {
-                        if (map.hasLayer(feature.layer)) {
-                            map.removeLayer(feature.layer);
-                        }
-                    }
-                });
-
+        typeFilterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                typeFilterItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                activeTypeFilter = item.getAttribute('data-value');
+                applyFilters();
                 filterDropdown.classList.add('hidden');
             });
         });

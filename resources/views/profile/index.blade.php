@@ -114,11 +114,11 @@
                                     
                                     <div class="mt-4 grid gap-3 sm:grid-cols-3 text-sm">
                                         <div class="flex items-center gap-2 text-slate-600">
-                                            <span class="font-semibold">📍 Lokasi:</span>
+                                            <span class="font-semibold flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Lokasi:</span>
                                             <span>{{ $event->location ?? 'Lokasi tidak tersedia' }}</span>
                                         </div>
                                         <div class="flex items-center gap-2 text-slate-600">
-                                            <span class="font-semibold">📅 Tanggal:</span>
+                                            <span class="font-semibold flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Tanggal:</span>
                                             <span>{{ $event->event_date->format('d M Y') ?? 'Tanggal tidak tersedia' }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
@@ -148,7 +148,7 @@
             @else
                 <div class="mt-8 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center">
                     <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-2xl text-emerald-700">
-                        🌿
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
                     </div>
                     <p class="mt-6 text-sm font-semibold text-slate-900">Belum ada aksi yang diikuti.</p>
                     <p class="mt-2 text-sm text-slate-500">Jelajahi aksi lingkungan dan kumpulkan poin eco untuk naik level.</p>
