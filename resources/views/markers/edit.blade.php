@@ -23,12 +23,12 @@
                 $isWisataEdit = ($marker->category === 'Destinasi Wisata') || ($marker->shape_type === 'Marker' && $marker->category !== 'Kondisi Lingkungan');
             @endphp
             @if($isWisataEdit)
-                <span class="inline-flex items-center gap-1 mt-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-                    📍 Destinasi Wisata
+                <span class="inline-flex items-center gap-1.5 mt-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Destinasi Wisata
                 </span>
             @else
-                <span class="inline-flex items-center gap-1 mt-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
-                    🌿 Kondisi Lingkungan
+                <span class="inline-flex items-center gap-1.5 mt-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Kondisi Lingkungan
                 </span>
             @endif
         </div>
@@ -73,9 +73,9 @@
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Status</label>
                         <select name="status" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm">
-                            <option value="green" {{ $marker->status === 'green' ? 'selected' : '' }}>🟢 Aman (Hijau)</option>
-                            <option value="yellow" {{ $marker->status === 'yellow' ? 'selected' : '' }}>🟡 Waspada (Kuning)</option>
-                            <option value="red" {{ $marker->status === 'red' ? 'selected' : '' }}>🔴 Bahaya (Merah)</option>
+                            <option value="green" {{ $marker->status === 'green' ? 'selected' : '' }}>Aman (Hijau)</option>
+                            <option value="yellow" {{ $marker->status === 'yellow' ? 'selected' : '' }}>Waspada (Kuning)</option>
+                            <option value="red" {{ $marker->status === 'red' ? 'selected' : '' }}>Bahaya (Merah)</option>
                         </select>
                     </div>
                     <div>

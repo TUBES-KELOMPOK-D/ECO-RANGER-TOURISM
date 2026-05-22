@@ -44,13 +44,13 @@
             <div class="grid grid-cols-2 gap-3" id="entry-type-picker">
                 <button type="button" id="btn-wisata" onclick="setEntryType('wisata')"
                     class="entry-type-btn active-entry flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 transition-all">
-                    <span class="text-2xl">📍</span>
+                    <span class="text-emerald-600 mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
                     <span class="text-sm font-bold text-emerald-700">Destinasi Wisata</span>
                     <span class="text-xs text-emerald-600 text-center">Pinpoint lokasi wisata alam</span>
                 </button>
                 <button type="button" id="btn-lingkungan" onclick="setEntryType('lingkungan')"
                     class="entry-type-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 bg-slate-50 transition-all">
-                    <span class="text-2xl">🌿</span>
+                    <span class="text-slate-500 mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span>
                     <span class="text-sm font-bold text-slate-600">Kondisi Lingkungan</span>
                     <span class="text-xs text-slate-500 text-center">Area/garis kondisi ekologi</span>
                 </button>
@@ -86,9 +86,9 @@
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Status</label>
                         <select name="status" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm">
-                            <option value="green" {{ old('status') === 'green' ? 'selected' : '' }}>🟢 Aman (Hijau)</option>
-                            <option value="yellow" {{ old('status') === 'yellow' ? 'selected' : '' }}>🟡 Waspada (Kuning)</option>
-                            <option value="red" {{ old('status') === 'red' ? 'selected' : '' }}>🔴 Bahaya (Merah)</option>
+                            <option value="green" {{ old('status') === 'green' ? 'selected' : '' }}>Aman (Hijau)</option>
+                            <option value="yellow" {{ old('status') === 'yellow' ? 'selected' : '' }}>Waspada (Kuning)</option>
+                            <option value="red" {{ old('status') === 'red' ? 'selected' : '' }}>Bahaya (Merah)</option>
                         </select>
                     </div>
                     <div>
@@ -120,11 +120,11 @@
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Bentuk (Shape Type)</label>
                         <select name="shape_type" id="shape_type" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition text-sm">
-                            <option value="Marker" {{ old('shape_type') === 'Marker' ? 'selected' : '' }}>📍 Marker (Titik)</option>
-                            <option value="Polygon" {{ old('shape_type') === 'Polygon' ? 'selected' : '' }} class="env-shape-option">🔷 Polygon (Area Bebas)</option>
-                            <option value="Rectangle" {{ old('shape_type') === 'Rectangle' ? 'selected' : '' }} class="env-shape-option">⬛ Rectangle (Area Kotak)</option>
-                            <option value="Circle" {{ old('shape_type') === 'Circle' ? 'selected' : '' }} class="env-shape-option">🔵 Circle (Lingkaran)</option>
-                            <option value="Polyline" {{ old('shape_type') === 'Polyline' ? 'selected' : '' }} class="env-shape-option">〰️ Polyline (Garis)</option>
+                            <option value="Marker" {{ old('shape_type') === 'Marker' ? 'selected' : '' }}>Marker (Titik)</option>
+                            <option value="Polygon" {{ old('shape_type') === 'Polygon' ? 'selected' : '' }} class="env-shape-option">Polygon (Area Bebas)</option>
+                            <option value="Rectangle" {{ old('shape_type') === 'Rectangle' ? 'selected' : '' }} class="env-shape-option">Rectangle (Area Kotak)</option>
+                            <option value="Circle" {{ old('shape_type') === 'Circle' ? 'selected' : '' }} class="env-shape-option">Circle (Lingkaran)</option>
+                            <option value="Polyline" {{ old('shape_type') === 'Polyline' ? 'selected' : '' }} class="env-shape-option">Polyline (Garis)</option>
                         </select>
                     </div>
                     <div>

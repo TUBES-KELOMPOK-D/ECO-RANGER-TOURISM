@@ -45,20 +45,19 @@
                     <span id="filterDot" class="hidden"></span>
                 </button>
                 <div id="filterDropdown" class="hidden">
-                    <p>Filter Status</p>
-                    <p>Filter Status</p>
+                    <p>Status</p>
                     <ul id="statusFilterList">
                         <li data-value="all" class="active">Semua Status</li>
-                        <li data-value="green">🟢 Sangat Terjaga</li>
-                        <li data-value="yellow">🟡 Terjaga</li>
-                        <li data-value="red">🔴 Perlu Perhatian</li>
+                        <li data-value="green" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Sangat Terjaga</li>
+                        <li data-value="yellow" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Terjaga</li>
+                        <li data-value="red" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Perlu Perhatian</li>
                     </ul>
                     <hr style="border:none; border-top:1px solid #e2e8f0; margin:10px 0;">
-                    <p>Filter Tipe</p>
+                    <p>Tipe</p>
                     <ul id="typeFilterList">
                         <li data-value="all" class="active">Semua Tipe</li>
-                        <li data-value="wisata">📍 Destinasi Wisata</li>
-                        <li data-value="lingkungan">🌿 Kondisi Lingkungan</li>
+                        <li data-value="wisata" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Destinasi Wisata</li>
+                        <li data-value="lingkungan" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Kondisi Lingkungan</li>
                     </ul>
                 </div>
             </div>
@@ -209,10 +208,10 @@
             const buildHTML = (weatherLine) => `
                 <div style="padding:10px 12px;min-width:200px;max-width:260px;">
                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                        <span style="display:inline-block;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:800;letter-spacing:0.8px;background:#d1fae5;color:#065f46;">📍 DESTINASI WISATA</span>
+                        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:800;letter-spacing:0.8px;background:#d1fae5;color:#065f46;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> DESTINASI WISATA</span>
                     </div>
                     <h3 style="margin:0 0 3px 0;font-size:14px;font-weight:800;color:#1e293b;line-height:1.3;">${item.title || '(Tanpa Judul)'}</h3>
-                    ${item.location_name ? `<p style="margin:0 0 6px;font-size:11px;color:#10b981;font-weight:600;">📌 ${item.location_name}</p>` : ''}
+                    ${item.location_name ? `<p style="margin:0 0 6px;font-size:11px;color:#10b981;font-weight:600;display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${item.location_name}</p>` : ''}
                     ${scoreHtml}
                     <p style="margin:0 0 8px;font-size:11px;color:#64748b;line-height:1.5;">${(item.description||'').substring(0,120)}${(item.description||'').length>120?'…':''}</p>
                     ${weatherLine ? `<div style="padding:6px 8px;border-radius:8px;background:#f0f9ff;font-size:11px;color:#0ea5e9;font-weight:600;margin-bottom:8px;">${weatherLine}</div>` : ''}
@@ -228,7 +227,7 @@
                 .then(data => {
                     const temp = data.current_weather.temperature;
                     const wind = data.current_weather.windspeed;
-                    layerObj.bindPopup(buildHTML(`🌡️ ${temp}°C &nbsp;|&nbsp; 🌬️ ${wind} km/j`), { minWidth: 220, maxWidth: 280 });
+                    layerObj.bindPopup(buildHTML(`<span style="display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg> ${temp}°C &nbsp;|&nbsp; <svg style="margin:left:4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg> ${wind} km/j</span>`), { minWidth: 220, maxWidth: 280 });
                 })
                 .catch(() => layerObj.bindPopup(buildHTML(null), { minWidth: 220, maxWidth: 280 }));
         }
@@ -238,11 +237,11 @@
             const buildHTML = (weatherLine) => `
                 <div style="padding:10px 12px;min-width:200px;max-width:260px;">
                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                        <span style="display:inline-block;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:800;letter-spacing:0.8px;background:#dbeafe;color:#1d4ed8;">🌿 KONDISI LINGKUNGAN</span>
+                        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:800;letter-spacing:0.8px;background:#dbeafe;color:#1d4ed8;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> KONDISI LINGKUNGAN</span>
                         <span style="font-size:9px;font-weight:700;color:#94a3b8;">${shapeLabel}</span>
                     </div>
                     <h3 style="margin:0 0 3px 0;font-size:14px;font-weight:800;color:#1e293b;line-height:1.3;">${item.title || '(Tanpa Judul)'}</h3>
-                    ${item.location_name ? `<p style="margin:0 0 6px;font-size:11px;color:#64748b;font-weight:600;">📌 ${item.location_name}</p>` : ''}
+                    ${item.location_name ? `<p style="margin:0 0 6px;font-size:11px;color:#64748b;font-weight:600;display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${item.location_name}</p>` : ''}
                     <p style="margin:0 0 8px;font-size:11px;color:#64748b;line-height:1.5;">${(item.description||'').substring(0,120)}${(item.description||'').length>120?'…':''}</p>
                     ${weatherLine ? `<div style="padding:6px 8px;border-radius:8px;background:#f0f9ff;font-size:11px;color:#0ea5e9;font-weight:600;margin-bottom:8px;">${weatherLine}</div>` : ''}
                     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
@@ -256,7 +255,7 @@
                 .then(data => {
                     const temp = data.current_weather.temperature;
                     const wind = data.current_weather.windspeed;
-                    layerObj.bindPopup(buildHTML(`🌡️ ${temp}°C &nbsp;|&nbsp; 🌬️ ${wind} km/j`), { minWidth: 220, maxWidth: 280 });
+                    layerObj.bindPopup(buildHTML(`<span style="display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg> ${temp}°C &nbsp;|&nbsp; <svg style="margin:left:4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg> ${wind} km/j</span>`), { minWidth: 220, maxWidth: 280 });
                 })
                 .catch(() => layerObj.bindPopup(buildHTML(null), { minWidth: 220, maxWidth: 280 }));
         }
