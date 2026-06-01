@@ -44,19 +44,40 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Lokasi Kejadian</label>
-                        <button type="button" onclick="saveDraftAndNavigateToMap()" class="w-full text-left rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-700 flex items-center gap-3 hover:border-emerald-300 transition">
-                            <span class="inline-flex w-10 h-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                            </span>
-                            <span id="locationLabel">{{ $selectedLocation ? $selectedLocation : 'Pilih lokasi di peta' }}</span>
-                        </button>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Pilih Lokasi di Peta</label>
+                        <p class="text-xs text-slate-400 mb-2">
+                            Gunakan toolbar di pojok kiri atas peta untuk menandai lokasi kejadian atau gunakan lokasi saat ini.
+                        </p>
+                        
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" id="get-location-btn" class="inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-200 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                Gunakan Lokasi Saya
+                            </button>
+                        </div>
+
+                        {{-- Map Container --}}
+                        <div id="coord-map" class="w-full rounded-2xl border border-slate-300 overflow-hidden" style="height: 350px; z-index: 0;"></div>
+
+                        {{-- Coordinate Preview --}}
+                        <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-semibold text-slate-600">Koordinat Terpilih</span>
+                                <button type="button" id="clear-shape-btn" class="text-xs text-red-500 hover:text-red-700 font-semibold transition hidden">
+                                    Hapus Penanda
+                                </button>
+                            </div>
+                            <code id="coord-preview" class="text-xs text-emerald-700 break-all">
+                                <span class="text-slate-400 italic">Belum ada koordinat dipilih...</span>
+                            </code>
+                        </div>
+                        
                         @error('latitude')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
                         @error('longitude')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
 
-                    <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude', $latitude) }}" />
-                    <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude', $longitude) }}" />
+                    <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude', $latitude ?? '') }}" />
+                    <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude', $longitude ?? '') }}" />
 
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Kategori Masalah</label>
@@ -97,7 +118,21 @@
 </div>
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.16.0/dist/leaflet-geoman.css" />
+<style>
+    /* Fix leaflet z-index inside form card */
+    #coord-map { position: relative; }
+    .leaflet-pane, .leaflet-control { z-index: 1 !important; }
+    .leaflet-top, .leaflet-bottom { z-index: 2 !important; }
+    .leaflet-pm-toolbar .leaflet-pm-icon-marker { filter: hue-rotate(130deg); }
+</style>
+@endpush
+
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.16.0/dist/leaflet-geoman.min.js"></script>
 <script>
     const storageKey = 'ecoReporterDraft';
     const photoInput = document.getElementById('photoInput');
@@ -107,7 +142,6 @@
     const descriptionField = document.querySelector('[name="description"]');
     const latitudeField = document.getElementById('latitude');
     const longitudeField = document.getElementById('longitude');
-    const locationLabel = document.getElementById('locationLabel');
     const form = document.getElementById('ecoReporterForm');
 
     function loadDraft() {
@@ -121,9 +155,6 @@
             if (draft.description && !descriptionField.value) descriptionField.value = draft.description;
             if (draft.latitude && !latitudeField.value) latitudeField.value = draft.latitude;
             if (draft.longitude && !longitudeField.value) longitudeField.value = draft.longitude;
-            if (draft.location && locationLabel) {
-                locationLabel.textContent = draft.location;
-            }
         } catch (error) {
             console.warn('Gagal memuat draft Eco-Reporter:', error);
         }
@@ -135,20 +166,13 @@
             category: categoryField.value || '',
             description: descriptionField.value || '',
             latitude: latitudeField.value || '',
-            longitude: longitudeField.value || '',
-            location: locationLabel ? locationLabel.textContent : ''
+            longitude: longitudeField.value || ''
         };
         localStorage.setItem(storageKey, JSON.stringify(draft));
     }
 
     function clearDraft() {
         localStorage.removeItem(storageKey);
-    }
-
-    function saveDraftAndNavigateToMap() {
-        saveDraft();
-        const returnTo = '{{ route('reports.create') }}';
-        window.location.href = '/?select_location=1&return_to=' + encodeURIComponent(returnTo);
     }
 
     photoInput.addEventListener('change', function() {
@@ -188,6 +212,130 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         loadDraft();
+        
+        /* ─── Map Initialization ───────────────────────── */
+        const map = L.map('coord-map', { center: [-6.5971, 106.8060], zoom: 10 });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+        }).addTo(map);
+
+        setTimeout(() => map.invalidateSize(), 200);
+
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+        const coordPreview = document.getElementById('coord-preview');
+        const clearBtn = document.getElementById('clear-shape-btn');
+        let drawnLayer = null;
+
+        function setCoord(lat, lng) {
+            latInput.value = lat;
+            lngInput.value = lng;
+            coordPreview.textContent = `[${lat}, ${lng}]`;
+            clearBtn.classList.remove('hidden');
+        }
+
+        function clearCoord() {
+            latInput.value = '';
+            lngInput.value = '';
+            coordPreview.innerHTML = '<span class="text-slate-400 italic">Belum ada koordinat dipilih...</span>';
+            clearBtn.classList.add('hidden');
+        }
+
+        function removeCurrentLayer() {
+            if (drawnLayer) {
+                map.removeLayer(drawnLayer);
+                drawnLayer = null;
+            }
+        }
+
+        map.pm.addControls({
+            position: 'topleft',
+            drawMarker: true,
+            drawPolyline: false,
+            drawPolygon: false,
+            drawRectangle: false,
+            drawCircle: false,
+            drawCircleMarker: false,
+            drawText: false,
+            editMode: true,
+            dragMode: false,
+            cutPolygon: false,
+            removalMode: false,
+        });
+
+        function createMarker(lat, lng) {
+            removeCurrentLayer();
+            drawnLayer = L.marker([lat, lng], { pmIgnore: false }).addTo(map);
+            setCoord(lat, lng);
+            
+            drawnLayer.on('pm:edit', function () {
+                const pos = drawnLayer.getLatLng();
+                setCoord(pos.lat, pos.lng);
+            });
+            drawnLayer.on('pm:drag', function () {
+                 const pos = drawnLayer.getLatLng();
+                 setCoord(pos.lat, pos.lng);
+            });
+        }
+
+        map.on('pm:create', function (e) {
+            removeCurrentLayer();
+            drawnLayer = e.layer;
+            const latlng = e.layer.getLatLng();
+            setCoord(latlng.lat, latlng.lng);
+
+            e.layer.on('pm:edit', function () {
+                const pos = e.layer.getLatLng();
+                setCoord(pos.lat, pos.lng);
+            });
+        });
+
+        clearBtn.addEventListener('click', function () {
+            removeCurrentLayer();
+            clearCoord();
+        });
+
+        /* ─── Geolocation ────────────────────────────── */
+        document.getElementById('get-location-btn').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                const btn = this;
+                btn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Mengambil lokasi...';
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], 15);
+                    createMarker(lat, lng);
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Lokasi Ditemukan';
+                }, function(error) {
+                    alert('Gagal mendapatkan lokasi. Pastikan GPS aktif dan izin diberikan browser.');
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Gunakan Lokasi Saya';
+                });
+            } else {
+                alert('Geolocation tidak didukung oleh browser ini.');
+            }
+        });
+        
+        // Restore existing coordinates if available (from old input or draft)
+        setTimeout(() => {
+            if (latInput.value && lngInput.value) {
+                const lat = parseFloat(latInput.value);
+                const lng = parseFloat(lngInput.value);
+                map.setView([lat, lng], 15);
+                createMarker(lat, lng);
+            }
+        }, 500);
+        
+        // Form submit validation map
+        form.addEventListener('submit', function(e) {
+            if (!latInput.value || !lngInput.value) {
+                e.preventDefault();
+                alert('! Harap pilih lokasi di peta terlebih dahulu.');
+                document.getElementById('coord-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                clearDraft();
+            }
+        });
     });
 </script>
 @endpush
