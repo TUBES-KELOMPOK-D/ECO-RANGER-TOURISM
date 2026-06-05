@@ -1,4 +1,5 @@
-<nav class="sticky top-0 z-[100] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 font-sans w-full">
+@props(['isMap' => false])
+<nav class="{{ $isMap ? 'absolute top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl rounded-full shadow-lg z-[1000] bg-white/90 backdrop-blur-xl border border-white/40' : 'sticky top-0 z-[100] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 w-full' }} font-sans">
     <div class="w-full px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20 items-center">
             
@@ -81,7 +82,7 @@
         </div>
     </div>
 
-    <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-100 shadow-xl absolute w-full left-0 transition-all">
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-xl absolute w-full left-0 transition-all {{ $isMap ? 'rounded-2xl mt-2 border border-slate-100' : 'border-b border-slate-100' }}">
         <div class="px-4 pt-2 pb-6 space-y-1">
             @if(!request()->is('login') && !request()->is('register'))
                 <a href="/" class="flex items-center gap-4 w-full p-4 rounded-2xl transition-all font-bold decoration-transparent {{ request()->is('/') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50' }}">
