@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@yield('title', 'Eco Ranger Tourism')</title>
+    <!-- Turbo.js for SPA-like navigation speed -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/+esm"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
