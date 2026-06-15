@@ -247,33 +247,38 @@
 
             <div class="pt-3 mt-2 border-t border-slate-100 space-y-1">
                 @auth
-                    <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 mb-2">
-                        <div class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shrink-0 {{ auth()->user()->role === 'admin' ? 'bg-slate-900 text-white' : 'bg-emerald-100 text-emerald-700' }}">
-                            @if(auth()->user()->role === 'admin')
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            @elseif(auth()->user()->photo)
-                                <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Foto" class="h-full w-full object-cover"/>
-                            @else
-                                <span class="text-xs font-black">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
-                            @endif
+                    <button id="mobile-profile-btn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 mb-2 hover:bg-slate-100 transition-all focus:outline-none">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shrink-0 {{ auth()->user()->role === 'admin' ? 'bg-slate-900 text-white' : 'bg-emerald-100 text-emerald-700' }}">
+                                @if(auth()->user()->role === 'admin')
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                @elseif(auth()->user()->photo)
+                                    <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Foto" class="h-full w-full object-cover"/>
+                                @else
+                                    <span class="text-xs font-black">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
+                                @endif
+                            </div>
+                            <div class="text-left">
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ auth()->user()->role }}</p>
+                                <p class="text-sm font-bold text-slate-800">{{ auth()->user()->name }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ auth()->user()->role }}</p>
-                            <p class="text-sm font-bold text-slate-800">{{ auth()->user()->name }}</p>
-                        </div>
-                    </div>
+                        <svg id="mobile-profile-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 transition-transform duration-200"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
 
-                    @if(auth()->user()->role === 'admin')
-                        <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-700 hover:bg-emerald-50 transition-all" style="text-decoration:none;">Panel Admin</a>
-                        <a href="{{ route('markers.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-700 hover:bg-emerald-50 transition-all" style="text-decoration:none;">Kelola Marker</a>
-                        <a href="/reports" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-700 hover:bg-emerald-50 transition-all" style="text-decoration:none;">Kelola Laporan</a>
-                        <a href="{{ route('admin.academy.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-700 hover:bg-emerald-50 transition-all" style="text-decoration:none;">Kelola Edukasi & Kuis</a>
-                    @elseif(auth()->user()->role === 'user')
-                        <a href="/profile" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50 transition-all" style="text-decoration:none;">Profil Saya</a>
-                        <a href="/reports" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50 transition-all" style="text-decoration:none;">Pantau Laporan</a>
-                    @endif
-                    <a href="/profile/settings" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50 transition-all" style="text-decoration:none;">Pengaturan</a>
-                    <form action="{{ route('logout') }}" method="POST">
+                    <div id="mobile-profile-menu" class="hidden space-y-1 pl-2 border-l-2 border-slate-100 ml-4 mb-2">
+                        @if(auth()->user()->role === 'admin')
+                            <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-700 hover:bg-emerald-50 transition-all" style="text-decoration:none;">Panel Admin</a>
+                            <a href="{{ route('markers.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-700 hover:bg-emerald-50 transition-all" style="text-decoration:none;">Kelola Marker</a>
+                            <a href="/reports" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-700 hover:bg-emerald-50 transition-all" style="text-decoration:none;">Kelola Laporan</a>
+                            <a href="{{ route('admin.academy.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-700 hover:bg-emerald-50 transition-all" style="text-decoration:none;">Kelola Edukasi & Kuis</a>
+                        @elseif(auth()->user()->role === 'user')
+                            <a href="/profile" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50 transition-all" style="text-decoration:none;">Profil Saya</a>
+                            <a href="/reports" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50 transition-all" style="text-decoration:none;">Pantau Laporan</a>
+                        @endif
+                        <a href="/profile/settings" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50 transition-all" style="text-decoration:none;">Pengaturan</a>
+                    </div>
+                    <form action="{{ route('logout') }}" method="POST" class="mt-2">
                         @csrf
                         <button type="submit" class="flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl font-semibold text-sm text-red-600 hover:bg-red-50 transition-all">Logout</button>
                     </form>
@@ -307,6 +312,30 @@
                 iconMenu.classList.toggle('block');
                 iconClose.classList.toggle('hidden');
                 iconClose.classList.toggle('block');
+                
+                const searchBar = document.getElementById('searchBar');
+                if (searchBar) {
+                    if (isOpen) {
+                        searchBar.classList.remove('hidden');
+                    } else {
+                        searchBar.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        const profileBtn = document.getElementById('mobile-profile-btn');
+        const profileMenu = document.getElementById('mobile-profile-menu');
+        const profileChevron = document.getElementById('mobile-profile-chevron');
+
+        if (profileBtn && profileMenu && profileChevron) {
+            profileBtn.addEventListener('click', () => {
+                profileMenu.classList.toggle('hidden');
+                if (!profileMenu.classList.contains('hidden')) {
+                    profileChevron.style.transform = 'rotate(180deg)';
+                } else {
+                    profileChevron.style.transform = 'rotate(0deg)';
+                }
             });
         }
     });
