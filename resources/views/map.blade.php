@@ -7,7 +7,6 @@
     <title>Peta — Eco Ranger Tourism</title>
 
     <!-- Turbo.js for SPA-like navigation speed -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/+esm"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -100,16 +99,12 @@
     <div id="map"></div>
 
     <script>
+    (function() {
         const isAdmin      = {{ auth()->check() && auth()->user()?->role === 'admin' ? 'true' : 'false' }};
         const savedMarkers = @json($markers);
         const csrfToken    = '{{ csrf_token() }}';
 
         // 1. Inisialisasi Peta
-        var mapContainer = L.DomUtil.get('map');
-        if (mapContainer != null) {
-            mapContainer._leaflet_id = null;
-        }
-
         const indonesiaBounds = [[-11.0, 94.0], [6.0, 142.0]];
 
         const map = L.map('map', {
@@ -654,6 +649,7 @@
                 }
             });
         });
+    })();
     </script>
 
 </body>

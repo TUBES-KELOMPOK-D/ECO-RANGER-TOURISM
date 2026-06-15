@@ -134,208 +134,212 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.16.0/dist/leaflet-geoman.min.js"></script>
 <script>
-    const storageKey = 'ecoReporterDraft';
-    const photoInput = document.getElementById('photoInput');
-    const photoInfo = document.getElementById('photoInfo');
-    const titleField = document.querySelector('[name="title"]');
-    const categoryField = document.querySelector('[name="category"]');
-    const descriptionField = document.querySelector('[name="description"]');
-    const latitudeField = document.getElementById('latitude');
-    const longitudeField = document.getElementById('longitude');
-    const form = document.getElementById('ecoReporterForm');
+    (function() {
+        const storageKey = 'ecoReporterDraft';
+        const photoInput = document.getElementById('photoInput');
+        const photoInfo = document.getElementById('photoInfo');
+        const titleField = document.querySelector('[name="title"]');
+        const categoryField = document.querySelector('[name="category"]');
+        const descriptionField = document.querySelector('[name="description"]');
+        const latitudeField = document.getElementById('latitude');
+        const longitudeField = document.getElementById('longitude');
+        const form = document.getElementById('ecoReporterForm');
 
-    function loadDraft() {
-        const saved = localStorage.getItem(storageKey);
-        if (!saved) return;
+        function loadDraft() {
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
 
-        try {
-            const draft = JSON.parse(saved);
-            if (draft.title && !titleField.value) titleField.value = draft.title;
-            if (draft.category && !categoryField.value) categoryField.value = draft.category;
-            if (draft.description && !descriptionField.value) descriptionField.value = draft.description;
-            if (draft.latitude && !latitudeField.value) latitudeField.value = draft.latitude;
-            if (draft.longitude && !longitudeField.value) longitudeField.value = draft.longitude;
-        } catch (error) {
-            console.warn('Gagal memuat draft Eco-Reporter:', error);
-        }
-    }
-
-    function saveDraft() {
-        const draft = {
-            title: titleField.value || '',
-            category: categoryField.value || '',
-            description: descriptionField.value || '',
-            latitude: latitudeField.value || '',
-            longitude: longitudeField.value || ''
-        };
-        localStorage.setItem(storageKey, JSON.stringify(draft));
-    }
-
-    function clearDraft() {
-        localStorage.removeItem(storageKey);
-    }
-
-    photoInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (!file) {
-            photoInfo.innerHTML = 'Tidak ada file dipilih.';
-            return;
-        }
-
-        if (!file.type.startsWith('image/')) {
-            photoInfo.innerHTML = 'Format file tidak valid. Mohon pilih gambar.';
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            photoInfo.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <img src="${event.target.result}" alt="Preview Foto" class="h-20 w-20 rounded-3xl object-cover border border-slate-200" />
-                    <div>
-                        <div class="font-semibold text-slate-900">${file.name}</div>
-                        <div class="text-slate-500 text-sm">${(file.size / 1024).toFixed(1)} KB</div>
-                    </div>
-                </div>
-            `;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    titleField.addEventListener('input', saveDraft);
-    categoryField.addEventListener('change', saveDraft);
-    descriptionField.addEventListener('input', saveDraft);
-
-    form.addEventListener('submit', function() {
-        clearDraft();
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        loadDraft();
-        
-        /* ─── Map Initialization ───────────────────────── */
-        const map = L.map('coord-map', { center: [-6.5971, 106.8060], zoom: 10 });
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19,
-        }).addTo(map);
-
-        setTimeout(() => map.invalidateSize(), 200);
-
-        const latInput = document.getElementById('latitude');
-        const lngInput = document.getElementById('longitude');
-        const coordPreview = document.getElementById('coord-preview');
-        const clearBtn = document.getElementById('clear-shape-btn');
-        let drawnLayer = null;
-
-        function setCoord(lat, lng) {
-            latInput.value = lat;
-            lngInput.value = lng;
-            coordPreview.textContent = `[${lat}, ${lng}]`;
-            clearBtn.classList.remove('hidden');
-        }
-
-        function clearCoord() {
-            latInput.value = '';
-            lngInput.value = '';
-            coordPreview.innerHTML = '<span class="text-slate-400 italic">Belum ada koordinat dipilih...</span>';
-            clearBtn.classList.add('hidden');
-        }
-
-        function removeCurrentLayer() {
-            if (drawnLayer) {
-                map.removeLayer(drawnLayer);
-                drawnLayer = null;
+            try {
+                const draft = JSON.parse(saved);
+                if (draft.title && !titleField.value) titleField.value = draft.title;
+                if (draft.category && !categoryField.value) categoryField.value = draft.category;
+                if (draft.description && !descriptionField.value) descriptionField.value = draft.description;
+                if (draft.latitude && !latitudeField.value) latitudeField.value = draft.latitude;
+                if (draft.longitude && !longitudeField.value) longitudeField.value = draft.longitude;
+            } catch (error) {
+                console.warn('Gagal memuat draft Eco-Reporter:', error);
             }
         }
 
-        map.pm.addControls({
-            position: 'topleft',
-            drawMarker: true,
-            drawPolyline: false,
-            drawPolygon: false,
-            drawRectangle: false,
-            drawCircle: false,
-            drawCircleMarker: false,
-            drawText: false,
-            editMode: true,
-            dragMode: false,
-            cutPolygon: false,
-            removalMode: false,
-        });
-
-        function createMarker(lat, lng) {
-            removeCurrentLayer();
-            drawnLayer = L.marker([lat, lng], { pmIgnore: false }).addTo(map);
-            setCoord(lat, lng);
-            
-            drawnLayer.on('pm:edit', function () {
-                const pos = drawnLayer.getLatLng();
-                setCoord(pos.lat, pos.lng);
-            });
-            drawnLayer.on('pm:drag', function () {
-                 const pos = drawnLayer.getLatLng();
-                 setCoord(pos.lat, pos.lng);
-            });
+        function saveDraft() {
+            const draft = {
+                title: titleField.value || '',
+                category: categoryField.value || '',
+                description: descriptionField.value || '',
+                latitude: latitudeField.value || '',
+                longitude: longitudeField.value || ''
+            };
+            localStorage.setItem(storageKey, JSON.stringify(draft));
         }
 
-        map.on('pm:create', function (e) {
-            removeCurrentLayer();
-            drawnLayer = e.layer;
-            const latlng = e.layer.getLatLng();
-            setCoord(latlng.lat, latlng.lng);
+        function clearDraft() {
+            localStorage.removeItem(storageKey);
+        }
 
-            e.layer.on('pm:edit', function () {
-                const pos = e.layer.getLatLng();
-                setCoord(pos.lat, pos.lng);
+        photoInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) {
+                photoInfo.innerHTML = 'Tidak ada file dipilih.';
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                photoInfo.innerHTML = 'Format file tidak valid. Mohon pilih gambar.';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                photoInfo.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${event.target.result}" alt="Preview Foto" class="h-20 w-20 rounded-3xl object-cover border border-slate-200" />
+                        <div>
+                            <div class="font-semibold text-slate-900">${file.name}</div>
+                            <div class="text-slate-500 text-sm">${(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        titleField.addEventListener('input', saveDraft);
+        categoryField.addEventListener('change', saveDraft);
+        descriptionField.addEventListener('input', saveDraft);
+
+        form.addEventListener('submit', function() {
+            clearDraft();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDraft();
+            
+            /* ─── Map Initialization ───────────────────────── */
+            const map = L.map('coord-map', { center: [-6.5971, 106.8060], zoom: 10 });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                maxZoom: 19,
+            }).addTo(map);
+
+            setTimeout(() => map.invalidateSize(), 200);
+
+            const latInput = document.getElementById('latitude');
+            const lngInput = document.getElementById('longitude');
+            const coordPreview = document.getElementById('coord-preview');
+            const clearBtn = document.getElementById('clear-shape-btn');
+            let drawnLayer = null;
+
+            function setCoord(lat, lng) {
+                latInput.value = lat;
+                lngInput.value = lng;
+                coordPreview.textContent = `[${lat}, ${lng}]`;
+                clearBtn.classList.remove('hidden');
+                saveDraft();
+            }
+
+            function clearCoord() {
+                latInput.value = '';
+                lngInput.value = '';
+                coordPreview.innerHTML = '<span class="text-slate-400 italic">Belum ada koordinat dipilih...</span>';
+                clearBtn.classList.add('hidden');
+                saveDraft();
+            }
+
+            function removeCurrentLayer() {
+                if (drawnLayer) {
+                    map.removeLayer(drawnLayer);
+                    drawnLayer = null;
+                }
+            }
+
+            map.pm.addControls({
+                position: 'topleft',
+                drawMarker: true,
+                drawPolyline: false,
+                drawPolygon: false,
+                drawRectangle: false,
+                drawCircle: false,
+                drawCircleMarker: false,
+                drawText: false,
+                editMode: true,
+                dragMode: false,
+                cutPolygon: false,
+                removalMode: false,
             });
-        });
 
-        clearBtn.addEventListener('click', function () {
-            removeCurrentLayer();
-            clearCoord();
-        });
+            function createMarker(lat, lng) {
+                removeCurrentLayer();
+                drawnLayer = L.marker([lat, lng], { pmIgnore: false }).addTo(map);
+                setCoord(lat, lng);
+                
+                drawnLayer.on('pm:edit', function () {
+                    const pos = drawnLayer.getLatLng();
+                    setCoord(pos.lat, pos.lng);
+                });
+                drawnLayer.on('pm:drag', function () {
+                     const pos = drawnLayer.getLatLng();
+                     setCoord(pos.lat, pos.lng);
+                });
+            }
 
-        /* ─── Geolocation ────────────────────────────── */
-        document.getElementById('get-location-btn').addEventListener('click', function() {
-            if (navigator.geolocation) {
-                const btn = this;
-                btn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Mengambil lokasi...';
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
+            map.on('pm:create', function (e) {
+                removeCurrentLayer();
+                drawnLayer = e.layer;
+                const latlng = e.layer.getLatLng();
+                setCoord(latlng.lat, latlng.lng);
+
+                e.layer.on('pm:edit', function () {
+                    const pos = e.layer.getLatLng();
+                    setCoord(pos.lat, pos.lng);
+                });
+            });
+
+            clearBtn.addEventListener('click', function () {
+                removeCurrentLayer();
+                clearCoord();
+            });
+
+            /* ─── Geolocation ────────────────────────────── */
+            document.getElementById('get-location-btn').addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    const btn = this;
+                    btn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Mengambil lokasi...';
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        map.setView([lat, lng], 15);
+                        createMarker(lat, lng);
+                        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Lokasi Ditemukan';
+                    }, function(error) {
+                        alert('Gagal mendapatkan lokasi. Pastikan GPS aktif dan izin diberikan browser.');
+                        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Gunakan Lokasi Saya';
+                    });
+                } else {
+                    alert('Geolocation tidak didukung oleh browser ini.');
+                }
+            });
+            
+            // Restore existing coordinates if available (from old input or draft)
+            setTimeout(() => {
+                if (latInput.value && lngInput.value) {
+                    const lat = parseFloat(latInput.value);
+                    const lng = parseFloat(lngInput.value);
                     map.setView([lat, lng], 15);
                     createMarker(lat, lng);
-                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Lokasi Ditemukan';
-                }, function(error) {
-                    alert('Gagal mendapatkan lokasi. Pastikan GPS aktif dan izin diberikan browser.');
-                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Gunakan Lokasi Saya';
-                });
-            } else {
-                alert('Geolocation tidak didukung oleh browser ini.');
-            }
+                }
+            }, 500);
+            
+            // Form submit validation map
+            form.addEventListener('submit', function(e) {
+                if (!latInput.value || !lngInput.value) {
+                    e.preventDefault();
+                    alert('! Harap pilih lokasi di peta terlebih dahulu.');
+                    document.getElementById('coord-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    clearDraft();
+                }
+            });
         });
-        
-        // Restore existing coordinates if available (from old input or draft)
-        setTimeout(() => {
-            if (latInput.value && lngInput.value) {
-                const lat = parseFloat(latInput.value);
-                const lng = parseFloat(lngInput.value);
-                map.setView([lat, lng], 15);
-                createMarker(lat, lng);
-            }
-        }, 500);
-        
-        // Form submit validation map
-        form.addEventListener('submit', function(e) {
-            if (!latInput.value || !lngInput.value) {
-                e.preventDefault();
-                alert('! Harap pilih lokasi di peta terlebih dahulu.');
-                document.getElementById('coord-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else {
-                clearDraft();
-            }
-        });
-    });
+    })();
 </script>
 @endpush

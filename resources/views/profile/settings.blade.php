@@ -116,6 +116,7 @@
 
 @push('scripts')
 <script>
+(function() {
     const guideButton = document.getElementById('guideButton');
     const guideModal = document.getElementById('guideModal');
     const closeGuide = document.getElementById('closeGuide');
@@ -126,31 +127,42 @@
     const profileImagePreviewRight = document.getElementById('profileImagePreviewRight');
     const profileInitialsPreviewRight = document.getElementById('profileInitialsPreviewRight');
 
-    guideButton?.addEventListener('click', () => guideModal.classList.remove('hidden'));
-    closeGuide?.addEventListener('click', () => guideModal.classList.add('hidden'));
-    closeGuideFooter?.addEventListener('click', () => guideModal.classList.add('hidden'));
-
-    photoInput?.addEventListener('change', event => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            if (profileImagePreview) {
-                profileImagePreview.src = e.target.result;
-                profileImagePreview.classList.remove('hidden');
-            }
-            if (profileInitialsPreview) {
-                profileInitialsPreview.classList.add('hidden');
-            }
-            if (profileImagePreviewRight) {
-                profileImagePreviewRight.src = e.target.result;
-                profileImagePreviewRight.classList.remove('hidden');
-            }
-            if (profileInitialsPreviewRight) {
-                profileInitialsPreviewRight.classList.add('hidden');
-            }
-        };
-        reader.readAsDataURL(file);
+    guideButton?.addEventListener('click', () => {
+        guideModal.classList.remove('hidden');
     });
+
+    const closeHandler = () => {
+        guideModal.classList.add('hidden');
+    };
+
+    closeGuide?.addEventListener('click', closeHandler);
+    closeGuideFooter?.addEventListener('click', closeHandler);
+
+    photoInput?.addEventListener('change', function(event) {
+        if (event.target.files && event.target.files[0]) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (profileImagePreview) {
+                    profileImagePreview.src = e.target.result;
+                    profileImagePreview.classList.remove('hidden');
+                }
+                if (profileInitialsPreview) {
+                    profileInitialsPreview.classList.add('hidden');
+                }
+
+                if (profileImagePreviewRight) {
+                    profileImagePreviewRight.src = e.target.result;
+                    profileImagePreviewRight.classList.remove('hidden');
+                }
+                if (profileInitialsPreviewRight) {
+                    profileInitialsPreviewRight.classList.add('hidden');
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+})();
 </script>
 @endpush
