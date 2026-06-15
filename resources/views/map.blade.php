@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
     <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
 
-    <link rel="stylesheet" href="{{ asset('css/map.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/map.css') }}?v={{ filemtime(public_path('css/map.css')) }}">
 </head>
 <body class="bg-slate-50">
 
