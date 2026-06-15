@@ -299,12 +299,8 @@ class LeaderboardController extends Controller
 
     public function resetLeaderboard()
     {
-        // Reset points for all users
-        $users = \App\Models\User::where('role', 'user')->get();
-        foreach ($users as $user) {
-            $user->eco_points = 0;
-            $user->save();
-        }
+        // Reset points for all users efficiently via bulk update
+        \App\Models\User::where('role', 'user')->orWhereNull('role')->update(['eco_points' => 0]);
         return redirect()->route('leaderboard')->with('success', 'Leaderboard berhasil di-reset untuk musim baru.');
     }
 

@@ -38,9 +38,11 @@ class LeaderboardService
                 $query->where('role', 'user')->orWhereNull('role');
             })
             ->orderBy('eco_points', 'desc')
-            ->get();
+            ->paginate($perPage);
             
         $leaderboardData = [];
+        $offset = ($users->currentPage() - 1) * $perPage;
+        
         foreach ($users as $index => $user) {
             $points = (int) $user->eco_points;
             $leaderboardData[] = (object) [
@@ -51,20 +53,15 @@ class LeaderboardService
                 'total_points' => $points,
                 'level' => $user->eco_level ?? $this->getLevel($points),
                 'role' => $user->role ?? 'user',
-                'rank' => $index + 1
+                'rank' => $offset + $index + 1
             ];
         }
 
-        // Konversi ke pagination
-        $currentPage = request()->get('page', 1);
-        $offset = ($currentPage - 1) * $perPage;
-        $paginatedData = array_slice($leaderboardData, $offset, $perPage);
-        
         return new LengthAwarePaginator(
-            $paginatedData,
-            count($leaderboardData),
+            $leaderboardData,
+            $users->total(),
             $perPage,
-            $currentPage,
+            $users->currentPage(),
             ['path' => request()->url(), 'query' => request()->query()]
         );
     }
@@ -74,13 +71,28 @@ class LeaderboardService
      */
     public function getTopThree(): array
     {
-        $leaderboard = $this->getLeaderboard(100); 
-        // Hanya user dengan poin > 0
-        $topThree = collect($leaderboard->items())
-            ->filter(fn($item) => $item->total_points > 0)
+        $topUsers = User::where(function($query) {
+                $query->where('role', 'user')->orWhereNull('role');
+            })
+            ->where('eco_points', '>', 0)
+            ->orderBy('eco_points', 'desc')
             ->take(3)
-            ->values()
-            ->toArray();
+            ->get();
+            
+        $topThree = [];
+        foreach ($topUsers as $index => $user) {
+            $points = (int) $user->eco_points;
+            $topThree[] = (object) [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->photo ?? null, 
+                'total_points' => $points,
+                'level' => $user->eco_level ?? $this->getLevel($points),
+                'role' => $user->role ?? 'user',
+                'rank' => $index + 1
+            ];
+        }
         
         // Kosongkan jika kurang dari 3
         while (count($topThree) < 3) {
@@ -97,13 +109,13 @@ class LeaderboardService
     {
         if ($user->eco_points <= 0) return null;
 
-        $leaderboard = $this->getLeaderboard(1000);
-        foreach ($leaderboard->items() as $item) {
-            if ($item->id === $user->id) {
-                return $item->rank;
-            }
-        }
-        return null;
+        $higherScoreCount = User::where(function($query) {
+                $query->where('role', 'user')->orWhereNull('role');
+            })
+            ->where('eco_points', '>', $user->eco_points)
+            ->count();
+            
+        return $higherScoreCount + 1;
     }
 
     /**
@@ -113,13 +125,19 @@ class LeaderboardService
     {
         if ($user->eco_points <= 0) return null;
 
-        $leaderboard = $this->getLeaderboard(1000);
-        foreach ($leaderboard->items() as $item) {
-            if ($item->id === $user->id) {
-                return $item;
-            }
-        }
-        return null;
+        $rank = $this->getUserRank($user);
+        $points = (int) $user->eco_points;
+        
+        return (object) [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'avatar' => $user->photo ?? null, 
+            'total_points' => $points,
+            'level' => $user->eco_level ?? $this->getLevel($points),
+            'role' => $user->role ?? 'user',
+            'rank' => $rank
+        ];
     }
 
     /**
@@ -127,27 +145,34 @@ class LeaderboardService
      */
     public function searchLeaderboard(string $keyword, int $perPage = 10): LengthAwarePaginator
     {
-        $allData = $this->getLeaderboard(1000);
+        $users = User::where(function($query) {
+                $query->where('role', 'user')->orWhereNull('role');
+            })
+            ->where('name', 'like', "%{$keyword}%")
+            ->orderBy('eco_points', 'desc')
+            ->paginate($perPage);
+            
+        $leaderboardData = [];
         
-        // Filter berdasarkan keyword
-        $filtered = array_filter($allData->items(), function($user) use ($keyword) {
-            return stripos($user->name, $keyword) !== false ||
-                   stripos($user->level, $keyword) !== false;
-        });
-        
-        // Mengembalikan array index untuk pagination
-        $filtered = array_values($filtered);
-        
-        // Konversi ke pagination
-        $currentPage = request()->get('page', 1);
-        $offset = ($currentPage - 1) * $perPage;
-        $paginatedData = array_slice($filtered, $offset, $perPage);
-        
+        foreach ($users as $user) {
+            $points = (int) $user->eco_points;
+            $leaderboardData[] = (object) [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->photo ?? null, 
+                'total_points' => $points,
+                'level' => $user->eco_level ?? $this->getLevel($points),
+                'role' => $user->role ?? 'user',
+                'rank' => $this->getUserRank($user) ?? '-'
+            ];
+        }
+
         return new LengthAwarePaginator(
-            $paginatedData,
-            count($filtered),
+            $leaderboardData,
+            $users->total(),
             $perPage,
-            $currentPage,
+            $users->currentPage(),
             ['path' => request()->url(), 'query' => request()->query()]
         );
     }
