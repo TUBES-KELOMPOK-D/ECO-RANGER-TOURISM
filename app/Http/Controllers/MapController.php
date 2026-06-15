@@ -10,10 +10,13 @@ class MapController extends Controller
 {
     public function index()
     {
-        // Menampilkan data markers
-        $markers = Marker::all();
+        return view('map');
+    }
 
-        return view('map', compact('markers'));
+    public function apiMarkers()
+    {
+        $markers = Marker::all();
+        return response()->json($markers);
     }
 
     public function create()

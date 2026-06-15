@@ -645,45 +645,12 @@
 
             <!-- Review List (visible to everyone) -->
             <div style="margin-top:24px;" id="review-list">
-                @forelse($reviews as $review)
-                <div class="review-item" id="review-{{ $review->id }}">
-                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
-                        <!-- Avatar -->
-                        <div class="review-avatar">
-                            @if($review->user && $review->user->photo)
-                                <img src="{{ asset('storage/' . $review->user->photo) }}" alt="{{ $review->user->name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
-                            @else
-                                {{ $review->user ? strtoupper(substr($review->user->name, 0, 2)) : '??' }}
-                            @endif
-                        </div>
-                        <div style="flex:1;">
-                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                <span style="font-size:14px; font-weight:700; color:#0f172a;">{{ $review->user->name ?? 'Pengguna' }}</span>
-                                <div style="display:flex; gap:1px;">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        @if($i <= $review->rating)
-                                            <span style="color:#fbbf24; font-size:12px;">★</span>
-                                        @else
-                                            <span style="color:#e2e8f0; font-size:12px;">★</span>
-                                        @endif
-                                    @endfor
-                                </div>
-                            </div>
-                            <span style="font-size:11px; color:#94a3b8; font-weight:500;">{{ $review->created_at->diffForHumans() }}</span>
-                        </div>
-                    </div>
-                    <p style="font-size:14px; line-height:1.7; color:#475569; margin:0; padding-left:52px;">{{ $review->review_text }}</p>
+                <div id="review-loading" style="text-align:center; padding:32px 16px; color:#94a3b8; font-size:14px; font-weight:600;">
+                    Memuat ulasan...
                 </div>
-                @empty
-                <div style="text-align:center; padding:32px 16px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px;">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                    <p style="font-size:14px; color:#94a3b8; font-weight:600;">Belum ada review</p>
-                    <p style="font-size:12px; color:#cbd5e1; font-weight:500; margin-top:4px;">Jadilah yang pertama memberikan ulasan!</p>
-                </div>
-                @endforelse
             </div>
+            <!-- Pagination Controls -->
+            <div id="review-pagination" style="display:flex; justify-content:center; gap:8px; margin-top:20px; flex-wrap:wrap;"></div>
         </div>
 
         <!-- CTA Button -->
@@ -772,7 +739,102 @@
                     setTimeout(() => successAlert.remove(), 500);
                 }, 5000);
             }
+
+            // AJAX Reviews Loading via IntersectionObserver
+            const reviewsSection = document.getElementById('section-reviews');
+            if (reviewsSection) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            loadReviews(1);
+                            obs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                observer.observe(reviewsSection);
+            }
         });
+
+        // Load Reviews Function
+        const markerId = {{ $marker->id }};
+        function loadReviews(page = 1) {
+            const reviewList = document.getElementById('review-list');
+            const pagination = document.getElementById('review-pagination');
+            
+            reviewList.innerHTML = '<div style="text-align:center; padding:32px 16px; color:#94a3b8; font-size:14px; font-weight:600;">Memuat ulasan...</div>';
+            
+            fetch(`/api/markers/${markerId}/reviews?page=${page}`)
+                .then(r => r.json())
+                .then(data => {
+                    reviewList.innerHTML = '';
+                    pagination.innerHTML = '';
+                    
+                    if (data.data.length === 0) {
+                        reviewList.innerHTML = `
+                        <div style="text-align:center; padding:32px 16px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px;">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            <p style="font-size:14px; color:#94a3b8; font-weight:600;">Belum ada review</p>
+                            <p style="font-size:12px; color:#cbd5e1; font-weight:500; margin-top:4px;">Jadilah yang pertama memberikan ulasan!</p>
+                        </div>`;
+                        return;
+                    }
+                    
+                    data.data.forEach(review => {
+                        const avatarHtml = (review.user && review.user.photo) 
+                            ? `<img src="/storage/${review.user.photo}" alt="${review.user.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`
+                            : (review.user ? review.user.name.substring(0,2).toUpperCase() : '??');
+                            
+                        const nameHtml = review.user ? review.user.name : 'Pengguna';
+                        
+                        let starsHtml = '';
+                        for(let i=1; i<=5; i++) {
+                            if (i <= review.rating) {
+                                starsHtml += '<span style="color:#fbbf24; font-size:12px;">★</span>';
+                            } else {
+                                starsHtml += '<span style="color:#e2e8f0; font-size:12px;">★</span>';
+                            }
+                        }
+                        
+                        const dateObj = new Date(review.created_at);
+                        const dateStr = dateObj.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' });
+                        
+                        reviewList.innerHTML += `
+                        <div class="review-item" id="review-${review.id}">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+                                <div class="review-avatar">${avatarHtml}</div>
+                                <div style="flex:1;">
+                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <span style="font-size:14px; font-weight:700; color:#0f172a;">${nameHtml}</span>
+                                        <div style="display:flex; gap:1px;">${starsHtml}</div>
+                                    </div>
+                                    <span style="font-size:11px; color:#94a3b8; font-weight:500;">${dateStr}</span>
+                                </div>
+                            </div>
+                            <p style="font-size:14px; line-height:1.7; color:#475569; margin:0; padding-left:52px;">${review.review_text}</p>
+                        </div>`;
+                    });
+                    
+                    if (data.last_page > 1) {
+                        for(let p=1; p<=data.last_page; p++) {
+                            const btn = document.createElement('button');
+                            btn.innerText = p;
+                            btn.style.padding = '6px 12px';
+                            btn.style.borderRadius = '8px';
+                            btn.style.border = '1px solid #e2e8f0';
+                            btn.style.background = (p === data.current_page) ? '#059669' : '#fff';
+                            btn.style.color = (p === data.current_page) ? '#fff' : '#475569';
+                            btn.style.cursor = 'pointer';
+                            btn.style.fontSize = '12px';
+                            btn.style.fontWeight = '600';
+                            btn.onclick = () => loadReviews(p);
+                            pagination.appendChild(btn);
+                        }
+                    }
+                })
+                .catch(err => console.error("Gagal memuat ulasan:", err));
+        }
     </script>
 </body>
 </html>

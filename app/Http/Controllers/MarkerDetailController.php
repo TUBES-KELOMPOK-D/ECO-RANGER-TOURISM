@@ -6,7 +6,7 @@ use App\Models\Marker;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Cache;
 class MarkerDetailController extends Controller
 {
     public function show(Marker $marker)
@@ -46,16 +46,19 @@ class MarkerDetailController extends Controller
         $weather = null;
         if ($lat && $lng) {
             try {
-                $response = Http::timeout(5)->get('https://api.open-meteo.com/v1/forecast', [
-                    'latitude' => $lat,
-                    'longitude' => $lng,
-                    'current_weather' => true,
-                ]);
+                $weather = Cache::remember("weather_{$lat}_{$lng}", 3600, function () use ($lat, $lng) {
+                    $response = Http::timeout(5)->get('https://api.open-meteo.com/v1/forecast', [
+                        'latitude' => $lat,
+                        'longitude' => $lng,
+                        'current_weather' => true,
+                    ]);
 
-                if ($response->successful()) {
-                    $data = $response->json();
-                    $weather = $data['current_weather'] ?? null;
-                }
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        return $data['current_weather'] ?? null;
+                    }
+                    return null;
+                });
             } catch (\Exception $e) {
                 // Silently fail — weather is optional
                 $weather = null;
@@ -65,31 +68,41 @@ class MarkerDetailController extends Controller
         // Map weather code to description
         $weatherDescription = $this->getWeatherDescription($weather['weathercode'] ?? null);
 
-        // Load reviews for this marker (standalone — tidak terkait laporan)
-        $reviews = Review::with('user')
-            ->where('marker_id', $marker->id)
-            ->orderByDesc('created_at')
-            ->get();
-
-        $totalReviews = $reviews->count();
-        $averageRating = $totalReviews > 0 ? round($reviews->avg('rating'), 1) : 0;
+        // We'll load the reviews asynchronously on the client-side via apiReviews()
+        // Here we just calculate the aggregates
+        
+        $totalReviews = Review::where('marker_id', $marker->id)->count();
+        $averageRating = Review::where('marker_id', $marker->id)->avg('rating');
+        $averageRating = $totalReviews > 0 ? round($averageRating, 1) : 0;
 
         // Star distribution (1-5)
         $starDistribution = [];
         for ($i = 5; $i >= 1; $i--) {
-            $starDistribution[$i] = $reviews->where('rating', $i)->count();
+            $starDistribution[$i] = Review::where('marker_id', $marker->id)->where('rating', $i)->count();
         }
 
         // Check if current logged-in user already reviewed
         $userHasReviewed = false;
         if (auth()->check()) {
-            $userHasReviewed = $reviews->where('user_id', auth()->id())->isNotEmpty();
+            $userHasReviewed = Review::where('marker_id', $marker->id)
+                                     ->where('user_id', auth()->id())
+                                     ->exists();
         }
 
         return view('markers.detail', compact(
             'marker', 'weather', 'weatherDescription', 'lat', 'lng',
-            'reviews', 'totalReviews', 'averageRating', 'starDistribution', 'userHasReviewed'
+            'totalReviews', 'averageRating', 'starDistribution', 'userHasReviewed'
         ));
+    }
+
+    public function apiReviews(Request $request, Marker $marker)
+    {
+        $reviews = Review::with('user')
+            ->where('marker_id', $marker->id)
+            ->orderByDesc('created_at')
+            ->paginate(5); // You can adjust pagination count here
+
+        return response()->json($reviews);
     }
 
     /**

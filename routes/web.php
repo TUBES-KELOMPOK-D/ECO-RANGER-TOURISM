@@ -20,6 +20,7 @@ use App\Http\Middleware\AdminMiddleware;
 
 // --Home--
 Route::get('/', [MapController::class, 'index']);
+Route::get('/api/markers', [MapController::class, 'apiMarkers'])->name('api.markers');
 
 // --Auth--
 Route::middleware('guest')->group(function () { 
@@ -32,6 +33,7 @@ Route::middleware('guest')->group(function () {
 
 // --Detail Lokasi--
 Route::get('/markers/{marker}', [MarkerDetailController::class, 'show'])->name('markers.show');
+Route::get('/api/markers/{marker}/reviews', [MarkerDetailController::class, 'apiReviews'])->name('api.markers.reviews');
 
 // --Rankings (PBI-17)--
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');

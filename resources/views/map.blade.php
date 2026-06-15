@@ -101,7 +101,7 @@
     <script>
     (function() {
         const isAdmin      = {{ auth()->check() && auth()->user()?->role === 'admin' ? 'true' : 'false' }};
-        const savedMarkers = @json($markers);
+        let savedMarkers   = [];
         const csrfToken    = '{{ csrf_token() }}';
 
         // 1. Inisialisasi Peta
@@ -252,14 +252,25 @@
                     </div>
                 </div>`;
 
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-                .then(r => r.json())
-                .then(data => {
-                    const temp = data.current_weather.temperature;
-                    const wind = data.current_weather.windspeed;
-                    layerObj.bindPopup(buildHTML(`<span style="display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg> ${temp}°C &nbsp;|&nbsp; <svg style="margin:left:4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg> ${wind} km/j</span>`), { minWidth: 220, maxWidth: 280 });
-                })
-                .catch(() => layerObj.bindPopup(buildHTML(null), { minWidth: 220, maxWidth: 280 }));
+            layerObj.bindPopup(buildHTML(`<div id="weather-pw-${item.id}">Memuat cuaca...</div>`), { minWidth: 220, maxWidth: 280 });
+            layerObj.on('popupopen', function() {
+                const weatherContainer = document.getElementById('weather-pw-' + item.id);
+                if (!weatherContainer || weatherContainer.dataset.loaded) return;
+                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const temp = data.current_weather.temperature;
+                        const wind = data.current_weather.windspeed;
+                        weatherContainer.innerHTML = `<span style="display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg> ${temp}°C &nbsp;|&nbsp; <svg style="margin:left:4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg> ${wind} km/j</span>`;
+                        weatherContainer.dataset.loaded = "true";
+                    })
+                    .catch(() => {
+                        if (weatherContainer) {
+                            weatherContainer.innerHTML = '';
+                            weatherContainer.dataset.loaded = "true";
+                        }
+                    });
+            });
         }
 
         // --- Popup untuk Kondisi Lingkungan (Shape) ---
@@ -280,19 +291,31 @@
                     </div>
                 </div>`;
 
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-                .then(r => r.json())
-                .then(data => {
-                    const temp = data.current_weather.temperature;
-                    const wind = data.current_weather.windspeed;
-                    layerObj.bindPopup(buildHTML(`<span style="display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg> ${temp}°C &nbsp;|&nbsp; <svg style="margin:left:4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg> ${wind} km/j</span>`), { minWidth: 220, maxWidth: 280 });
-                })
-                .catch(() => layerObj.bindPopup(buildHTML(null), { minWidth: 220, maxWidth: 280 }));
+            layerObj.bindPopup(buildHTML(`<div id="weather-env-${item.id}">Memuat cuaca...</div>`), { minWidth: 220, maxWidth: 280 });
+            layerObj.on('popupopen', function() {
+                const weatherContainer = document.getElementById('weather-env-' + item.id);
+                if (!weatherContainer || weatherContainer.dataset.loaded) return;
+                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const temp = data.current_weather.temperature;
+                        const wind = data.current_weather.windspeed;
+                        weatherContainer.innerHTML = `<span style="display:flex;align-items:center;"><svg style="margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg> ${temp}°C &nbsp;|&nbsp; <svg style="margin:left:4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg> ${wind} km/j</span>`;
+                        weatherContainer.dataset.loaded = "true";
+                    })
+                    .catch(() => {
+                        if (weatherContainer) {
+                            weatherContainer.innerHTML = '';
+                            weatherContainer.dataset.loaded = "true";
+                        }
+                    });
+            });
         }
 
         const shapeLabels = { Polygon: 'Area', Rectangle: 'Area Kotak', Circle: 'Lingkaran', Line: 'Garis', Polyline: 'Garis' };
 
-        savedMarkers.forEach(item => {
+        function renderMarkers(markersData) {
+            markersData.forEach(item => {
             let coordinates;
             try {
                 coordinates = typeof item.coordinates === 'string'
@@ -372,6 +395,17 @@
                 });
             }
         });
+        } // End renderMarkers
+
+        // Fetch markers asinkron
+        fetch('/api/markers')
+            .then(res => res.json())
+            .then(data => {
+                savedMarkers = data;
+                renderMarkers(data);
+                applyFilters(); // Re-apply filter if any
+            })
+            .catch(err => console.error("Gagal memuat markers:", err));
 
         // 7. Geoman Controls — tampil penuh untuk admin, tersembunyi untuk user biasa
         if (isAdmin) {
