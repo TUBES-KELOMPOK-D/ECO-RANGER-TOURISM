@@ -45,20 +45,48 @@
                     <span id="filterDot" class="hidden"></span>
                 </button>
                 <div id="filterDropdown" class="hidden">
-                    <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Status</p>
-                    <ul id="statusFilterList">
-                        <li data-value="all" class="active">Semua Status</li>
-                        <li data-value="green" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Sangat Terjaga</li>
-                        <li data-value="yellow" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Terjaga</li>
-                        <li data-value="red" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Perlu Perhatian</li>
-                    </ul>
-                    <hr style="border:none; border-top:1px solid #e2e8f0; margin:10px 0;">
-                    <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Tipe</p>
-                    <ul id="typeFilterList">
-                        <li data-value="all" class="active">Semua Tipe</li>
-                        <li data-value="wisata" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Destinasi Wisata</li>
-                        <li data-value="lingkungan" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Kondisi Lingkungan</li>
-                    </ul>
+                    <div class="filter-grid">
+                        <div>
+                            <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Status</p>
+                            <ul id="statusFilterList">
+                                <li data-value="all" class="active">Semua Status</li>
+                                <li data-value="green" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Sangat Terjaga</li>
+                                <li data-value="yellow" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Terjaga</li>
+                                <li data-value="red" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Perlu Perhatian</li>
+                            </ul>
+                            <hr style="border:none; border-top:1px solid #e2e8f0; margin:10px 0;">
+                            <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Tipe</p>
+                            <ul id="typeFilterList">
+                                <li data-value="all" class="active">Semua Tipe</li>
+                                <li data-value="wisata" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Destinasi Wisata</li>
+                                <li data-value="lingkungan" class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Kondisi Lingkungan</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Jenis Peta</p>
+                            <ul id="baseMapFilterList">
+                                <li data-value="standard" class="active flex items-center gap-2">
+                                    <input type="radio" name="basemap" checked class="accent-emerald-600 pointer-events-none" style="margin-right:4px;"> Peta Standar
+                                </li>
+                                <li data-value="satellite" class="flex items-center gap-2">
+                                    <input type="radio" name="basemap" class="accent-emerald-600 pointer-events-none" style="margin-right:4px;"> Peta Satelit
+                                </li>
+                            </ul>
+                            <hr style="border:none; border-top:1px solid #e2e8f0; margin:10px 0;">
+                            <p style="font-size: 11px; font-weight: 600; color: #475569; margin: 12px 16px 4px 16px; text-transform: uppercase; letter-spacing: 1px;">Layer Tambahan</p>
+                            <ul id="overlayFilterList">
+                                <li data-value="rain" class="flex items-center gap-2">
+                                    <input type="checkbox" class="accent-emerald-600 pointer-events-none" style="margin-right:4px;"> Cuaca &amp; Curah Hujan
+                                </li>
+                                <li data-value="aqi" class="flex items-center gap-2">
+                                    <input type="checkbox" class="accent-emerald-600 pointer-events-none" style="margin-right:4px;"> Kualitas Udara (AQI)
+                                </li>
+                                <li data-value="land" class="active flex items-center gap-2">
+                                    <input type="checkbox" checked class="accent-emerald-600 pointer-events-none" style="margin-right:4px;"> Area Daratan
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="search-divider"></div>
@@ -81,7 +109,7 @@
             center: [-0.7893, 113.9213],
             zoom: 5,
             minZoom: 5.45,
-            maxBounds: indonesiaBounds,
+            maxBounds: indonesiaBounds, 
             maxBoundsViscosity: 1.0,
             zoomControl: true
         });
@@ -111,8 +139,8 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        const topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenTopoMap (CC-BY-SA)'
+        const topoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© ESRI (Satellite)'
         });
 
         // 3. Layer Overlay
@@ -133,14 +161,14 @@
         const landLayer = L.layerGroup().addTo(map);
         // const seaLayer = L.layerGroup().addTo(map);
 
-        const baseMaps    = { "Peta Standar": streetMap, "Peta Topografi (Gunung/Hutan)": topoMap };
-        const overlayMaps = { 
-            "Layer Cuaca & Curah Hujan": rainLayer, 
-            "Layer Kualitas Udara (AQI)": aqiLayer,
-            "Area Daratan": landLayer,
-            // "Area Lautan / ZEE": seaLayer
-        };
-        L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
+        // Layer control dipindahkan ke filter dropdown kustom (di sebelah search bar)
+        // const baseMaps    = { "Peta Standar": streetMap, "Peta Satelit": topoMap };
+        // const overlayMaps = { 
+        //     "Layer Cuaca & Curah Hujan": rainLayer, 
+        //     "Layer Kualitas Udara (AQI)": aqiLayer,
+        //     "Area Daratan": landLayer,
+        // };
+        // L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
 
         map.createPane('geoJsonPane');
         map.getPane('geoJsonPane').style.zIndex = 200;
@@ -571,6 +599,53 @@
             if (!filterToggleBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
                 filterDropdown.classList.add('hidden');
             }
+        });
+
+        // 8. Kontrol Jenis Peta (Base Map)
+        const baseMapFilterItems = document.querySelectorAll('#baseMapFilterList li');
+
+        baseMapFilterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                baseMapFilterItems.forEach(i => {
+                    i.classList.remove('active');
+                    i.querySelector('input').checked = false;
+                });
+                item.classList.add('active');
+                item.querySelector('input').checked = true;
+
+                const val = item.getAttribute('data-value');
+                if (val === 'standard') {
+                    if (map.hasLayer(topoMap)) map.removeLayer(topoMap);
+                    if (!map.hasLayer(streetMap)) map.addLayer(streetMap);
+                } else {
+                    if (map.hasLayer(streetMap)) map.removeLayer(streetMap);
+                    if (!map.hasLayer(topoMap)) map.addLayer(topoMap);
+                }
+            });
+        });
+
+        // 9. Kontrol Layer Tambahan (Overlays)
+        const overlayFilterItems = document.querySelectorAll('#overlayFilterList li');
+
+        overlayFilterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const isActive = item.classList.toggle('active');
+                item.querySelector('input').checked = isActive;
+
+                const val = item.getAttribute('data-value');
+                let targetLayer;
+                if (val === 'rain')  targetLayer = rainLayer;
+                if (val === 'aqi')   targetLayer = aqiLayer;
+                if (val === 'land')  targetLayer = landLayer;
+
+                if (targetLayer) {
+                    if (isActive) {
+                        if (!map.hasLayer(targetLayer)) map.addLayer(targetLayer);
+                    } else {
+                        if (map.hasLayer(targetLayer)) map.removeLayer(targetLayer);
+                    }
+                }
+            });
         });
     </script>
 
