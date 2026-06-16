@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             GreenAcademySeeder::class,
             MarkerDetailSeeder::class,
             VoucherSeeder::class,
+            MarkerDSeeder::class,
+
         ]);
         // $this->call(DestinasiSeeder::class);
     }
