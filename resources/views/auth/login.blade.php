@@ -29,9 +29,6 @@
             <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
             <div class="absolute bottom-0 left-0 w-80 h-80 bg-emerald-900/40 rounded-full translate-y-1/2 -translate-x-1/2"></div>
             <div class="relative z-10 text-center">
-                <div class="w-20 h-20 bg-emerald-500/20 border border-emerald-400/30 rounded-3xl flex items-center justify-center mx-auto mb-8">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12"/></svg>
-                </div>
                 <h1 class="text-4xl font-black text-white leading-tight">Eco<span class="text-emerald-400"> Ranger</span><br>Tourism</h1>
                 <p class="mt-4 text-emerald-100/80 text-base leading-relaxed max-w-sm">Bergabunglah dalam misi pelestarian alam Indonesia. Laporkan, jelajahi, dan dapatkan poin eco.</p>
                 @php
@@ -49,7 +46,7 @@
         <div class="flex-1 flex items-center justify-center px-6 py-12 lg:px-16">
             <div class="w-full max-w-md">
                 <div class="lg:hidden flex items-center gap-3 mb-8">
-                    <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12"/></svg></div>
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo Eco Ranger" class="w-10 h-10 object-contain">
                     <span class="text-lg font-black text-slate-800">Eco<span class="text-emerald-600"> Ranger Tourism</span></span>
                 </div>
                 <div>

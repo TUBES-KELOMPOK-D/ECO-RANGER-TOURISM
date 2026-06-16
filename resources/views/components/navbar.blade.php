@@ -102,9 +102,7 @@
 
             {{-- ===== LOGO ===== --}}
             <a href="/" class="flex items-center gap-3 text-decoration-transparent shrink-0" style="text-decoration:none;">
-                <div style="width:38px;height:38px;background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(16,185,129,0.3);">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12"/></svg>
-                </div>
+                <img src="{{ asset('images/logo.png') }}" alt="Logo Eco Ranger" class="w-12 h-12 object-contain">
                 <span class="text-[17px] font-black tracking-tighter text-slate-800 hidden md:block">Eco<span class="text-emerald-600">Ranger</span> <span class="text-slate-400 font-semibold">Tourism</span></span>
             </a>
 

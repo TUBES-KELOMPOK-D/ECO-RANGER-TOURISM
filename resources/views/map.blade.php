@@ -82,8 +82,8 @@
                                 <li data-value="aqi" class="flex items-center gap-2">
                                     <input type="checkbox" class="accent-emerald-600 pointer-events-none" style="margin-right:4px;"> Kualitas Udara (AQI)
                                 </li>
-                                <li data-value="land" class="active flex items-center gap-2">
-                                    <input type="checkbox" checked class="accent-emerald-600 pointer-events-none" style="margin-right:4px;"> Area Daratan
+                                <li data-value="land" class="flex items-center gap-2">
+                                    <input type="checkbox" class="accent-emerald-600 pointer-events-none" style="margin-right:4px;"> Area Daratan
                                 </li>
                             </ul>
                         </div>
@@ -160,7 +160,7 @@
         );
 
         // 4. Kontrol Layer
-        const landLayer = L.layerGroup().addTo(map);
+        const landLayer = L.layerGroup();
         // const seaLayer = L.layerGroup().addTo(map);
 
         // Layer control dipindahkan ke filter dropdown kustom (di sebelah search bar)
