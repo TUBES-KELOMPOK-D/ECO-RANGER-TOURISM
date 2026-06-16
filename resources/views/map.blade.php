@@ -30,6 +30,23 @@
     <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
 
     <link rel="stylesheet" href="{{ asset('css/map.css') }}?v={{ filemtime(public_path('css/map.css')) }}">
+
+    <style>
+        /* --- Popup terbuka ke bawah (untuk marker di utara Indonesia) --- */
+        .leaflet-popup.popup-down {
+            bottom: auto !important;
+            top: 0 !important;
+        }
+        .leaflet-popup.popup-down .leaflet-popup-content-wrapper {
+            margin-top: 12px;
+        }
+        .leaflet-popup.popup-down .leaflet-popup-tip-container {
+            top: 0;
+            bottom: auto;
+            margin-top: -10px;
+            transform: rotate(180deg);
+        }
+    </style>
 </head>
 <body class="bg-slate-50">
 
@@ -105,15 +122,15 @@
         const csrfToken    = '{{ csrf_token() }}';
 
         // 1. Inisialisasi Peta
-        const indonesiaBounds = [[6.0, 90.0], [-6.0, 150.0]];
+        const indonesiaBounds = [[-11.0, 94.0], [6.0, 141.0]];
 
         const map = L.map('map', {
-            center: [-0.7893, 113.9213],
-            zoom: 3,
-            minZoom: 4.5,
+            center: [-2.5, 118.0],
+            zoom: 5,
+            minZoom: 5,
             maxBounds: indonesiaBounds, 
             maxBoundsViscosity: 1.0,
-            zoomControl: true
+            zoomControl: false
         });
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -226,6 +243,9 @@
             return item.shape_type === 'Marker';
         }
 
+        // Batas tengah vertikal Indonesia (untuk menentukan arah popup)
+        const midLat = (indonesiaBounds[0][0] + indonesiaBounds[1][0]) / 2; // -2.5
+
         // --- Popup untuk Destinasi Wisata (Pinpoint) ---
         function buildPinpointPopup(lat, lng, layerObj, item, color) {
             const scoreHtml = item.eco_health_score
@@ -252,7 +272,13 @@
                     </div>
                 </div>`;
 
-            layerObj.bindPopup(buildHTML(`<div id="weather-pw-${item.id}">Memuat cuaca...</div>`), { minWidth: 220, maxWidth: 280, autoPanPaddingTopLeft: [10, 85] });
+            // Buka popup ke bawah jika marker ada di paruh utara Indonesia
+            const isTopHalf = lat > midLat;
+            const popupOptions = isTopHalf
+                ? { minWidth: 220, maxWidth: 280, className: 'popup-down', offset: L.point(0, 10), autoPan: false }
+                : { minWidth: 220, maxWidth: 280, autoPanPaddingTopLeft: [10, 85] };
+
+            layerObj.bindPopup(buildHTML(`<div id="weather-pw-${item.id}">Memuat cuaca...</div>`), popupOptions);
             layerObj.on('popupopen', function() {
                 const weatherContainer = document.getElementById('weather-pw-' + item.id);
                 if (!weatherContainer || weatherContainer.dataset.loaded) return;
@@ -291,7 +317,13 @@
                     </div>
                 </div>`;
 
-            layerObj.bindPopup(buildHTML(`<div id="weather-env-${item.id}">Memuat cuaca...</div>`), { minWidth: 220, maxWidth: 280, autoPanPaddingTopLeft: [10, 85] });
+            // Buka popup ke bawah jika shape ada di paruh utara Indonesia
+            const isTopHalf = lat > midLat;
+            const popupOptions = isTopHalf
+                ? { minWidth: 220, maxWidth: 280, className: 'popup-down', offset: L.point(0, 10), autoPan: false }
+                : { minWidth: 220, maxWidth: 280, autoPanPaddingTopLeft: [10, 85] };
+
+            layerObj.bindPopup(buildHTML(`<div id="weather-env-${item.id}">Memuat cuaca...</div>`), popupOptions);
             layerObj.on('popupopen', function() {
                 const weatherContainer = document.getElementById('weather-env-' + item.id);
                 if (!weatherContainer || weatherContainer.dataset.loaded) return;
