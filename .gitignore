@@ -23,5 +23,3 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /storage/app/public
-/bootstrap/cache/*
-!/bootstrap/cache/.gitignore
