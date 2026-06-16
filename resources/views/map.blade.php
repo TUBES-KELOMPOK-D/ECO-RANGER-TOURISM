@@ -105,12 +105,12 @@
         const csrfToken    = '{{ csrf_token() }}';
 
         // 1. Inisialisasi Peta
-        const indonesiaBounds = [[-11.0, 94.0], [6.0, 142.0]];
+        const indonesiaBounds = [[6.0, 90.0], [-6.0, 150.0]];
 
         const map = L.map('map', {
             center: [-0.7893, 113.9213],
-            zoom: 5,
-            minZoom: 5.45,
+            zoom: 3,
+            minZoom: 4.5,
             maxBounds: indonesiaBounds, 
             maxBoundsViscosity: 1.0,
             zoomControl: true
@@ -252,7 +252,7 @@
                     </div>
                 </div>`;
 
-            layerObj.bindPopup(buildHTML(`<div id="weather-pw-${item.id}">Memuat cuaca...</div>`), { minWidth: 220, maxWidth: 280 });
+            layerObj.bindPopup(buildHTML(`<div id="weather-pw-${item.id}">Memuat cuaca...</div>`), { minWidth: 220, maxWidth: 280, autoPanPaddingTopLeft: [10, 85] });
             layerObj.on('popupopen', function() {
                 const weatherContainer = document.getElementById('weather-pw-' + item.id);
                 if (!weatherContainer || weatherContainer.dataset.loaded) return;
@@ -291,7 +291,7 @@
                     </div>
                 </div>`;
 
-            layerObj.bindPopup(buildHTML(`<div id="weather-env-${item.id}">Memuat cuaca...</div>`), { minWidth: 220, maxWidth: 280 });
+            layerObj.bindPopup(buildHTML(`<div id="weather-env-${item.id}">Memuat cuaca...</div>`), { minWidth: 220, maxWidth: 280, autoPanPaddingTopLeft: [10, 85] });
             layerObj.on('popupopen', function() {
                 const weatherContainer = document.getElementById('weather-env-' + item.id);
                 if (!weatherContainer || weatherContainer.dataset.loaded) return;
